@@ -153,9 +153,9 @@
   modal.querySelector('.qm-close').addEventListener('click', closeModal);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 
-  // Wire up all "Get a quote" links
-  document.querySelectorAll('a.nav-cta, a.btn-primary, a.big-cta').forEach(function (a) {
-    if (a.getAttribute('href') === 'about.html') {
+  // Wire up all "Get a quote" links — any anchor to about.html that is a CTA
+  document.querySelectorAll('a[href="about.html"]').forEach(function (a) {
+    if (!a.closest('.footer-nav')) {
       a.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
     }
   });
