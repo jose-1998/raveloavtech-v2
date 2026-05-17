@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Ravelo AV Tech</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 80vh;
+    }
+    .about-left {
+      background: #0c2d3a;
+      padding: 100px 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .about-left h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.4rem, 4vw, 4rem);
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 28px;
+    }
+    .about-left p {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: rgba(255,255,255,0.55);
+      font-weight: 300;
+      margin-bottom: 16px;
+    }
+    .about-right {
+      display: flex;
+      flex-direction: column;
+    }
+    .about-right-img {
+      flex: 1;
+      overflow: hidden;
+    }
+    .about-right-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: saturate(0.65);
+    }
+
+    /* contact section */
+    .about-contact {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--navy);
+    }
+    .about-contact-info {
+      padding: 72px 64px;
+      border-right: 1px solid rgba(130,160,204,0.08);
+    }
+    .about-contact-info h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      color: #fff;
+      margin-bottom: 36px;
+    }
+    .about-contact-form {
+      padding: 72px 64px;
+    }
+    .about-contact-form h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      color: #fff;
+      margin-bottom: 32px;
+    }
+    .form-field {
+      margin-bottom: 18px;
+    }
+    .form-field label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 8px;
+    }
+    .form-field input,
+    .form-field textarea,
+    .form-field select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(130,160,204,0.2);
+      color: #fff;
+      padding: 10px 0;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-field input:focus,
+    .form-field textarea:focus,
+    .form-field select:focus { border-bottom-color: var(--blue); }
+    .form-field textarea { resize: none; min-height: 80px; }
+    .form-field select { cursor: pointer; }
+    .form-field select option { background: #0c2d3a; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .submit-btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 14px 36px;
+      background: var(--blue);
+      color: var(--navy);
+      font-family: 'Figtree', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .submit-btn:hover { opacity: 0.85; }
+
+    /* gallery strip */
+    .about-gallery {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      height: 200px;
+    }
+    .about-gallery div { overflow: hidden; }
+    .about-gallery img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.6); transition: filter 0.4s; }
+    .about-gallery div:hover img { filter: saturate(1); }
+
+    @media (max-width: 900px) {
+      .about-layout { grid-template-columns: 1fr; }
+      .about-left { padding: 100px 32px 60px; }
+      .about-right-img { height: 300px; }
+      .about-contact { grid-template-columns: 1fr; }
+      .about-contact-info { padding: 52px 32px; border-right: none; border-bottom: 1px solid rgba(130,160,204,0.08); }
+      .about-contact-form { padding: 52px 32px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .about-gallery { grid-template-columns: repeat(3, 1fr); height: 160px; }
+    }
+  </style>
+</head>
+<body>
+<nav class="nav scrolled" id="nav">
+  <a class="nav-logo" href="index.html"><img src="https://raveloavtech.com/cdn/shop/files/Logo_mininal_light_7ac82b3c-2279-4ce4-bff6-a2bc8cdf9c5f.png?v=1668914062" alt="Ravelo AV Tech" /></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="nav-item"><button>Services ▾</button>
+      <ul class="dropdown">
+        <li><a href="audiovisual.html">AudioVisual</a></li><li><a href="smart-homes.html">Smart Homes</a></li>
+        <li><a href="security-systems.html">Security Systems</a></li><li><a href="soho-networks.html">SOHO Networks</a></li>
+        <li><a href="wireless-network.html">Wireless Networks</a></li><li><a href="web-development.html">Web Development</a></li>
+        <li><a href="lutron.html">Light Switch Automation</a></li>
+      </ul>
+    </li>
+    <li><a href="offers.html">Offers</a></li><li><a href="about.html">About</a></li>
+  </ul>
+  <div class="nav-right"><a href="about.html" class="nav-cta">Get a quote</a></div>
+</nav>
+
+<div class="about-layout">
+  <div class="about-left">
+    <p class="label">About us</p>
+    <h1>Certified.<br>Experienced.<br>Honest.</h1>
+    <p>RAVELO AV TECH LLC is certified and licensed for low voltage wiring, remote learning/home office setup, computers, networking, smart home devices, home theaters, and security systems.</p>
+    <p>Senior Field Service Engineer with more than 15 years in residential and commercial AV. Fully insured. We also offer minor electrical and handyman services.</p>
+    <p>Discounts provided to veterans and seniors. Always keeping an honest and hardworking approach as our core values.</p>
+
+    <div class="stat-row" style="margin-top:40px; padding-top:40px;">
+      <div class="stat-item"><div class="num">15+</div><div class="stat-label">Years experience</div></div>
+      <div class="stat-item"><div class="num">100%</div><div class="stat-label">Satisfaction goal</div></div>
+      <div class="stat-item"><div class="num">5★</div><div class="stat-label">Avg. rating</div></div>
+    </div>
+  </div>
+  <div class="about-right">
+    <div class="about-right-img">
+      <img src="https://raveloavtech.com/cdn/shop/files/truck_3b8b6668-c731-466f-b742-d7542a266e89.jpg" alt="Ravelo AV Tech" />
+    </div>
+  </div>
+</div>
+
+<!-- Photo strip -->
+<div class="about-gallery">
+  <div><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2026-01-26_at_12.01.47_5_1200x.jpg?v=1769455642" alt="" loading="lazy" /></div>
+  <div><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2025-09-13_at_15.14.50_1200x.jpg?v=1769457331" alt="" loading="lazy" /></div>
+  <div><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/3BF3BB51-CD64-4B02-9538-3627531C117A_1_201_a_1200x.jpg?v=1769462302" alt="" loading="lazy" /></div>
+  <div><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/60235C0D-5AC5-4261-B3FB-3DC352C1D6C9.jpg?v=1769462498&width=2048" alt="" loading="lazy" /></div>
+  <div><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/IMG_5490_1200x.jpg?v=1726974992" alt="" loading="lazy" /></div>
+</div>
+
+<!-- Contact split -->
+<div class="about-contact">
+  <div class="about-contact-info">
+    <h2>Get in touch</h2>
+    <div class="contact-details">
+      <div class="contact-row">
+        <span class="contact-row-label">Location</span>
+        <span class="contact-row-value">1740 Old Fort Pkwy #1272<br>Murfreesboro TN 37129</span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-row-label">Office</span>
+        <span class="contact-row-value"><a href="tel:+19319335040">+1 (931) 933 5040</a></span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-row-label">Phone / Text</span>
+        <span class="contact-row-value"><a href="tel:+16159620401">+1 (615) 962 0401</a></span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-row-label">Email</span>
+        <span class="contact-row-value"><a href="mailto:support@raveloavtech.com">support@raveloavtech.com</a></span>
+      </div>
+    </div>
+    <div class="payment-tags" style="margin-top:40px;">
+      <span>Cash</span><span>Credit Card</span><span>Venmo</span>
+      <span>Zelle</span><span>PayPal</span><span>Google Pay</span><span>Samsung Pay</span>
+    </div>
+  </div>
+
+  <div class="about-contact-form">
+    <h2>Send a message</h2>
+    <div class="form-row">
+      <div class="form-field"><label>First name</label><input type="text" placeholder="John" /></div>
+      <div class="form-field"><label>Last name</label><input type="text" placeholder="Smith" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Email</label><input type="email" placeholder="john@email.com" /></div>
+      <div class="form-field"><label>Phone</label><input type="tel" placeholder="(615) 000-0000" /></div>
+    </div>
+    <div class="form-field">
+      <label>Service interested in</label>
+      <select>
+        <option value="">Select...</option>
+        <option>Audiovisual / Home Theater</option>
+        <option>Smart Homes</option>
+        <option>Security Systems</option>
+        <option>SOHO Networks</option>
+        <option>Wireless Networks</option>
+        <option>Web Development</option>
+        <option>Light Switch Automation (Lutron)</option>
+        <option>General inquiry</option>
+      </select>
+    </div>
+    <div class="form-field"><label>Message</label><textarea placeholder="Tell us about your project..."></textarea></div>
+    <button class="submit-btn" onclick="alert('Thank you! Please contact us at support@raveloavtech.com or call (615) 962-0401.')">Send message</button>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-left"><img src="https://raveloavtech.com/cdn/shop/files/Logo_mininal_light_7ac82b3c-2279-4ce4-bff6-a2bc8cdf9c5f.png?v=1668914062" alt="Ravelo AV Tech" /><p>© 2026 Ravelo AV Technologies LLC · Nashville, TN</p></div>
+  <nav class="footer-nav"><a href="index.html">Home</a><a href="offers.html">Offers</a><a href="about.html">Contact</a><a href="#">Privacy</a></nav>
+  <div class="footer-social-wrap">
+    <a href="https://www.facebook.com/raveloavtech" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+    <a href="https://www.instagram.com/raveloav" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+  </div>
+</footer>
+</body>
+</html>
