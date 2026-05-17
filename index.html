@@ -181,12 +181,45 @@
   </div>
 </section>
 
-<!-- PULL QUOTE -->
-<div class="quote-section">
-  <p class="quote-text">
-    "I really appreciate Ravelo AV Technologies!! Everything was set up perfectly and they took the time to make sure I understood how everything worked."
-  </p>
-  <p class="quote-author">— Verified client · ★★★★★</p>
+<!-- REVIEWS SLIDER -->
+<div class="reviews-section">
+  <p class="label" style="text-align:center;margin-bottom:12px;">What clients say</p>
+  <div class="reviews-slider" id="reviewsSlider">
+    <div class="reviews-track" id="reviewsTrack">
+
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"I really appreciate Ravelo AV Technologies!! I reached out to them to have Ring devices installed and one of them was defective. They reached out to Ring and had them send a new one and they kept me informed the entire time. They went above and beyond and we are so thankful. I highly recommend this company!!!"</p>
+        <p class="review-author">— Sheila P. · Thumbtack</p>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Ravelo team was great installers, friendly and fast. They even cleaned up afterwards and advised me on another job. I would hire them again."</p>
+        <p class="review-author">— Michael Y. · Thumbtack</p>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"They are very reliable, dependable and affordable as well. I strongly recommend them."</p>
+        <p class="review-author">— Lakshmi K. · Thumbtack</p>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"I would highly recommend Ravelo and his team for ANY cabling, internet, or fiber needs. Professional, clean work and great communication throughout the whole job."</p>
+        <p class="review-author">— John B. · Thumbtack</p>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"They were friendly and professional. Installed an Ethernet port and routed cables to the garage exactly as I needed. Great experience overall."</p>
+        <p class="review-author">— David G. · Thumbtack</p>
+      </div>
+
+    </div>
+  </div>
+  <div class="reviews-dots" id="reviewsDots"></div>
 </div>
 
 <!-- OUR WORK -->
@@ -330,6 +363,42 @@
       servicesBtn.textContent = dropdown.classList.contains('open') ? 'Services ▴' : 'Services ▾';
     }
   });
+</script>
+<script>
+(function() {
+  const track = document.getElementById('reviewsTrack');
+  const dotsContainer = document.getElementById('reviewsDots');
+  if (!track) return;
+  const cards = track.querySelectorAll('.review-card');
+  const total = cards.length;
+  let current = 0;
+  let timer;
+
+  cards.forEach(function(_, i) {
+    const dot = document.createElement('button');
+    dot.setAttribute('aria-label', 'Review ' + (i + 1));
+    if (i === 0) dot.classList.add('active');
+    dot.addEventListener('click', function() { goTo(i); reset(); });
+    dotsContainer.appendChild(dot);
+  });
+
+  function goTo(n) {
+    current = (n + total) % total;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    dotsContainer.querySelectorAll('button').forEach(function(d, i) {
+      d.classList.toggle('active', i === current);
+    });
+  }
+
+  function next() { goTo(current + 1); }
+
+  function reset() { clearInterval(timer); timer = setInterval(next, 5000); }
+
+  document.getElementById('reviewsSlider').addEventListener('mouseenter', function() { clearInterval(timer); });
+  document.getElementById('reviewsSlider').addEventListener('mouseleave', reset);
+
+  reset();
+})();
 </script>
 <script src="/cms-loader.js"></script>
 <script>
