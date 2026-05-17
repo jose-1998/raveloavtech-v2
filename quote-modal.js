@@ -122,14 +122,16 @@
   modal.querySelector('.qm-close').addEventListener('click', closeModal);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 
-  // Wire up all "Get a quote" links — any anchor to about.html that is a CTA
-  document.querySelectorAll('a[href="about.html"]').forEach(function (a) {
-    if (!a.closest('.footer-nav')) {
-      ['click', 'touchend'].forEach(function (evt) {
-        a.addEventListener(evt, function (e) { e.preventDefault(); openModal(); });
-      });
+  // Wire up all "Get a quote" links via event delegation (more reliable on iOS)
+  function handleQuoteLink(e) {
+    var link = e.target.closest('a[href="about.html"]');
+    if (link && !link.closest('.footer-nav')) {
+      e.preventDefault();
+      openModal();
     }
-  });
+  }
+  document.body.addEventListener('click', handleQuoteLink);
+  document.body.addEventListener('touchend', handleQuoteLink);
 
   window.openQuoteModal = openModal;
 
