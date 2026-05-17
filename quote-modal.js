@@ -124,8 +124,8 @@
 
   // Wire up all "Get a quote" links via event delegation (more reliable on iOS)
   function handleQuoteLink(e) {
-    var link = e.target.closest('a[href="about.html"]');
-    if (link && !link.closest('.footer-nav')) {
+    var link = e.target.closest('a[href="#quote"]');
+    if (link) {
       e.preventDefault();
       openModal();
     }
