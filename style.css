@@ -611,26 +611,33 @@ ul { list-style: none; }
 
 .work-header {
   max-width: 1200px;
-  margin: 0 auto 48px;
+  margin: 0 auto 52px;
   padding: 0 48px;
   display: flex;
+  justify-content: space-between;
   align-items: flex-end;
   gap: 32px;
+  border-bottom: 1px solid rgba(130,160,204,0.1);
+  padding-bottom: 32px;
 }
+
+.work-header-left .label { margin-bottom: 10px; }
 
 .work-header h2 {
   font-family: 'DM Serif Display', serif;
   font-size: clamp(2rem, 3.5vw, 3rem);
   font-weight: 400;
   color: #fff;
+  line-height: 1.1;
 }
 
-.work-header p {
+.work-header-sub {
   font-size: 0.9rem;
   color: rgba(255,255,255,0.4);
   font-weight: 300;
-  max-width: 320px;
-  padding-bottom: 6px;
+  max-width: 280px;
+  text-align: right;
+  padding-bottom: 4px;
 }
 
 /* Gallery grid */
@@ -1076,7 +1083,8 @@ ul { list-style: none; }
   .services-bento { grid-template-columns: 1fr; grid-auto-rows: 220px; padding: 0 24px; }
   .s-card:nth-child(n) { grid-column: 1; grid-row: auto; }
   .section-header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 0 24px; }
-  .work-header { flex-direction: column; align-items: flex-start; padding: 0 24px; }
+  .work-header { flex-direction: column; align-items: flex-start; padding: 0 24px 24px; gap: 16px; }
+  .work-header-sub { text-align: left; max-width: 100%; }
   .gallery-masonry { grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 24px; }
   .reviews-section { padding: 64px 0 48px; }
   .review-card { padding: 0 6vw; }
