@@ -43,11 +43,8 @@
   `;
   document.body.appendChild(modal);
 
-  // Mobile floating CTA
-  const fab = document.createElement('button');
-  fab.className = 'qm-fab';
-  fab.textContent = 'Get a free quote';
-  document.body.appendChild(fab);
+  // Mobile floating CTA (disabled)
+  const fab = document.createElement('span'); // placeholder so close logic still works
 
   // Inject styles
   const style = document.createElement('style');
@@ -105,32 +102,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
-    /* Mobile floating button */
-    .qm-fab {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 8888;
-      background: var(--blue, #82A0CC);
-      color: #05181f;
-      border: none;
-      padding: 16px 36px;
-      font-family: 'Figtree', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
-      transition: opacity 0.2s;
-      white-space: nowrap;
-    }
-    .qm-fab:hover { opacity: 0.88; }
-    .qm-fab.hidden { display: none !important; }
-    @media (max-width: 768px) {
-      .qm-fab { display: block; }
+    @media (max-width: 540px) {
       .qm-card { padding: 40px 24px; }
       .qm-row { grid-template-columns: 1fr; gap: 0; }
     }
@@ -139,16 +111,13 @@
 
   function openModal() {
     modal.classList.add('open');
-    fab.classList.add('hidden');
     document.body.style.overflow = 'hidden';
   }
   function closeModal() {
     modal.classList.remove('open');
-    fab.classList.remove('hidden');
     document.body.style.overflow = '';
   }
 
-  fab.addEventListener('click', openModal);
   modal.querySelector('.qm-backdrop').addEventListener('click', closeModal);
   modal.querySelector('.qm-close').addEventListener('click', closeModal);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
