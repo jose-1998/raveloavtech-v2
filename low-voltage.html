@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -21,7 +21,6 @@
         <li><a href="security-systems.html">Security Systems</a></li>
         <li><a href="soho-networks.html">SOHO Networks</a></li>
         <li><a href="wireless-network.html">Wireless Networks</a></li>
-        <li><a href="web-development.html">Web Development</a></li>
         <li><a href="lutron.html">Light Switch Automation</a></li>
         <li><a href="wiring.html">Wiring</a></li>
         <li><a href="low-voltage.html">Low Voltage</a></li>
@@ -33,11 +32,14 @@
   <div class="nav-right">
     <a href="about.html" class="nav-cta">Get a quote</a>
   </div>
+  <button class="nav-mobile-btn" id="mobileBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <section class="page-hero">
   <div class="page-hero-bg">
-    <img src="https://raveloavtech.com/cdn/shop/files/shutterstock_721549570.jpg?v=1669831181&width=1500" alt="Low Voltage" />
+    <img src="https://images.pexels.com/photos/21812143/pexels-photo-21812143.jpeg?auto=compress&cs=tinysrgb&w=1500" alt="Low Voltage" />
   </div>
   <div class="page-hero-content">
     <p class="label">Service — 09</p>
@@ -66,7 +68,7 @@
 
     <div class="content-aside">
       <div class="aside-img">
-        <img src="https://raveloavtech.com/cdn/shop/files/shutterstock_675102319.jpg?v=1669831092&width=1420" alt="Low voltage wiring" />
+        <img src="https://images.pexels.com/photos/27928762/pexels-photo-27928762.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Low voltage wiring" />
       </div>
       <div class="aside-cta">
         <p>Licensed for low voltage in Tennessee. We work on new construction, renovations, and existing homes — residential and commercial.</p>
@@ -85,8 +87,7 @@
     <a href="index.html">Home</a>
     <a href="offers.html">Offers</a>
     <a href="about.html">Contact</a>
-    <a href="#">Privacy</a>
-  </nav>
+    <a href="privacy.html">Privacy</a>`n  </nav>
   <div class="footer-social-wrap">
     <a href="https://www.facebook.com/raveloavtech" target="_blank" rel="noopener" aria-label="Facebook">
       <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -96,5 +97,36 @@
     </a>
   </div>
 </footer>
+<script>
+  const btn = document.getElementById('mobileBtn');
+  const links = document.querySelector('.nav-links');
+  const overlay = document.createElement('div');
+  overlay.className = 'nav-overlay';
+  document.body.appendChild(overlay);
+  function openDrawer() {
+    links.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    links.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  btn.addEventListener('click', () => {
+    links.classList.contains('open') ? closeDrawer() : openDrawer();
+  });
+  overlay.addEventListener('click', closeDrawer);
+  const servicesBtn = document.querySelector('.nav-item button');
+  const dropdown = document.querySelector('.dropdown');
+  servicesBtn.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      dropdown.classList.toggle('open');
+      servicesBtn.textContent = dropdown.classList.contains('open') ? 'Services ▴' : 'Services ▾';
+    }
+  });
+</script>
 </body>
 </html>
+
+

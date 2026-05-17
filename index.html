@@ -24,7 +24,6 @@
         <li><a href="security-systems.html">Security Systems</a></li>
         <li><a href="soho-networks.html">SOHO Networks</a></li>
         <li><a href="wireless-network.html">Wireless Networks</a></li>
-        <li><a href="web-development.html">Web Development</a></li>
         <li><a href="lutron.html">Light Switch Automation</a></li>
         <li><a href="wiring.html">Wiring</a></li>
         <li><a href="low-voltage.html">Low Voltage</a></li>
@@ -74,7 +73,8 @@
     <span>Security Systems</span><span class="ticker-dot">●</span>
     <span>Wireless Networks</span><span class="ticker-dot">●</span>
     <span>SOHO Networks</span><span class="ticker-dot">●</span>
-    <span>Web Development</span><span class="ticker-dot">●</span>
+    <span>Wiring</span><span class="ticker-dot">●</span>
+    <span>Low Voltage</span><span class="ticker-dot">●</span>
     <span>Lutron Lighting</span><span class="ticker-dot">●</span>
     <!-- duplicate for seamless loop -->
     <span>Home Theater</span><span class="ticker-dot">●</span>
@@ -82,7 +82,8 @@
     <span>Security Systems</span><span class="ticker-dot">●</span>
     <span>Wireless Networks</span><span class="ticker-dot">●</span>
     <span>SOHO Networks</span><span class="ticker-dot">●</span>
-    <span>Web Development</span><span class="ticker-dot">●</span>
+    <span>Wiring</span><span class="ticker-dot">●</span>
+    <span>Low Voltage</span><span class="ticker-dot">●</span>
     <span>Lutron Lighting</span><span class="ticker-dot">●</span>
   </div>
 </div>
@@ -108,7 +109,7 @@
         <div class="stat-label">Years experience</div>
       </div>
       <div class="stat-item">
-        <div class="num">9</div>
+        <div class="num">8</div>
         <div class="stat-label">Services offered</div>
       </div>
       <div class="stat-item">
@@ -162,24 +163,17 @@
         <p class="s-card-name">Wireless Networks</p>
       </div>
     </a>
-    <a href="web-development.html" class="s-card">
-      <img src="https://raveloavtech.com/cdn/shop/files/daniel-korpai-pKRNxEguRgM-unsplash.jpg?v=1669831550&width=1420" alt="Web Development" />
+    <a href="wiring.html" class="s-card">
+      <img src="https://images.pexels.com/photos/3615735/pexels-photo-3615735.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wiring" />
       <div class="s-card-info">
         <p class="s-card-num">06</p>
-        <p class="s-card-name">Web Development</p>
-      </div>
-    </a>
-    <a href="wiring.html" class="s-card">
-      <img src="https://raveloavtech.com/cdn/shop/files/shutterstock_311303981.jpg?v=1669831346&width=1420" alt="Wiring" />
-      <div class="s-card-info">
-        <p class="s-card-num">07</p>
         <p class="s-card-name">Wiring</p>
       </div>
     </a>
     <a href="low-voltage.html" class="s-card">
-      <img src="https://raveloavtech.com/cdn/shop/files/shutterstock_721549570.jpg?v=1669831181&width=1420" alt="Low Voltage" />
+      <img src="https://images.pexels.com/photos/21812143/pexels-photo-21812143.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Low Voltage" />
       <div class="s-card-info">
-        <p class="s-card-num">08</p>
+        <p class="s-card-num">07</p>
         <p class="s-card-name">Low Voltage</p>
       </div>
     </a>
@@ -280,8 +274,8 @@
   <nav class="footer-nav">
     <a href="about.html">About</a>
     <a href="offers.html">Offers</a>
-    <a href="#">Privacy Policy</a>
-    <a href="#">Terms</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms</a>
   </nav>
 
   <div class="footer-social-wrap">
@@ -301,16 +295,38 @@
     nav.classList.toggle('scrolled', window.scrollY > 60);
   });
 
-  // Mobile menu
+  // Mobile drawer
   const btn = document.getElementById('mobileBtn');
   const links = document.querySelector('.nav-links');
-  let open = false;
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'nav-overlay';
+  document.body.appendChild(overlay);
+
+  function openDrawer() {
+    links.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    links.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
   btn.addEventListener('click', () => {
-    open = !open;
-    if (open) {
-      links.style.cssText = 'display:flex; flex-direction:column; position:absolute; top:64px; left:0; right:0; background:#05181f; padding:20px 24px; gap:20px; border-bottom:1px solid rgba(130,160,204,0.1); z-index:99;';
-    } else {
-      links.style.cssText = 'display:none;';
+    links.classList.contains('open') ? closeDrawer() : openDrawer();
+  });
+  overlay.addEventListener('click', closeDrawer);
+
+  // Services dropdown toggle on mobile
+  const servicesBtn = document.querySelector('.nav-item button');
+  const dropdown = document.querySelector('.dropdown');
+  servicesBtn.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      dropdown.classList.toggle('open');
+      servicesBtn.textContent = dropdown.classList.contains('open') ? 'Services ▴' : 'Services ▾';
     }
   });
 </script>
