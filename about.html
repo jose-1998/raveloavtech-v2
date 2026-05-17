@@ -219,30 +219,38 @@
 
   <div class="about-contact-form">
     <h2>Send a message</h2>
-    <div class="form-row">
-      <div class="form-field"><label>First name</label><input type="text" placeholder="John" /></div>
-      <div class="form-field"><label>Last name</label><input type="text" placeholder="Smith" /></div>
-    </div>
-    <div class="form-row">
-      <div class="form-field"><label>Email</label><input type="email" placeholder="john@email.com" /></div>
-      <div class="form-field"><label>Phone</label><input type="tel" placeholder="(615) 000-0000" /></div>
-    </div>
-    <div class="form-field">
-      <label>Service interested in</label>
-      <select>
-        <option value="">Select...</option>
-        <option>Audiovisual / Home Theater</option>
-        <option>Smart Homes</option>
-        <option>Security Systems</option>
-        <option>SOHO Networks</option>
-        <option>Wireless Networks</option>
-        <option>Web Development</option>
-        <option>Light Switch Automation (Lutron)</option>
-        <option>General inquiry</option>
-      </select>
-    </div>
-    <div class="form-field"><label>Message</label><textarea placeholder="Tell us about your project..."></textarea></div>
-    <button class="submit-btn" onclick="alert('Thank you! Please contact us at support@raveloavtech.com or call (615) 962-0401.')">Send message</button>
+    <form id="contact-form">
+      <input type="hidden" name="access_key" value="REPLACE_WITH_YOUR_WEB3FORMS_KEY" />
+      <input type="hidden" name="subject" value="New quote request — Ravelo AV Tech" />
+      <input type="hidden" name="from_name" value="Ravelo AV Tech Website" />
+      <input type="hidden" name="redirect" value="false" />
+      <div class="form-row">
+        <div class="form-field"><label>First name</label><input type="text" name="first_name" placeholder="John" required /></div>
+        <div class="form-field"><label>Last name</label><input type="text" name="last_name" placeholder="Smith" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Email</label><input type="email" name="email" placeholder="john@email.com" required /></div>
+        <div class="form-field"><label>Phone</label><input type="tel" name="phone" placeholder="(615) 000-0000" /></div>
+      </div>
+      <div class="form-field">
+        <label>Service interested in</label>
+        <select name="service">
+          <option value="">Select...</option>
+          <option>Audiovisual / Home Theater</option>
+          <option>Smart Homes</option>
+          <option>Security Systems</option>
+          <option>SOHO Networks</option>
+          <option>Wireless Networks</option>
+          <option>Light Switch Automation (Lutron)</option>
+          <option>Wiring</option>
+          <option>Low Voltage</option>
+          <option>General inquiry</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Message</label><textarea name="message" placeholder="Tell us about your project..."></textarea></div>
+      <button type="submit" class="submit-btn" id="submit-btn">Send message</button>
+      <p id="form-status" style="margin-top:14px;font-size:0.9rem;display:none;"></p>
+    </form>
   </div>
 </div>
 
@@ -282,6 +290,41 @@
       servicesBtn.textContent = dropdown.classList.contains('open') ? 'Services ▴' : 'Services ▾';
     }
   });
+
+  // Contact form — Web3Forms
+  const form = document.getElementById('contact-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const status = document.getElementById('form-status');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      submitBtn.textContent = 'Sending...';
+      submitBtn.disabled = true;
+      status.style.display = 'none';
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: new FormData(form)
+        });
+        const json = await res.json();
+        if (json.success) {
+          status.textContent = '✓ Message sent! We\'ll be in touch soon.';
+          status.style.color = '#82A0CC';
+          form.reset();
+          submitBtn.textContent = 'Send message';
+          submitBtn.disabled = false;
+        } else {
+          throw new Error('failed');
+        }
+      } catch {
+        status.textContent = 'Something went wrong. Please call us at (931) 933-5040.';
+        status.style.color = '#e07070';
+        submitBtn.textContent = 'Send message';
+        submitBtn.disabled = false;
+      }
+      status.style.display = 'block';
+    });
+  }
 </script>
 </body>
 </html>
