@@ -1,0 +1,91 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: uploads
+public_folder: /uploads
+
+collections:
+  - name: site_images
+    label: Site Images
+    files:
+      - name: images
+        label: Photos
+        file: images.json
+        format: json
+        fields:
+          - name: gallery
+            label: "Gallery — Our Work (home page)"
+            widget: list
+            fields:
+              - name: url
+                label: Photo
+                widget: image
+
+          - name: about_hero
+            label: "About page — Team/Truck photo"
+            widget: image
+
+          - name: audiovisual_hero
+            label: "AudioVisual — Hero photo"
+            widget: image
+
+          - name: audiovisual_aside
+            label: "AudioVisual — Side photo"
+            widget: image
+
+          - name: smart_homes_hero
+            label: "Smart Homes — Hero photo"
+            widget: image
+
+          - name: smart_homes_aside
+            label: "Smart Homes — Side photo"
+            widget: image
+
+          - name: security_hero
+            label: "Security Systems — Hero photo"
+            widget: image
+
+          - name: security_aside
+            label: "Security Systems — Side photo"
+            widget: image
+
+          - name: soho_hero
+            label: "SOHO Networks — Hero photo"
+            widget: image
+
+          - name: soho_aside
+            label: "SOHO Networks — Side photo"
+            widget: image
+
+          - name: wireless_hero
+            label: "Wireless Networks — Hero photo"
+            widget: image
+
+          - name: wireless_aside
+            label: "Wireless Networks — Side photo"
+            widget: image
+
+          - name: lutron_hero
+            label: "Light Switch Automation — Hero photo"
+            widget: image
+
+          - name: lutron_aside
+            label: "Light Switch Automation — Side photo"
+            widget: image
+
+          - name: wiring_hero
+            label: "Wiring — Hero photo"
+            widget: image
+
+          - name: wiring_aside
+            label: "Wiring — Side photo"
+            widget: image
+
+          - name: low_voltage_hero
+            label: "Low Voltage — Hero photo"
+            widget: image
+
+          - name: low_voltage_aside
+            label: "Low Voltage — Side photo"
+            widget: image
