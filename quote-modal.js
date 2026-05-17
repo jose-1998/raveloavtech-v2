@@ -125,7 +125,9 @@
   // Wire up all "Get a quote" links — any anchor to about.html that is a CTA
   document.querySelectorAll('a[href="about.html"]').forEach(function (a) {
     if (!a.closest('.footer-nav')) {
-      a.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+      ['click', 'touchend'].forEach(function (evt) {
+        a.addEventListener(evt, function (e) { e.preventDefault(); openModal(); });
+      });
     }
   });
 
