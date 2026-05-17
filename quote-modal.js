@@ -149,12 +149,15 @@
     submitBtn.disabled = true;
     status.style.display = 'none';
     try {
-      await fetch('https://formspree.io/f/mykvgddk', {
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      const res = await fetch('/.netlify/functions/send-quote', {
         method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: new FormData(form)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
-      status.textContent = '✓ Message sent! We\'ll be in touch soon.';
+      if (!res.ok) throw new Error('Server error');
+      status.textContent = '✓ ¡Mensaje enviado! Pronto nos pondremos en contacto.';
       status.style.color = '#82A0CC';
       form.reset();
     } catch (_) {
