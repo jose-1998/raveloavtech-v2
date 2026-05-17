@@ -33,6 +33,10 @@
           </select>
         </div>
         <div class="form-field">
+          <label>Address</label>
+          <input type="text" name="address" placeholder="123 Main St, Nashville TN" />
+        </div>
+        <div class="form-field">
           <label>Message</label>
           <textarea name="message" placeholder="Tell us about your project..."></textarea>
         </div>
