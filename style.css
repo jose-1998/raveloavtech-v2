@@ -632,7 +632,13 @@ ul { list-style: none; }
 .form-field textarea:focus,
 .form-field select:focus { border-bottom-color: var(--blue); }
 .form-field textarea { resize: none; min-height: 80px; }
-.form-field select { cursor: pointer; }
+.form-field select {
+  cursor: pointer;
+  border-radius: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
 .form-field select option { background: #0c2d3a; }
 .submit-btn {
   display: inline-block;
