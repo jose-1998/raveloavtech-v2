@@ -250,6 +250,12 @@ ul { list-style: none; }
 
 .btn-primary:hover { opacity: 0.85; }
 
+@media (max-width: 768px) {
+  .btn-primary {
+    border-radius: 6px;
+  }
+}
+
 .btn-ghost {
   font-size: 13px;
   letter-spacing: 0.1em;
