@@ -47,7 +47,7 @@ exports.handler = async function (event) {
     return res.json();
   }
 
-  const FROM = 'Ravelo AV Tech <onboarding@resend.dev>';
+  const FROM = 'Ravelo AV Tech <support@raveloavtech.com>';
 
   // If no API key yet, return success so the form doesn't show an error
   if (!RESEND_API_KEY) {
