@@ -14,7 +14,7 @@
           const category = item.category || 'av';
           const label    = item.label    || 'Install';
           return `<div class="gal-item" data-category="${category}">` +
-            `<img src="${url}" alt="${label}" loading="lazy" />` +
+            `<img src="${url}" alt="${label}" />` +
             `<div class="gal-overlay"><span>${label}</span></div>` +
             `</div>`;
         })
