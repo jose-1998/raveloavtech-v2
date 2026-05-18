@@ -60,21 +60,64 @@ exports.handler = async function (event) {
 
   try {
     // 1 — Notify the business
+    const submittedAt = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', dateStyle: 'full', timeStyle: 'short' });
     await sendEmail({
       from: FROM,
       to: ['jose.rojas@raveloavtech.com'],
-      subject: `Nueva cotización — ${service || 'Consulta general'}`,
+      reply_to: email || undefined,
+      subject: `New quote request — ${service || 'General inquiry'} (${first_name} ${last_name})`,
       html: `
-        <div style="font-family:Arial,sans-serif;color:#333;max-width:560px;margin:0 auto;padding:32px;">
-          <h2 style="color:#0c2d3a;margin-bottom:24px;">Nueva solicitud de cotización</h2>
-          <table style="border-collapse:collapse;width:100%;font-size:15px;">
-            <tr><td style="padding:8px 12px 8px 0;color:#666;white-space:nowrap;">Nombre</td><td style="padding:8px 0;">${first_name} ${last_name}</td></tr>
-            <tr><td style="padding:8px 12px 8px 0;color:#666;">Email</td><td style="padding:8px 0;"><a href="mailto:${email}">${email}</a></td></tr>
-            <tr><td style="padding:8px 12px 8px 0;color:#666;">Teléfono</td><td style="padding:8px 0;">${phone || '—'}</td></tr>
-            <tr><td style="padding:8px 12px 8px 0;color:#666;">Dirección</td><td style="padding:8px 0;">${address || '—'}</td></tr>
-            <tr><td style="padding:8px 12px 8px 0;color:#666;">Servicio</td><td style="padding:8px 0;">${service || '—'}</td></tr>
-            <tr><td style="padding:8px 12px 8px 0;color:#666;vertical-align:top;">Mensaje</td><td style="padding:8px 0;">${message || '—'}</td></tr>
-          </table>
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f4f6f9;padding:32px 16px;">
+
+          <!-- Header -->
+          <div style="background:#0c2d3a;border-radius:4px 4px 0 0;padding:28px 36px;">
+            <p style="margin:0 0 6px;color:#82A0CC;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;">Ravelo AV Tech — New Lead</p>
+            <h1 style="margin:0;color:#fff;font-size:20px;font-weight:700;">New Quote Request</h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,0.45);font-size:12px;">${submittedAt} (CT)</p>
+          </div>
+
+          <!-- Body -->
+          <div style="background:#fff;padding:32px 36px;">
+
+            <!-- Reply CTA -->
+            ${email ? `<div style="margin-bottom:28px;">
+              <a href="mailto:${email}?subject=Re: Your quote request — ${encodeURIComponent(service || 'General inquiry')}" style="display:inline-block;background:#0c2d3a;color:#82A0CC;text-decoration:none;padding:12px 24px;border-radius:3px;font-size:13px;font-weight:700;letter-spacing:0.08em;">Reply to ${first_name} →</a>
+            </div>` : ''}
+
+            <!-- Details table -->
+            <table style="border-collapse:collapse;width:100%;font-size:14px;">
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:10px 16px 10px 0;color:#888;white-space:nowrap;width:110px;">Name</td>
+                <td style="padding:10px 0;color:#222;font-weight:600;">${first_name} ${last_name}</td>
+              </tr>
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:10px 16px 10px 0;color:#888;">Email</td>
+                <td style="padding:10px 0;"><a href="mailto:${email}" style="color:#0c2d3a;">${email}</a></td>
+              </tr>
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:10px 16px 10px 0;color:#888;">Phone</td>
+                <td style="padding:10px 0;">${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="color:#0c2d3a;">${phone}</a>` : '—'}</td>
+              </tr>
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:10px 16px 10px 0;color:#888;">Address</td>
+                <td style="padding:10px 0;color:#222;">${address || '—'}</td>
+              </tr>
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:10px 16px 10px 0;color:#888;">Service</td>
+                <td style="padding:10px 0;"><strong style="color:#0c2d3a;">${service || '—'}</strong></td>
+              </tr>
+              <tr>
+                <td style="padding:10px 16px 10px 0;color:#888;vertical-align:top;">Message</td>
+                <td style="padding:10px 0;color:#444;line-height:1.6;">${message || '—'}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Footer -->
+          <div style="background:#e8ecf0;border-radius:0 0 4px 4px;padding:16px 36px;">
+            <p style="margin:0;font-size:11px;color:#999;">Submitted via raveloavtech.com · Ravelo AV Technologies LLC</p>
+          </div>
+
         </div>
       `,
     });

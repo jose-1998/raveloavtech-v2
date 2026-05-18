@@ -15,12 +15,12 @@
         </div>
         <div class="qm-row">
           <div class="form-field"><label>Email</label><input type="email" name="email" placeholder="john@email.com" required /></div>
-          <div class="form-field"><label>Phone</label><input type="tel" name="phone" placeholder="(615) 000-0000" /></div>
+          <div class="form-field"><label>Phone <span class="req">*</span></label><input type="tel" name="phone" placeholder="(615) 000-0000" required /></div>
         </div>
         <div class="form-field">
-          <label>Service interested in</label>
-          <select name="service">
-            <option value="">Select...</option>
+          <label>Service interested in <span class="req">*</span></label>
+          <select name="service" required>
+            <option value="">Select a service...</option>
             <option>Audiovisual / Home Theater</option>
             <option>Smart Homes</option>
             <option>Security Systems</option>
@@ -33,8 +33,8 @@
           </select>
         </div>
         <div class="form-field">
-          <label>Address</label>
-          <input type="text" name="address" placeholder="123 Main St, Nashville TN" />
+          <label>Address <span class="req">*</span></label>
+          <input type="text" name="address" placeholder="123 Main St, Nashville TN" required />
         </div>
         <div class="form-field">
           <label>Message</label>
@@ -146,6 +146,11 @@
     @media (max-width: 540px) {
       .qm-card { padding: 40px 24px; }
       .qm-row { grid-template-columns: 1fr; gap: 0; }
+    }
+    .req { color: #e07070; font-size: 0.85em; }
+    input:required:invalid:not(:placeholder-shown),
+    select:required:invalid {
+      border-color: #e07070 !important;
     }
     .mobile-cta-bar { display: none; }
     @media (max-width: 768px) {
