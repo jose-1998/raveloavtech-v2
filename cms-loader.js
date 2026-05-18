@@ -19,6 +19,8 @@
             `</div>`;
         })
         .join('');
+      // Reinit carousel with updated photos
+      if (typeof window.initGalleryCarousel === 'function') window.initGalleryCarousel();
     }
 
     // About page hero photo

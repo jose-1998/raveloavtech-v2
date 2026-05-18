@@ -241,50 +241,31 @@
     <button class="gf-btn" data-filter="wiring">Wiring</button>
   </div>
 
-  <div class="gallery-masonry" id="gallery-container">
-    <div class="gal-item" data-category="av">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2026-01-26_at_12.01.47_5_1200x.jpg?v=1769455642" alt="Home Theater Install" />
-      <div class="gal-overlay"><span>Home Theater</span></div>
+  <!-- Data store (hidden) -->
+  <div id="gallery-container">
+    <div class="gal-item" data-category="av"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2026-01-26_at_12.01.47_5_1200x.jpg?v=1769455642" alt="Home Theater Install" /><div class="gal-overlay"><span>Home Theater</span></div></div>
+    <div class="gal-item" data-category="network"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2025-09-13_at_15.14.50_1200x.jpg?v=1769457331" alt="Network Install" /><div class="gal-overlay"><span>Networks</span></div></div>
+    <div class="gal-item" data-category="av"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/3BF3BB51-CD64-4B02-9538-3627531C117A_1_201_a_1200x.jpg?v=1769462302" alt="AV Install" /><div class="gal-overlay"><span>Home Theater</span></div></div>
+    <div class="gal-item" data-category="security"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/60235C0D-5AC5-4261-B3FB-3DC352C1D6C9.jpg?v=1769462498&width=2048" alt="Security Install" /><div class="gal-overlay"><span>Security</span></div></div>
+    <div class="gal-item" data-category="wiring"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2026-01-26_at_12.01.46_1200x.jpg?v=1769455597" alt="Wiring Install" /><div class="gal-overlay"><span>Wiring</span></div></div>
+    <div class="gal-item" data-category="smart"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5360493423264513379_1200x.jpg?v=1769462609" alt="Smart Home Install" /><div class="gal-overlay"><span>Smart Home</span></div></div>
+    <div class="gal-item" data-category="network"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/1683680728038671265_1200x.jpg?v=1769462644" alt="Network Install" /><div class="gal-overlay"><span>Networks</span></div></div>
+    <div class="gal-item" data-category="wiring"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5694658739303646542_1200x.jpg?v=1769462687" alt="Wiring Install" /><div class="gal-overlay"><span>Wiring</span></div></div>
+  </div>
+
+  <!-- Carousel -->
+  <div class="gallery-carousel">
+    <div class="gc-wrapper">
+      <div class="gc-track" id="gc-track"></div>
     </div>
-    <div class="gal-item" data-category="network">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2025-09-13_at_15.14.50_1200x.jpg?v=1769457331" alt="Network Install" />
-      <div class="gal-overlay"><span>Networks</span></div>
-    </div>
-    <div class="gal-item" data-category="av">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/3BF3BB51-CD64-4B02-9538-3627531C117A_1_201_a_1200x.jpg?v=1769462302" alt="AV Install" />
-      <div class="gal-overlay"><span>Home Theater</span></div>
-    </div>
-    <div class="gal-item" data-category="security">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/60235C0D-5AC5-4261-B3FB-3DC352C1D6C9.jpg?v=1769462498&width=2048" alt="Security Install" />
-      <div class="gal-overlay"><span>Security</span></div>
-    </div>
-    <div class="gal-item" data-category="wiring">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2026-01-26_at_12.01.46_1200x.jpg?v=1769455597" alt="Wiring Install" />
-      <div class="gal-overlay"><span>Wiring</span></div>
-    </div>
-    <div class="gal-item" data-category="smart">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5360493423264513379_1200x.jpg?v=1769462609" alt="Smart Home Install" />
-      <div class="gal-overlay"><span>Smart Home</span></div>
-    </div>
-    <div class="gal-item" data-category="network">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/1683680728038671265_1200x.jpg?v=1769462644" alt="Network Install" />
-      <div class="gal-overlay"><span>Networks</span></div>
-    </div>
-    <div class="gal-item" data-category="wiring">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5694658739303646542_1200x.jpg?v=1769462687" alt="Wiring Install" />
-      <div class="gal-overlay"><span>Wiring</span></div>
+    <button class="gc-arrow gc-prev" id="gc-prev" aria-label="Previous">&#8249;</button>
+    <button class="gc-arrow gc-next" id="gc-next" aria-label="Next">&#8250;</button>
+    <div class="gc-footer">
+      <div class="gc-dots" id="gc-dots"></div>
+      <span class="gc-counter" id="gc-counter"></span>
     </div>
   </div>
 </section>
-
-<!-- LIGHTBOX -->
-<div id="lightbox">
-  <button class="lb-close" aria-label="Close">✕</button>
-  <button class="lb-prev" aria-label="Previous">&#8249;</button>
-  <button class="lb-next" aria-label="Next">&#8250;</button>
-  <img id="lb-img" src="" alt="" />
-  <p id="lb-caption"></p>
-</div>
 
 <!-- CONTACT -->
 <div style="background: var(--navy); border-top: 1px solid rgba(130,160,204,0.08);">
@@ -434,78 +415,115 @@
 <script src="/cms-loader.js"></script>
 <script src="/quote-modal.js"></script>
 <script>
-// Gallery filters + lightbox
+// Gallery Carousel
 (function () {
   var filterBtns = document.querySelectorAll('.gf-btn');
-  var lightbox = document.getElementById('lightbox');
-  var lbImg = document.getElementById('lb-img');
-  var lbCaption = document.getElementById('lb-caption');
-  var currentItems = [];
-  var currentIndex = 0;
+  var track      = document.getElementById('gc-track');
+  var dotsEl     = document.getElementById('gc-dots');
+  var counterEl  = document.getElementById('gc-counter');
+  var prevBtn    = document.getElementById('gc-prev');
+  var nextBtn    = document.getElementById('gc-next');
+  var currentFilter = 'all';
+  var currentIndex  = 0;
+  var total = 0;
 
-  // Filters
+  function getFilteredItems() {
+    return Array.from(document.querySelectorAll('#gallery-container .gal-item')).filter(function (item) {
+      return currentFilter === 'all' || item.dataset.category === currentFilter;
+    });
+  }
+
+  function buildCarousel() {
+    var items = getFilteredItems();
+    total = items.length;
+    currentIndex = 0;
+
+    if (!total) {
+      track.innerHTML = '<div class="gc-empty">No photos in this category yet</div>';
+      dotsEl.innerHTML = '';
+      counterEl.textContent = '';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+
+    track.style.transition = 'none';
+    track.style.transform  = 'translateX(0)';
+    track.innerHTML = items.map(function (item) {
+      var img      = item.querySelector('img');
+      var labelEl  = item.querySelector('.gal-overlay span');
+      var label    = labelEl ? labelEl.textContent : '';
+      return '<div class="gc-slide">' +
+        '<img src="' + img.src + '" alt="' + (img.alt || '') + '" />' +
+        (label ? '<div class="gc-slide-label">' + label + '</div>' : '') +
+        '</div>';
+    }).join('');
+
+    dotsEl.innerHTML = total > 1 ? items.map(function (_, i) {
+      return '<button class="gc-dot' + (i === 0 ? ' active' : '') + '" aria-label="Slide ' + (i + 1) + '"></button>';
+    }).join('') : '';
+    dotsEl.querySelectorAll('.gc-dot').forEach(function (dot, i) {
+      dot.addEventListener('click', function () { goTo(i); });
+    });
+
+    updateUI();
+  }
+
+  function goTo(index) {
+    if (!total) return;
+    currentIndex = Math.max(0, Math.min(index, total - 1));
+    track.style.transition = 'transform 0.45s cubic-bezier(0.4,0,0.2,1)';
+    track.style.transform  = 'translateX(-' + (currentIndex * 100) + '%)';
+    updateUI();
+  }
+
+  function updateUI() {
+    counterEl.textContent = total > 1 ? (currentIndex + 1) + ' / ' + total : '';
+    dotsEl.querySelectorAll('.gc-dot').forEach(function (dot, i) {
+      dot.classList.toggle('active', i === currentIndex);
+    });
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === total - 1;
+  }
+
+  prevBtn.addEventListener('click', function () { goTo(currentIndex - 1); });
+  nextBtn.addEventListener('click', function () { goTo(currentIndex + 1); });
+
+  // Keyboard nav
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft')  goTo(currentIndex - 1);
+    if (e.key === 'ArrowRight') goTo(currentIndex + 1);
+  });
+
+  // Touch swipe
+  var touchX = 0, touchY = 0;
+  var wrapper = document.querySelector('.gc-wrapper');
+  wrapper.addEventListener('touchstart', function (e) {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  wrapper.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      goTo(dx < 0 ? currentIndex + 1 : currentIndex - 1);
+    }
+  }, { passive: true });
+
+  // Filter tabs
   filterBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
       filterBtns.forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
-      var filter = btn.dataset.filter;
-      document.querySelectorAll('.gal-item').forEach(function (item) {
-        var match = filter === 'all' || item.dataset.category === filter;
-        item.classList.toggle('gal-hidden', !match);
-        item.classList.toggle('filtered', filter !== 'all');
-        if (match) {
-          item.classList.remove('gal-in');
-          void item.offsetWidth;
-          item.classList.add('gal-in');
-        }
-      });
+      currentFilter = btn.dataset.filter;
+      buildCarousel();
     });
   });
 
-  // Lightbox open
-  function getVisible() {
-    return Array.from(document.querySelectorAll('.gal-item:not(.gal-hidden)'));
-  }
-  function showItem() {
-    var item = currentItems[currentIndex];
-    lbImg.src = item.querySelector('img').src;
-    lbCaption.textContent = item.querySelector('.gal-overlay span') ? item.querySelector('.gal-overlay span').textContent : '';
-  }
-  function openLightbox(items, index) {
-    currentItems = items;
-    currentIndex = index;
-    showItem();
-    lightbox.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeLightbox() {
-    lightbox.classList.remove('open');
-    document.body.style.overflow = '';
-  }
+  // Called by cms-loader after updating gallery-container
+  window.initGalleryCarousel = buildCarousel;
 
-  document.getElementById('gallery-container').addEventListener('click', function (e) {
-    var item = e.target.closest('.gal-item');
-    if (!item) return;
-    var visible = getVisible();
-    openLightbox(visible, visible.indexOf(item));
-  });
-
-  document.querySelector('.lb-close').addEventListener('click', closeLightbox);
-  document.querySelector('.lb-prev').addEventListener('click', function () {
-    currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length;
-    showItem();
-  });
-  document.querySelector('.lb-next').addEventListener('click', function () {
-    currentIndex = (currentIndex + 1) % currentItems.length;
-    showItem();
-  });
-  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLightbox(); });
-  document.addEventListener('keydown', function (e) {
-    if (!lightbox.classList.contains('open')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length; showItem(); }
-    if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % currentItems.length; showItem(); }
-  });
+  buildCarousel();
 })();
 </script>
 <script>
