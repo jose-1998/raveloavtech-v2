@@ -149,8 +149,20 @@ ul { list-style: none; }
   color: #fff !important;
 }
 
+.nav-phone {
+  font-family: 'Figtree', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.6) !important;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.nav-phone:hover { color: #82A0CC !important; }
+
 @media (max-width: 768px) {
   .nav-cta { display: none; }
+  .nav-phone { display: none; }
 }
 
 .nav-mobile-btn {

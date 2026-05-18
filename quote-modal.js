@@ -47,20 +47,17 @@
   `;
   document.body.appendChild(modal);
 
-  // Floating phone button
-  const phoneFab = document.createElement('a');
-  phoneFab.href = 'tel:+16159620401';
-  phoneFab.className = 'phone-fab';
-  phoneFab.setAttribute('aria-label', 'Call us');
-  phoneFab.innerHTML = `
-    <svg class="phone-fab-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
-    <span class="phone-fab-text">(615) 962-0401</span>
+  // Mobile sticky CTA bar
+  const mobileCta = document.createElement('div');
+  mobileCta.className = 'mobile-cta-bar';
+  mobileCta.innerHTML = `
+    <a href="tel:+16159620401" class="mobile-cta-call">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right:6px;flex-shrink:0"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+      Call us
+    </a>
+    <a href="#quote" class="mobile-cta-quote">Get a quote</a>
   `;
-  document.body.appendChild(phoneFab);
-
-
-  // Mobile floating CTA placeholder
-  const fab = document.createElement('span');
+  document.body.appendChild(mobileCta);
 
   // Inject styles
   const style = document.createElement('style');
@@ -150,68 +147,34 @@
       .qm-card { padding: 40px 24px; }
       .qm-row { grid-template-columns: 1fr; gap: 0; }
     }
-    .phone-fab {
-      position: fixed;
-      bottom: 32px;
-      left: 32px;
-      z-index: 8000;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #0c2d3a;
-      border: 1px solid rgba(130,160,204,0.22);
-      border-radius: 50px;
-      padding: 13px 14px;
-      text-decoration: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 8px 28px rgba(0,0,0,0.22);
-      max-width: 48px;
-      overflow: hidden;
-      transition: max-width 0.35s cubic-bezier(0.4,0,0.2,1),
-                  background 0.25s, border-color 0.25s,
-                  box-shadow 0.25s, padding 0.35s;
-    }
-    .phone-fab:hover {
-      max-width: 220px;
-      background: #82A0CC;
-      border-color: #82A0CC;
-      padding-right: 20px;
-      box-shadow: 0 4px 16px rgba(130,160,204,0.3), 0 12px 36px rgba(0,0,0,0.2);
-    }
-    .phone-fab-icon {
-      flex-shrink: 0;
-      width: 20px;
-      height: 20px;
-      fill: rgba(255,255,255,0.85);
-      transition: fill 0.2s;
-    }
-    .phone-fab:hover .phone-fab-icon { fill: #05181f; }
-    .phone-fab-text {
-      font-family: 'Figtree', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: #05181f;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-    .phone-fab:hover .phone-fab-text { opacity: 1; transition-delay: 0.15s; }
+    .mobile-cta-bar { display: none; }
     @media (max-width: 768px) {
-      .phone-fab {
-        bottom: 24px;
-        left: 20px;
-        max-width: 48px;
-        transition: none;
-      }
-      .phone-fab:hover {
-        max-width: 48px;
+      .mobile-cta-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 8000;
         background: #0c2d3a;
-        border-color: rgba(130,160,204,0.22);
-        padding: 13px 14px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 8px 28px rgba(0,0,0,0.22);
+        border-top: 1px solid rgba(130,160,204,0.15);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
       }
-      .phone-fab:hover .phone-fab-icon { fill: rgba(255,255,255,0.85); }
-      .phone-fab:hover .phone-fab-text { opacity: 0; }
+      .mobile-cta-call, .mobile-cta-quote {
+        padding: 16px;
+        text-align: center;
+        font-family: 'Figtree', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mobile-cta-call { color: #82A0CC; border-right: 1px solid rgba(130,160,204,0.15); }
+      .mobile-cta-quote { background: #82A0CC; color: #05181f; }
+      body { padding-bottom: 56px; }
     }
   `;
   document.head.appendChild(style);
