@@ -58,19 +58,26 @@
   `;
   document.body.appendChild(phoneFab);
 
-  // Mobile: tap once to expand, tap again to call. Tap outside to collapse.
+  // Mobile: tap once to expand, tap again to call. Auto-collapse after 8s. Tap outside to collapse.
+  var fabTimer = null;
+  function closeFab() {
+    phoneFab.classList.remove('fab-open');
+    clearTimeout(fabTimer);
+    fabTimer = null;
+  }
   phoneFab.addEventListener('click', function (e) {
     if (window.innerWidth <= 768) {
       if (!phoneFab.classList.contains('fab-open')) {
         e.preventDefault();
         phoneFab.classList.add('fab-open');
+        fabTimer = setTimeout(closeFab, 8000);
       }
       // already open → let the href="tel:..." fire naturally
     }
   });
   document.addEventListener('click', function (e) {
     if (window.innerWidth <= 768 && !phoneFab.contains(e.target)) {
-      phoneFab.classList.remove('fab-open');
+      closeFab();
     }
   });
 
