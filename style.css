@@ -1227,6 +1227,10 @@ ul { list-style: none; }
   .nav-links li button:hover { color: #fff; }
 
   /* Dropdown inline — no absolute overlap */
+  /* Kill desktop :hover rule on touch devices */
+  .nav-item:hover .dropdown { display: none; }
+  .dropdown.open { display: block !important; }
+
   .dropdown {
     display: none;
     position: static !important;
