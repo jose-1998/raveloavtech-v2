@@ -73,6 +73,34 @@
       justify-content: center;
     }
     #quoteModal.open { display: flex; }
+    #quoteModal.open .qm-backdrop {
+      animation: qm-fade-in 0.25s ease forwards;
+    }
+    #quoteModal.open .qm-card {
+      animation: qm-scale-in 0.28s cubic-bezier(0.34,1.15,0.64,1) forwards;
+    }
+    #quoteModal.closing .qm-backdrop {
+      animation: qm-fade-out 0.2s ease forwards;
+    }
+    #quoteModal.closing .qm-card {
+      animation: qm-scale-out 0.2s ease forwards;
+    }
+    @keyframes qm-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes qm-scale-in {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to   { opacity: 1; transform: scale(1)    translateY(0);    }
+    }
+    @keyframes qm-fade-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    @keyframes qm-scale-out {
+      from { opacity: 1; transform: scale(1)    translateY(0);    }
+      to   { opacity: 0; transform: scale(0.95) translateY(10px); }
+    }
     .qm-backdrop {
       position: absolute;
       inset: 0;
@@ -193,8 +221,12 @@
   }
   function closeModal() {
     if (justOpened) return;
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
+    modal.classList.add('closing');
+    setTimeout(function () {
+      modal.classList.remove('open');
+      modal.classList.remove('closing');
+      document.body.style.overflow = '';
+    }, 200);
   }
 
   modal.querySelector('.qm-backdrop').addEventListener('click', closeModal);
