@@ -63,7 +63,7 @@ exports.handler = async function (event) {
     // 1 — Notify the business
     await sendEmail({
       from: FROM,
-      to: ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'],
+      to: ['support@raveloavtech.com', 'josemrojasortega@gmail.com'],
       subject: `Nueva cotización — ${service || 'Consulta general'}`,
       html: `
         <div style="font-family:Arial,sans-serif;color:#333;max-width:560px;margin:0 auto;padding:32px;">
