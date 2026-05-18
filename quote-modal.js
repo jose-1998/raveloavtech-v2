@@ -199,6 +199,8 @@
       modal.classList.remove('open');
       modal.classList.remove('closing');
       document.body.style.overflow = '';
+      form.reset();
+      status.style.display = 'none';
     }, 200);
   }
 
