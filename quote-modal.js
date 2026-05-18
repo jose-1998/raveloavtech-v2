@@ -52,7 +52,10 @@
   phoneFab.href = 'tel:+16159620401';
   phoneFab.className = 'phone-fab';
   phoneFab.setAttribute('aria-label', 'Call us');
-  phoneFab.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>`;
+  phoneFab.innerHTML = `
+    <svg class="phone-fab-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+    <span class="phone-fab-text">(615) 962-0401</span>
+  `;
   document.body.appendChild(phoneFab);
 
   // Mobile floating CTA placeholder
@@ -120,34 +123,53 @@
     }
     .phone-fab {
       position: fixed;
-      bottom: 28px;
-      left: 28px;
+      bottom: 32px;
+      left: 32px;
       z-index: 8000;
-      width: 46px;
-      height: 46px;
-      background: #0c2d3a;
-      border: 1px solid rgba(130,160,204,0.25);
-      border-radius: 50%;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 10px;
+      background: #0c2d3a;
+      border: 1px solid rgba(130,160,204,0.22);
+      border-radius: 50px;
+      padding: 13px 14px;
       text-decoration: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-      transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 8px 28px rgba(0,0,0,0.22);
+      max-width: 48px;
+      overflow: hidden;
+      transition: max-width 0.35s cubic-bezier(0.4,0,0.2,1),
+                  background 0.25s, border-color 0.25s,
+                  box-shadow 0.25s, padding 0.35s;
     }
     .phone-fab:hover {
+      max-width: 220px;
       background: #82A0CC;
       border-color: #82A0CC;
-      transform: scale(1.08);
-      box-shadow: 0 6px 24px rgba(130,160,204,0.35);
+      padding-right: 20px;
+      box-shadow: 0 4px 16px rgba(130,160,204,0.3), 0 12px 36px rgba(0,0,0,0.2);
     }
-    .phone-fab svg {
-      width: 19px;
-      height: 19px;
-      fill: rgba(255,255,255,0.75);
+    .phone-fab-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      fill: rgba(255,255,255,0.85);
       transition: fill 0.2s;
     }
-    .phone-fab:hover svg { fill: #05181f; }
+    .phone-fab:hover .phone-fab-icon { fill: #05181f; }
+    .phone-fab-text {
+      font-family: 'Figtree', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #05181f;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .phone-fab:hover .phone-fab-text { opacity: 1; transition-delay: 0.15s; }
+    @media (max-width: 768px) {
+      .phone-fab { bottom: 24px; left: 20px; padding: 12px 13px; }
+    }
   `;
   document.head.appendChild(style);
 
