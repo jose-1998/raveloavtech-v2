@@ -58,6 +58,22 @@
   `;
   document.body.appendChild(phoneFab);
 
+  // Mobile: tap once to expand, tap again to call. Tap outside to collapse.
+  phoneFab.addEventListener('click', function (e) {
+    if (window.innerWidth <= 768) {
+      if (!phoneFab.classList.contains('fab-open')) {
+        e.preventDefault();
+        phoneFab.classList.add('fab-open');
+      }
+      // already open → let the href="tel:..." fire naturally
+    }
+  });
+  document.addEventListener('click', function (e) {
+    if (window.innerWidth <= 768 && !phoneFab.contains(e.target)) {
+      phoneFab.classList.remove('fab-open');
+    }
+  });
+
   // Mobile floating CTA placeholder
   const fab = document.createElement('span');
 
@@ -196,17 +212,16 @@
     }
     .phone-fab:hover .phone-fab-text { opacity: 1; transition-delay: 0.15s; }
     @media (max-width: 768px) {
-      .phone-fab {
-        bottom: 24px;
-        left: 20px;
-        padding: 12px 20px 12px 14px;
+      .phone-fab { bottom: 24px; left: 20px; }
+      .phone-fab.fab-open {
         max-width: 210px;
         background: #82A0CC;
         border-color: #82A0CC;
+        padding: 12px 20px 12px 14px;
         box-shadow: 0 4px 16px rgba(130,160,204,0.3), 0 8px 28px rgba(0,0,0,0.2);
       }
-      .phone-fab-icon { fill: #05181f; }
-      .phone-fab-text { opacity: 1; color: #05181f; }
+      .phone-fab.fab-open .phone-fab-icon { fill: #05181f; }
+      .phone-fab.fab-open .phone-fab-text { opacity: 1; color: #05181f; transition-delay: 0.15s; }
     }
   `;
   document.head.appendChild(style);
