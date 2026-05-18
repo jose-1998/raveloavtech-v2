@@ -20,7 +20,7 @@ collections:
             fields:
               - name: url
                 label: Photo
-                widget: locked-image
+                widget: image
               - name: category
                 label: Category
                 widget: select

@@ -5,135 +5,126 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager — Ravelo AV Tech</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script>window.CMS_MANUAL_INIT = true;</script>
+  <style>
+    /* Warning banner */
+    .rav-tip {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 99999;
+      background: #0c2d3a;
+      border-top: 2px solid #82A0CC;
+      color: rgba(255,255,255,0.75);
+      font: 12px/1.5 sans-serif;
+      padding: 8px 20px;
+      text-align: center;
+    }
+    .rav-tip strong { color: #82A0CC; }
+
+    /* Lock overlay injected by JS */
+    .rav-lock-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      cursor: not-allowed;
+      background: rgba(10,26,34,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rav-lock-msg {
+      background: rgba(224,112,112,0.15);
+      border: 1px solid rgba(224,112,112,0.45);
+      border-radius: 4px;
+      color: #e07070;
+      font: 600 11px/1.5 sans-serif;
+      padding: 6px 12px;
+      text-align: center;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-<script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-<script>
-(function () {
-  // Decap CMS 3 exposes window.h (React.createElement) but NOT window.React
-  // So we use h() directly and avoid hooks entirely.
-  var h = window.h;
+  <div class="rav-tip">
+    <strong>📸 Galería:</strong>
+    para <strong>cambiar</strong> una foto existente →
+    usa el ícono 🗑 para <strong>eliminar</strong> esa entrada y luego
+    <strong>agrega una nueva</strong> al final.
+  </div>
 
-  // ── Locked-image widget ───────────────────────────────────────────────
-  // • Field has value  → read-only preview + lock message
-  // • Field is empty   → media-library picker button (new entry)
-  // ─────────────────────────────────────────────────────────────────────
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-  function LockedImageControl(props) {
-    var value      = props.value;
-    var onChange   = props.onChange;
-    var field      = props.field;
-    var forID      = props.forID;
-    var mediaPaths = props.mediaPaths;
-    var openMedia  = props.openMediaLibrary;
+  <script>
+  (function () {
+    var locked = new WeakSet();
 
-    // When the user picks a file from the media library, Decap CMS
-    // re-renders this component with mediaPaths updated. We read the
-    // selection here (no useEffect needed) and save it via onChange.
-    var displayValue = value;
-    if (!displayValue && mediaPaths && typeof mediaPaths.get === 'function') {
-      var picked = mediaPaths.get(forID);
-      if (picked) {
-        displayValue = picked;
-        // Defer onChange so we don't mutate state during render
-        setTimeout(function () { onChange(picked); }, 0);
-      }
+    function lockExisting() {
+      // The native image widget renders a preview <img> for existing photos.
+      // We find those images, walk up to the widget container, and drop an
+      // overlay on the clickable/upload area — keeping the Remove button free.
+      var imgs = document.querySelectorAll('img');
+
+      imgs.forEach(function (img) {
+        var src = img.src || '';
+
+        // Only target gallery-sized photos (skip logos, icons, thumbnails)
+        if (img.naturalWidth < 80 && img.width < 80) return;
+        if (!src || src.startsWith('data:')) return;
+        if (locked.has(img)) return;
+        locked.add(img);
+
+        // Walk up to find the widget container that also holds buttons
+        var box = img.parentElement;
+        for (var i = 0; i < 8; i++) {
+          if (!box || box === document.body) return;
+          if (box.querySelectorAll('button').length > 0) break;
+          box = box.parentElement;
+        }
+        if (!box || locked.has(box)) return;
+        locked.add(box);
+
+        // Disable every button except Remove / Clear / Delete
+        box.querySelectorAll('button').forEach(function (btn) {
+          var txt = (btn.textContent || btn.innerText || '').trim().toLowerCase();
+          var lbl = (btn.getAttribute('aria-label') || '').toLowerCase();
+          if (/remove|clear|delete|trash|×|✕/i.test(txt + lbl)) return;
+          btn.disabled = true;
+          btn.style.cssText += ';opacity:.3!important;cursor:not-allowed!important;pointer-events:none!important';
+        });
+
+        // Disable hidden file inputs inside the widget
+        box.querySelectorAll('input[type="file"]').forEach(function (fi) {
+          fi.disabled = true;
+        });
+
+        // Add a visible overlay + message if not already present
+        if (!box.querySelector('.rav-lock-overlay')) {
+          // Make the box positioned so the overlay lines up
+          var pos = window.getComputedStyle(box).position;
+          if (pos === 'static') box.style.position = 'relative';
+
+          var overlay = document.createElement('div');
+          overlay.className = 'rav-lock-overlay';
+          overlay.innerHTML = '<div class="rav-lock-msg">🔒 Foto bloqueada<br>Borra esta entrada (🗑) y agrega una nueva</div>';
+          overlay.addEventListener('click', function (e) {
+            e.stopPropagation();
+            alert('Esta foto está bloqueada.\n\nPara cambiarla:\n1. Clic en el botón de papelera 🗑 (arriba del todo en esta entrada)\n2. Agrega una nueva entrada con el botón "Add"');
+          });
+          box.appendChild(overlay);
+        }
+      });
     }
 
-    // ── Existing photo → LOCKED ────────────────────────────────────────
-    if (displayValue) {
-      return h('div', {
-        style: {
-          padding: '12px',
-          border: '2px solid rgba(224,112,112,0.4)',
-          borderRadius: '4px',
-          background: 'rgba(224,112,112,0.05)'
-        }
-      },
-        h('img', {
-          src: displayValue,
-          alt: '',
-          style: {
-            maxWidth: '100%',
-            maxHeight: '200px',
-            display: 'block',
-            marginBottom: '10px',
-            borderRadius: '3px',
-            objectFit: 'contain',
-            background: '#0a1a22'
-          }
-        }),
-        h('div', {
-          style: {
-            background: 'rgba(224,112,112,0.12)',
-            border: '1px solid rgba(224,112,112,0.35)',
-            borderRadius: '3px',
-            padding: '9px 13px',
-            color: '#e07070',
-            fontSize: '12px',
-            fontFamily: 'sans-serif',
-            lineHeight: '1.5'
-          }
-        },
-          h('strong', null, '🔒 Foto bloqueada.'),
-          ' Para cambiarla: usa el botón ',
-          h('strong', null, '🗑 (arriba a la derecha)'),
-          ' para eliminar esta entrada y agrega una nueva al final con “Add”.'
-        )
-      );
-    }
+    // Run once a second for the first 30 seconds after load,
+    // then keep watching for new DOM changes (user opens a list item).
+    var ticks = 0;
+    var iv = setInterval(function () {
+      lockExisting();
+      if (++ticks > 30) clearInterval(iv);
+    }, 1000);
 
-    // ── New photo → picker button ──────────────────────────────────────
-    return h('div', null,
-      h('button', {
-        type: 'button',
-        onClick: function () {
-          if (openMedia) {
-            openMedia(field, {
-              controlID:     forID,
-              forImage:      true,
-              allowMultiple: false,
-              privateUpload: false,
-              config:        {}
-            });
-          }
-        },
-        style: {
-          display:      'block',
-          width:        '100%',
-          background:   '#0c2d3a',
-          color:        '#82A0CC',
-          border:       '1px solid rgba(130,160,204,0.4)',
-          padding:      '12px 20px',
-          cursor:       'pointer',
-          borderRadius: '3px',
-          fontFamily:   'sans-serif',
-          fontSize:     '13px',
-          textAlign:    'center'
-        }
-      }, '📁 Seleccionar o subir foto')
-    );
-  }
-
-  // Tiny thumbnail shown in the collapsed list-item header
-  function LockedImagePreview(props) {
-    if (!props.value) return null;
-    return h('img', {
-      src: props.value,
-      alt: '',
-      style: {
-        maxWidth: '80px',
-        maxHeight: '56px',
-        objectFit: 'cover',
-        borderRadius: '2px'
-      }
-    });
-  }
-
-  CMS.registerWidget('locked-image', LockedImageControl, LockedImagePreview);
-  CMS.init();
-})();
-</script>
+    new MutationObserver(lockExisting)
+      .observe(document.body, { childList: true, subtree: true });
+  })();
+  </script>
 </body>
 </html>
