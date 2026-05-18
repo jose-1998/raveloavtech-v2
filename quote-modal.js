@@ -168,7 +168,7 @@
           body: formData,
         });
       }
-      status.textContent = '✓ ¡Mensaje enviado! Pronto nos pondremos en contacto.';
+      status.textContent = '✓ Message sent! We'll be in touch soon.';
       status.style.color = '#82A0CC';
       form.reset();
     } catch (_) {
