@@ -154,23 +154,22 @@
     try {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
-      let ok = false;
-      try {
-        const res = await fetch('/.netlify/functions/send-quote', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        ok = res.ok;
-      } catch (_) {}
-      // Fallback to Formspree if function unavailable
-      if (!ok) {
-        await fetch('https://formspree.io/f/mykvgddk', {
-          method: 'POST',
-          headers: { 'Accept': 'application/json' },
-          body: formData,
-        });
-      }
+
+      // 1 — Always send via Formspree (guaranteed business notification)
+      const fsRes = await fetch('https://formspree.io/f/mykvgddk', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: formData,
+      });
+      if (!fsRes.ok) throw new Error('Formspree error');
+
+      // 2 — Fire Netlify function for auto-reply (won't block submit)
+      fetch('/.netlify/functions/send-quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).catch(function () {});
+
       status.textContent = "✓ Message sent! We'll be in touch soon.";
       status.style.color = '#82A0CC';
       form.reset();
