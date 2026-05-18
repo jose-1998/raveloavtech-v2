@@ -779,6 +779,10 @@ ul { list-style: none; }
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #82A0CC;
+  display: none;
+}
+.gal-item[data-category].filtered .gal-overlay span {
+  display: block;
 }
 
 /* Lightbox */

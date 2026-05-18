@@ -451,6 +451,7 @@
       document.querySelectorAll('.gal-item').forEach(function (item) {
         var match = filter === 'all' || item.dataset.category === filter;
         item.classList.toggle('gal-hidden', !match);
+        item.classList.toggle('filtered', filter !== 'all');
         if (match) {
           item.classList.remove('gal-in');
           void item.offsetWidth;
