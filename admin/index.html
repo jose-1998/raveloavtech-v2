@@ -11,99 +11,24 @@
       bottom: 0; left: 0; right: 0;
       z-index: 99999;
       background: #0c2d3a;
-      border-top: 2px solid #82A0CC;
-      color: rgba(255,255,255,0.75);
-      font: 12px/1.5 sans-serif;
-      padding: 8px 20px;
+      border-top: 2px solid #e07070;
+      color: rgba(255,255,255,0.85);
+      font: 13px/1.6 sans-serif;
+      padding: 10px 24px;
       text-align: center;
     }
-    .rav-tip strong { color: #82A0CC; }
-    .rav-lock-msg {
-      display: block;
-      margin-top: 8px;
-      padding: 7px 12px;
-      background: rgba(224,112,112,0.1);
-      border: 1px solid rgba(224,112,112,0.35);
-      border-radius: 3px;
-      color: #e07070;
-      font: 600 11px/1.5 sans-serif;
-    }
+    .rav-tip strong { color: #e07070; }
+    .rav-tip em { color: #82A0CC; font-style: normal; }
   </style>
 </head>
 <body>
   <div class="rav-tip">
-    <strong>📸 Galería:</strong>
-    para <strong>cambiar</strong> una foto →
-    usa 🗑 para <strong>eliminar</strong> esa entrada y
-    <strong>agrega una nueva</strong> al final.
+    ⚠️ <strong>Para cambiar una foto existente:</strong>
+    usa el ícono <em>🗑 eliminar</em> en esa entrada
+    y luego agrega una <em>nueva entrada</em> al final —
+    <strong>NO uses "Choose an image" en entradas que ya tienen foto.</strong>
   </div>
 
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-
-  <script>
-  (function () {
-    var lockedImgs = new WeakSet();
-
-    function lockExisting() {
-      document.querySelectorAll('img').forEach(function (img) {
-        // Skip: already processed, too small, no src, or data URIs
-        if (lockedImgs.has(img)) return;
-        var src = img.src || '';
-        if (!src || src.startsWith('data:')) return;
-        var w = img.naturalWidth || img.width || 0;
-        var h = img.naturalHeight || img.height || 0;
-        if (w < 100 || h < 60) return;
-
-        // Walk up MAX 3 levels to find the image widget container.
-        // Staying tight prevents grabbing a shared ancestor that spans
-        // multiple list items (which would lock new-entry buttons too).
-        var box = img.parentElement;
-        var found = false;
-        for (var i = 0; i < 3; i++) {
-          if (!box || box === document.body) break;
-          if (box.querySelectorAll('button').length > 0) { found = true; break; }
-          box = box.parentElement;
-        }
-        if (!found || !box) return;
-
-        // Safety check: the box must contain only ONE large image.
-        // If it has more, it's a shared ancestor — skip it.
-        var largeImgs = Array.from(box.querySelectorAll('img')).filter(function (i) {
-          return (i.naturalWidth || i.width || 0) >= 100;
-        });
-        if (largeImgs.length !== 1) return;
-
-        lockedImgs.add(img);
-
-        // Disable every button in this box EXCEPT Remove / Clear
-        box.querySelectorAll('button').forEach(function (btn) {
-          var txt = (btn.textContent || btn.innerText || '').trim();
-          var lbl = btn.getAttribute('aria-label') || '';
-          if (/remove|clear|delete|trash/i.test(txt + lbl)) return;
-          btn.disabled = true;
-          btn.style.opacity = '0.3';
-          btn.style.cursor = 'not-allowed';
-          btn.style.pointerEvents = 'none';
-        });
-        box.querySelectorAll('input[type="file"]').forEach(function (fi) {
-          fi.disabled = true;
-        });
-
-        if (!box.querySelector('.rav-lock-msg')) {
-          var msg = document.createElement('span');
-          msg.className = 'rav-lock-msg';
-          msg.textContent = '🔒 Foto bloqueada — borra esta entrada (🗑) y agrega una nueva con "Add".';
-          box.appendChild(msg);
-        }
-      });
-    }
-
-    // Run once after the CMS finishes its initial render.
-    // Do NOT use a continuous MutationObserver — it fires during media-library
-    // open/close and accidentally locks the new-entry upload button.
-    setTimeout(lockExisting, 3000);
-    setTimeout(lockExisting, 6000); // second pass in case render was slow
-  })();
-  </script>
 </body>
 </html>
