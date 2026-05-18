@@ -433,7 +433,27 @@
     });
   }
 
+  function syncFilterTabs() {
+    var present = new Set(
+      Array.from(document.querySelectorAll('#gallery-container .gal-item'))
+        .map(function (item) { return item.dataset.category; })
+    );
+    filterBtns.forEach(function (btn) {
+      if (btn.dataset.filter === 'all') return; // always visible
+      var visible = present.has(btn.dataset.filter);
+      btn.style.display = visible ? '' : 'none';
+    });
+    // If active tab is now hidden, fall back to All
+    var activeBtn = document.querySelector('.gf-btn.active');
+    if (activeBtn && activeBtn.style.display === 'none') {
+      currentFilter = 'all';
+      filterBtns.forEach(function (b) { b.classList.remove('active'); });
+      document.querySelector('.gf-btn[data-filter="all"]').classList.add('active');
+    }
+  }
+
   function buildCarousel() {
+    syncFilterTabs();
     var items = getFilteredItems();
     total = items.length;
     currentIndex = 0;
