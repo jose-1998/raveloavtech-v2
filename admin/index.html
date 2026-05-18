@@ -6,7 +6,6 @@
   <title>Content Manager — Ravelo AV Tech</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
-    /* Warning banner */
     .rav-tip {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -19,8 +18,6 @@
       text-align: center;
     }
     .rav-tip strong { color: #82A0CC; }
-
-    /* Lock message injected by JS */
     .rav-lock-msg {
       display: block;
       margin-top: 8px;
@@ -36,8 +33,8 @@
 <body>
   <div class="rav-tip">
     <strong>📸 Galería:</strong>
-    para <strong>cambiar</strong> una foto existente →
-    usa el ícono 🗑 para <strong>eliminar</strong> esa entrada y luego
+    para <strong>cambiar</strong> una foto →
+    usa 🗑 para <strong>eliminar</strong> esa entrada y
     <strong>agrega una nueva</strong> al final.
   </div>
 
@@ -45,69 +42,67 @@
 
   <script>
   (function () {
-    var locked = new WeakSet();
+    var lockedImgs = new WeakSet();
 
     function lockExisting() {
-      // The native image widget renders a preview <img> for existing photos.
-      // We find those images, walk up to the widget container, and drop an
-      // overlay on the clickable/upload area — keeping the Remove button free.
-      var imgs = document.querySelectorAll('img');
-
-      imgs.forEach(function (img) {
+      document.querySelectorAll('img').forEach(function (img) {
+        // Skip: already processed, too small, no src, or data URIs
+        if (lockedImgs.has(img)) return;
         var src = img.src || '';
-
-        // Only target gallery-sized photos (skip logos, icons, thumbnails)
-        if (img.naturalWidth < 80 && img.width < 80) return;
         if (!src || src.startsWith('data:')) return;
-        if (locked.has(img)) return;
-        locked.add(img);
+        var w = img.naturalWidth || img.width || 0;
+        var h = img.naturalHeight || img.height || 0;
+        if (w < 100 || h < 60) return;
 
-        // Walk up to find the widget container that also holds buttons
+        // Walk up MAX 3 levels to find the image widget container.
+        // Staying tight prevents grabbing a shared ancestor that spans
+        // multiple list items (which would lock new-entry buttons too).
         var box = img.parentElement;
-        for (var i = 0; i < 8; i++) {
-          if (!box || box === document.body) return;
-          if (box.querySelectorAll('button').length > 0) break;
+        var found = false;
+        for (var i = 0; i < 3; i++) {
+          if (!box || box === document.body) break;
+          if (box.querySelectorAll('button').length > 0) { found = true; break; }
           box = box.parentElement;
         }
-        if (!box || locked.has(box)) return;
-        locked.add(box);
+        if (!found || !box) return;
 
-        // Disable every button except Remove / Clear / Delete
+        // Safety check: the box must contain only ONE large image.
+        // If it has more, it's a shared ancestor — skip it.
+        var largeImgs = Array.from(box.querySelectorAll('img')).filter(function (i) {
+          return (i.naturalWidth || i.width || 0) >= 100;
+        });
+        if (largeImgs.length !== 1) return;
+
+        lockedImgs.add(img);
+
+        // Disable every button in this box EXCEPT Remove / Clear
         box.querySelectorAll('button').forEach(function (btn) {
-          var txt = (btn.textContent || btn.innerText || '').trim().toLowerCase();
-          var lbl = (btn.getAttribute('aria-label') || '').toLowerCase();
-          if (/remove|clear|delete|trash|×|✕/i.test(txt + lbl)) return;
+          var txt = (btn.textContent || btn.innerText || '').trim();
+          var lbl = btn.getAttribute('aria-label') || '';
+          if (/remove|clear|delete|trash/i.test(txt + lbl)) return;
           btn.disabled = true;
           btn.style.opacity = '0.3';
           btn.style.cursor = 'not-allowed';
           btn.style.pointerEvents = 'none';
         });
-
-        // Disable hidden file inputs inside the widget
         box.querySelectorAll('input[type="file"]').forEach(function (fi) {
           fi.disabled = true;
         });
 
-        // Add inline message (no absolute overlay — avoids bleeding onto adjacent entries)
         if (!box.querySelector('.rav-lock-msg')) {
           var msg = document.createElement('span');
           msg.className = 'rav-lock-msg';
-          msg.textContent = '🔒 Foto bloqueada — para cambiarla: borra esta entrada (🗑) y agrega una nueva con "Add".';
+          msg.textContent = '🔒 Foto bloqueada — borra esta entrada (🗑) y agrega una nueva con "Add".';
           box.appendChild(msg);
         }
       });
     }
 
-    // Run once a second for the first 30 seconds after load,
-    // then keep watching for new DOM changes (user opens a list item).
-    var ticks = 0;
-    var iv = setInterval(function () {
-      lockExisting();
-      if (++ticks > 30) clearInterval(iv);
-    }, 1000);
-
-    new MutationObserver(lockExisting)
-      .observe(document.body, { childList: true, subtree: true });
+    // Run once after the CMS finishes its initial render.
+    // Do NOT use a continuous MutationObserver — it fires during media-library
+    // open/close and accidentally locks the new-entry upload button.
+    setTimeout(lockExisting, 3000);
+    setTimeout(lockExisting, 6000); // second pass in case render was slow
   })();
   </script>
 </body>
