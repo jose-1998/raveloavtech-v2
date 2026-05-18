@@ -321,8 +321,6 @@
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
     setTimeout(function () { justOpened = false; }, 400);
-    // Load Google Places lazily the first time the modal opens
-    loadGooglePlaces().then(initAutocomplete);
   }
   function closeModal() {
     if (justOpened) return;
@@ -352,6 +350,9 @@
   });
 
   window.openQuoteModal = openModal;
+
+  // Load Google Places eagerly so autocomplete is ready before user types
+  loadGooglePlaces().then(initAutocomplete);
 
   // Phone — strip non-digits as user types, keep cursor position
   var phoneInput = modal.querySelector('[name="phone"]');
