@@ -1,9 +1,9 @@
 {
-  "audiovisual_hero": "https://raveloavtech.com/cdn/shop/files/shutterstock_496566607.jpg?v=1669830879&width=1500",
+  "audiovisual_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_496566607.jpg?v=1669830879&width=1500",
   "low_voltage_hero": "https://images.pexels.com/photos/21812143/pexels-photo-21812143.jpeg?auto=compress&cs=tinysrgb&w=1500",
-  "about_hero": "https://raveloavtech.com/cdn/shop/files/truck_3b8b6668-c731-466f-b742-d7542a266e89.jpg",
+  "about_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/truck_3b8b6668-c731-466f-b742-d7542a266e89.jpg",
   "low_voltage_aside": "https://images.pexels.com/photos/27928762/pexels-photo-27928762.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "audiovisual_aside": "https://raveloavtech.com/cdn/shop/files/shutterstock_1935896365.jpg?v=1669830403&width=3840",
+  "audiovisual_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_1935896365.jpg?v=1669830403&width=3840",
   "gallery": [
     {
       "url": "/uploads/whatsapp_image_2025-09-27_at_11.21.15.jpg",
@@ -38,16 +38,16 @@
       "category": "av"
     }
   ],
-  "lutron_hero": "https://raveloavtech.com/cdn/shop/files/4.jpg",
-  "soho_hero": "https://raveloavtech.com/cdn/shop/files/shutterstock_311303981.jpg?v=1669831346&width=1420",
-  "wireless_aside": "https://raveloavtech.com/cdn/shop/files/shutterstock_1021312720.jpg?v=1669831414&width=1500",
+  "lutron_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/4.jpg",
+  "soho_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_311303981.jpg?v=1669831346&width=1420",
+  "wireless_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_1021312720.jpg?v=1669831414&width=1500",
   "wiring_hero": "https://images.pexels.com/photos/3615735/pexels-photo-3615735.jpeg?auto=compress&cs=tinysrgb&w=1500",
-  "smart_homes_aside": "https://raveloavtech.com/cdn/shop/files/shutterstock_675102319.jpg?v=1669831092&width=1420",
-  "security_hero": "https://raveloavtech.com/cdn/shop/files/shutterstock_721549570.jpg?v=1669831181&width=1500",
-  "security_aside": "https://raveloavtech.com/cdn/shop/files/shutterstock_721549570.jpg?v=1669831181&width=1500",
-  "smart_homes_hero": "https://raveloavtech.com/cdn/shop/files/shutterstock_675102319.jpg?v=1669831092&width=1500",
+  "smart_homes_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_675102319.jpg?v=1669831092&width=1420",
+  "security_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_721549570.jpg?v=1669831181&width=1500",
+  "security_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_721549570.jpg?v=1669831181&width=1500",
+  "smart_homes_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_675102319.jpg?v=1669831092&width=1500",
   "wiring_aside": "https://images.pexels.com/photos/14129563/pexels-photo-14129563.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "wireless_hero": "https://raveloavtech.com/cdn/shop/files/shutterstock_1021312720.jpg?v=1669831414&width=1500",
-  "soho_aside": "https://raveloavtech.com/cdn/shop/files/shutterstock_311303981.jpg?v=1669831346&width=1420",
-  "lutron_aside": "https://raveloavtech.com/cdn/shop/files/4.jpg"
+  "wireless_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_1021312720.jpg?v=1669831414&width=1500",
+  "soho_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_311303981.jpg?v=1669831346&width=1420",
+  "lutron_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/4.jpg"
 }
