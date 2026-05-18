@@ -233,8 +233,7 @@
   </div>
 
   <div class="gallery-filters">
-    <button class="gf-btn active" data-filter="all">All</button>
-    <button class="gf-btn" data-filter="av">Home Theater</button>
+    <button class="gf-btn active" data-filter="av">Home Theater</button>
     <button class="gf-btn" data-filter="security">Security</button>
     <button class="gf-btn" data-filter="network">Networks</button>
     <button class="gf-btn" data-filter="smart">Smart Home</button>
@@ -253,18 +252,19 @@
     <div class="gal-item" data-category="wiring"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5694658739303646542_1200x.jpg?v=1769462687" alt="Wiring Install" /><div class="gal-overlay"><span>Wiring</span></div></div>
   </div>
 
-  <!-- Grid -->
-  <div class="gallery-grid" id="gc-grid"></div>
-</section>
-
-<!-- Lightbox -->
-<div id="gg-lightbox">
-  <div class="gg-lb-wrap">
-    <button class="gg-lb-close" id="gg-lb-close" aria-label="Close">✕</button>
-    <img id="gg-lb-img" src="" alt="" />
-    <div class="gg-lb-label" id="gg-lb-label"></div>
+  <!-- Carousel -->
+  <div class="gallery-carousel">
+    <div class="gc-wrapper">
+      <div class="gc-track" id="gc-track"></div>
+    </div>
+    <button class="gc-arrow gc-prev" id="gc-prev" aria-label="Previous">&#8249;</button>
+    <button class="gc-arrow gc-next" id="gc-next" aria-label="Next">&#8250;</button>
+    <div class="gc-footer">
+      <div class="gc-dots" id="gc-dots"></div>
+      <span class="gc-counter" id="gc-counter"></span>
+    </div>
   </div>
-</div>
+</section>
 
 <!-- CONTACT -->
 <div style="background: var(--navy); border-top: 1px solid rgba(130,160,204,0.08);">
@@ -453,20 +453,24 @@
 <script src="/cms-loader.js"></script>
 <script src="/quote-modal.js"></script>
 <script>
-// Gallery Grid + Lightbox
+// Gallery Carousel
 (function () {
-  var filterBtns  = document.querySelectorAll('.gf-btn');
-  var grid        = document.getElementById('gc-grid');
-  var lightbox    = document.getElementById('gg-lightbox');
-  var lbImg       = document.getElementById('gg-lb-img');
-  var lbLabel     = document.getElementById('gg-lb-label');
-  var lbClose     = document.getElementById('gg-lb-close');
-  var currentFilter = 'all';
-  var justOpenedLb  = false;
+  var filterBtns = document.querySelectorAll('.gf-btn');
+  var track      = document.getElementById('gc-track');
+  var dotsEl     = document.getElementById('gc-dots');
+  var counterEl  = document.getElementById('gc-counter');
+  var prevBtn    = document.getElementById('gc-prev');
+  var nextBtn    = document.getElementById('gc-next');
+  var currentIndex = 0;
+  var total = 0;
+
+  // Start with the first visible tab's filter
+  var activeBtn = document.querySelector('.gf-btn.active');
+  var currentFilter = activeBtn ? activeBtn.dataset.filter : filterBtns[0].dataset.filter;
 
   function getFilteredItems() {
     return Array.from(document.querySelectorAll('#gallery-container .gal-item')).filter(function (item) {
-      return currentFilter === 'all' || item.dataset.category === currentFilter;
+      return item.dataset.category === currentFilter;
     });
   }
 
@@ -476,76 +480,107 @@
         .map(function (item) { return item.dataset.category; })
     );
     filterBtns.forEach(function (btn) {
-      if (btn.dataset.filter === 'all') return;
       btn.style.display = present.has(btn.dataset.filter) ? '' : 'none';
     });
-    var activeBtn = document.querySelector('.gf-btn.active');
-    if (activeBtn && activeBtn.style.display === 'none') {
-      currentFilter = 'all';
-      filterBtns.forEach(function (b) { b.classList.remove('active'); });
-      document.querySelector('.gf-btn[data-filter="all"]').classList.add('active');
+    // If active tab is hidden, activate the first visible one
+    var active = document.querySelector('.gf-btn.active');
+    if (active && active.style.display === 'none') {
+      var first = Array.from(filterBtns).find(function (b) { return b.style.display !== 'none'; });
+      if (first) {
+        filterBtns.forEach(function (b) { b.classList.remove('active'); });
+        first.classList.add('active');
+        currentFilter = first.dataset.filter;
+      }
     }
   }
 
-  function buildGrid() {
+  function buildCarousel() {
     syncFilterTabs();
     var items = getFilteredItems();
-    if (!items.length) {
-      grid.innerHTML = '<div class="gg-empty">No photos in this category yet</div>';
+    total = items.length;
+    currentIndex = 0;
+
+    if (!total) {
+      track.innerHTML = '<div class="gc-empty">No photos in this category yet</div>';
+      dotsEl.innerHTML = '';
+      counterEl.textContent = '';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
       return;
     }
-    grid.innerHTML = items.map(function (item) {
-      var img    = item.querySelector('img');
+
+    track.style.transition = 'none';
+    track.style.transform  = 'translateX(0)';
+    track.innerHTML = items.map(function (item) {
+      var img     = item.querySelector('img');
       var labelEl = item.querySelector('.gal-overlay span');
-      var label  = labelEl ? labelEl.textContent : '';
-      return '<div class="gg-item" data-src="' + img.src + '" data-label="' + label + '">' +
-        '<img src="' + img.src + '" alt="' + (img.alt || '') + '" loading="lazy" />' +
-        '<div class="gg-item-overlay"><div class="gg-zoom-icon">+</div></div>' +
+      var label   = labelEl ? labelEl.textContent : '';
+      return '<div class="gc-slide">' +
+        '<img src="' + img.src + '" alt="' + (img.alt || '') + '" />' +
+        (label ? '<div class="gc-slide-label">' + label + '</div>' : '') +
         '</div>';
     }).join('');
 
-    grid.querySelectorAll('.gg-item').forEach(function (item) {
-      item.addEventListener('click', function () {
-        openLightbox(item.dataset.src, item.dataset.label);
-      });
+    dotsEl.innerHTML = total > 1 ? items.map(function (_, i) {
+      return '<button class="gc-dot' + (i === 0 ? ' active' : '') + '" aria-label="Slide ' + (i + 1) + '"></button>';
+    }).join('') : '';
+    dotsEl.querySelectorAll('.gc-dot').forEach(function (dot, i) {
+      dot.addEventListener('click', function () { goTo(i); });
     });
+
+    updateUI();
   }
 
-  function openLightbox(src, label) {
-    justOpenedLb = true;
-    lbImg.src = src;
-    lbLabel.textContent = label || '';
-    lightbox.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    setTimeout(function () { justOpenedLb = false; }, 300);
+  function goTo(index) {
+    if (!total) return;
+    currentIndex = Math.max(0, Math.min(index, total - 1));
+    track.style.transition = 'transform 0.45s cubic-bezier(0.4,0,0.2,1)';
+    track.style.transform  = 'translateX(-' + (currentIndex * 100) + '%)';
+    updateUI();
   }
 
-  function closeLightbox() {
-    if (justOpenedLb) return;
-    lightbox.classList.remove('open');
-    document.body.style.overflow = '';
-    setTimeout(function () { lbImg.src = ''; }, 200);
+  function updateUI() {
+    counterEl.textContent = total > 1 ? (currentIndex + 1) + ' / ' + total : '';
+    dotsEl.querySelectorAll('.gc-dot').forEach(function (dot, i) {
+      dot.classList.toggle('active', i === currentIndex);
+    });
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === total - 1;
   }
 
-  lbClose.addEventListener('click', closeLightbox);
-  lightbox.addEventListener('click', function (e) {
-    if (e.target === lightbox) closeLightbox();
-  });
+  prevBtn.addEventListener('click', function () { goTo(currentIndex - 1); });
+  nextBtn.addEventListener('click', function () { goTo(currentIndex + 1); });
+
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
+    if (e.key === 'ArrowLeft')  goTo(currentIndex - 1);
+    if (e.key === 'ArrowRight') goTo(currentIndex + 1);
   });
+
+  var touchX = 0, touchY = 0;
+  var wrapper = document.querySelector('.gc-wrapper');
+  wrapper.addEventListener('touchstart', function (e) {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  wrapper.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      goTo(dx < 0 ? currentIndex + 1 : currentIndex - 1);
+    }
+  }, { passive: true });
 
   filterBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
       filterBtns.forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
       currentFilter = btn.dataset.filter;
-      buildGrid();
+      buildCarousel();
     });
   });
 
-  window.initGalleryCarousel = buildGrid;
-  buildGrid();
+  window.initGalleryCarousel = buildCarousel;
+  buildCarousel();
 })();
 </script>
 <script>
