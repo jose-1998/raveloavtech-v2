@@ -12,7 +12,6 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow: hidden;
     }
 
     /* Make the CMS fill available space above the tip bar */
@@ -162,24 +161,50 @@
       });
     })();
 
-    // Inject mobile-friendly styles once the CMS header renders
-    if (window.innerWidth <= 768) {
-      var cmsObserver = new MutationObserver(function (mutations, obs) {
-        var header = document.querySelector('header');
-        if (!header) return;
+    // Force mobile scrollable toolbar — runs every 600ms for 20s
+    // (CMS uses inline styles we can't override with CSS alone)
+    if (window.innerWidth <= 900) {
+      function fixCmsOverflow() {
+        // Walk up from every header/nav and un-clip any overflow:hidden ancestor
+        document.querySelectorAll('header, nav, [role="toolbar"]').forEach(function(el) {
+          el.style.overflowX = 'auto';
+          el.style.webkitOverflowScrolling = 'touch';
+          var node = el;
+          for (var i = 0; i < 8; i++) {
+            node = node.parentElement;
+            if (!node || node === document.documentElement) break;
+            var cs = window.getComputedStyle(node);
+            if (cs.overflow === 'hidden' || cs.overflowX === 'hidden') {
+              node.style.overflowX = 'auto';
+            }
+          }
+        });
+        // Also catch any div that is acting as a toolbar (has multiple buttons as direct children)
+        document.querySelectorAll('div').forEach(function(div) {
+          var btns = div.querySelectorAll(':scope > button, :scope > a');
+          if (btns.length >= 2) {
+            div.style.overflowX = 'auto';
+            div.style.webkitOverflowScrolling = 'touch';
+            div.style.flexShrink = '0';
+          }
+        });
+      }
 
-        var s = document.createElement('style');
-        s.textContent = [
-          'header { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; flex-wrap: nowrap !important; min-width: 0 !important; }',
-          'header > * { flex-shrink: 0 !important; }',
-          'header button, header a { font-size: 12px !important; padding: 6px 10px !important; min-width: 0 !important; }',
-          /* Give the user a hint that the bar scrolls */
-          'header::after { content: ""; display: block; width: 1px; flex-shrink: 0; }'
-        ].join('\n');
-        document.head.appendChild(s);
-        obs.disconnect();
+      var attempts = 0;
+      var iv = setInterval(function() {
+        fixCmsOverflow();
+        if (++attempts >= 34) clearInterval(iv); // ~20 seconds
+      }, 600);
+
+      // Also re-run on every navigation inside the CMS
+      window.addEventListener('hashchange', function() {
+        attempts = 0;
+        clearInterval(iv);
+        iv = setInterval(function() {
+          fixCmsOverflow();
+          if (++attempts >= 20) clearInterval(iv);
+        }, 600);
       });
-      cmsObserver.observe(document.body, { childList: true, subtree: true });
     }
   </script>
 </body>
