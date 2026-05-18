@@ -25,9 +25,18 @@ collections:
                 label: Category
                 widget: select
                 options:
-                  - { label: "Home Theater", value: "av" }
-                  - { label: "Security", value: "security" }
-                  - { label: "Networks", value: "network" }
-                  - { label: "Smart Home", value: "smart" }
-                  - { label: "Wiring", value: "wiring" }
+                  - label: "Home Theater"
+                    value: "av"
+                  - label: "Security"
+                    value: "security"
+                  - label: "Networks"
+                    value: "network"
+                  - label: "Smart Home"
+                    value: "smart"
+                  - label: "Wiring"
+                    value: "wiring"
+                  - label: "Low Voltage"
+                    value: "lowvoltage"
+                  - label: "Lutron"
+                    value: "lutron"
                 default: "av"
