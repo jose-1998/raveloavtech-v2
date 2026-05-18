@@ -43,7 +43,19 @@
     if (!input || input._acInit) return;
     input._acInit = true;
 
-    var dropdown = document.getElementById('qm-ac-dropdown');
+    // Append dropdown to body so overflow-y:auto on .qm-card doesn't clip it
+    var dropdown = document.createElement('div');
+    dropdown.className = 'qm-ac-dropdown';
+    dropdown.id = 'qm-ac-dropdown';
+    document.body.appendChild(dropdown);
+
+    function positionDropdown() {
+      var r = input.getBoundingClientRect();
+      dropdown.style.top   = (r.bottom + window.scrollY + 2) + 'px';
+      dropdown.style.left  = (r.left + window.scrollX) + 'px';
+      dropdown.style.width = r.width + 'px';
+    }
+
     var service = new google.maps.places.AutocompleteService();
     var debounceTimer;
 
@@ -66,6 +78,7 @@
             dropdown.classList.remove('open');
             return;
           }
+          positionDropdown();
           predictions.slice(0, 5).forEach(function (pred) {
             var item = document.createElement('div');
             item.className = 'qm-ac-item';
@@ -130,7 +143,6 @@
           <label>Address <span class="req">*</span></label>
           <div class="qm-address-wrap">
             <input type="text" name="address" id="qm-address-input" placeholder="123 Main St, Nashville TN" required autocomplete="off" />
-            <div class="qm-ac-dropdown" id="qm-ac-dropdown"></div>
           </div>
         </div>
         <div class="form-field">
@@ -252,9 +264,7 @@
     .qm-address-wrap { position: relative; }
     .qm-ac-dropdown {
       display: none;
-      position: absolute;
-      top: calc(100% + 2px);
-      left: 0; right: 0;
+      position: fixed;
       background: #0d3344;
       border: 1px solid rgba(130,160,204,0.25);
       border-radius: 4px;
