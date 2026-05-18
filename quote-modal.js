@@ -1,41 +1,58 @@
 (function () {
-  // ── Google Places address autocomplete ──────────────────────────────────
+  // ── Google Places address autocomplete (PlaceAutocompleteElement API) ──
   const GOOGLE_API_KEY = 'AIzaSyB35urwsF5EBu7nMSpP_pfdMsjYmfLRrqI';
 
-  function loadGooglePlaces(callback) {
-    if (window.google && window.google.maps && window.google.maps.places) {
-      callback(); return;
-    }
-    if (document.getElementById('gmap-places-script')) {
-      window.__gmapQueue = window.__gmapQueue || [];
-      window.__gmapQueue.push(callback);
-      return;
-    }
-    window.__gmapQueue = [callback];
-    window.__gmapPlacesReady = function () {
-      (window.__gmapQueue || []).forEach(function (fn) { fn(); });
-      window.__gmapQueue = [];
-    };
-    const s = document.createElement('script');
-    s.id = 'gmap-places-script';
-    s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY
-           + '&libraries=places&callback=__gmapPlacesReady';
-    s.async = true; s.defer = true;
-    document.head.appendChild(s);
+  function loadGooglePlaces() {
+    return new Promise(function (resolve) {
+      if (window.google && window.google.maps && window.google.maps.places &&
+          window.google.maps.places.PlaceAutocompleteElement) {
+        resolve(); return;
+      }
+      if (window.__gmapResolvers) {
+        window.__gmapResolvers.push(resolve); return;
+      }
+      if (document.getElementById('gmap-places-script')) {
+        window.__gmapResolvers = window.__gmapResolvers || [];
+        window.__gmapResolvers.push(resolve); return;
+      }
+      window.__gmapResolvers = [resolve];
+      const s = document.createElement('script');
+      s.id = 'gmap-places-script';
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY + '&loading=async';
+      s.async = true;
+      s.onload = function () {
+        google.maps.importLibrary('places').then(function () {
+          (window.__gmapResolvers || []).forEach(function (fn) { fn(); });
+          window.__gmapResolvers = [];
+        });
+      };
+      document.head.appendChild(s);
+    });
   }
 
   function initAutocomplete() {
-    const input = document.querySelector('[name="address"]');
-    if (!input || input._acInit) return;
-    input._acInit = true;
-    const ac = new google.maps.places.Autocomplete(input, {
+    var wrap = document.querySelector('.qm-address-wrap');
+    if (!wrap || wrap._acInit) return;
+    wrap._acInit = true;
+
+    var fallback = document.getElementById('qm-address-fallback');
+
+    var placeAC = new google.maps.places.PlaceAutocompleteElement({
       componentRestrictions: { country: 'us' },
-      fields: ['formatted_address'],
       types: ['address'],
     });
-    ac.addListener('place_changed', function () {
-      const place = ac.getPlace();
-      if (place.formatted_address) input.value = place.formatted_address;
+    placeAC.id = 'qm-place-ac';
+
+    // Insert before fallback, then hide fallback (it stays in form for submission)
+    wrap.insertBefore(placeAC, fallback);
+    fallback.style.display = 'none';
+    fallback.removeAttribute('required'); // validation handled manually
+
+    // On place selection, write formatted address into fallback (form data)
+    placeAC.addEventListener('gmp-placeselect', function (e) {
+      e.place.fetchFields({ fields: ['formattedAddress'] }).then(function () {
+        fallback.value = e.place.formattedAddress;
+      });
     });
   }
   // ────────────────────────────────────────────────────────────────────────
@@ -75,7 +92,9 @@
         </div>
         <div class="form-field">
           <label>Address <span class="req">*</span></label>
-          <input type="text" name="address" placeholder="123 Main St, Nashville TN" required />
+          <div class="qm-address-wrap">
+            <input type="text" name="address" id="qm-address-fallback" placeholder="123 Main St, Nashville TN" required />
+          </div>
         </div>
         <div class="form-field">
           <label>Message</label>
@@ -193,6 +212,19 @@
     select:user-invalid {
       border-color: #e07070 !important;
     }
+    .qm-address-wrap { display: block; }
+    gmp-place-autocomplete {
+      display: block;
+      width: 100%;
+      --gmp-material-container-color: transparent;
+      --gmp-material-container-low-color: transparent;
+      --gmp-material-on-surface-color: rgba(255,255,255,0.8);
+      --gmp-material-on-surface-variant-color: rgba(255,255,255,0.35);
+      --gmp-material-outline-color: rgba(130,160,204,0.5);
+      --gmp-material-outline-variant-color: rgba(130,160,204,0.3);
+      --gmp-font-family: 'Figtree', sans-serif;
+      --gmp-font-size: 0.95rem;
+    }
     .mobile-cta-bar { display: none; }
     @media (max-width: 768px) {
       .mobile-cta-bar {
@@ -233,9 +265,7 @@
     document.body.style.overflow = 'hidden';
     setTimeout(function () { justOpened = false; }, 400);
     // Load Google Places lazily the first time the modal opens
-    if (GOOGLE_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY') {
-      loadGooglePlaces(initAutocomplete);
-    }
+    loadGooglePlaces().then(initAutocomplete);
   }
   function closeModal() {
     if (justOpened) return;
@@ -245,6 +275,8 @@
       modal.classList.remove('closing');
       document.body.style.overflow = '';
       form.reset();
+      var placeAC = document.getElementById('qm-place-ac');
+      if (placeAC) placeAC.value = '';
       status.style.display = 'none';
     }, 200);
   }
@@ -282,6 +314,21 @@
       return;
     }
     form.phone.style.borderColor = '';
+
+    // Address validation — require either a selected suggestion or typed text
+    var placeAC = document.getElementById('qm-place-ac');
+    var addressVal = (form.address ? form.address.value : '').trim();
+    var typedAddr  = placeAC ? (placeAC.value || '').trim() : '';
+    if (placeAC && !addressVal && !typedAddr) {
+      status.textContent = 'Please enter your address.';
+      status.style.color = '#e07070';
+      status.style.display = 'block';
+      return;
+    }
+    // If user typed without selecting a suggestion, use typed text
+    if (placeAC && !addressVal && typedAddr) {
+      form.address.value = typedAddr;
+    }
 
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
