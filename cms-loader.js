@@ -11,7 +11,7 @@
         .map(item => {
           const url      = typeof item === 'string' ? item : item.url;
           const category = item.category || 'av';
-          const categoryLabels = { av: 'Home Theater', network: 'Networks', security: 'Security', smart: 'Smart Home', wiring: 'Wiring' };
+          const categoryLabels = { av: 'Home Theater', network: 'Networks', security: 'Security', smart: 'Smart Home', wiring: 'Wiring', lowvoltage: 'Low Voltage', lutron: 'Lutron' };
           const label    = item.label || categoryLabels[category] || category;
           return `<div class="gal-item" data-category="${category}">` +
             `<img src="${url}" alt="${label}" />` +
