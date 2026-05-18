@@ -225,6 +225,19 @@
   const status = document.getElementById('qm-status');
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
+
+    // Phone validation — must have at least 10 digits
+    const phoneVal = form.phone.value.replace(/\D/g, '');
+    if (phoneVal.length < 10) {
+      form.phone.focus();
+      form.phone.style.borderColor = '#e07070';
+      status.textContent = 'Please enter a valid phone number (at least 10 digits).';
+      status.style.color = '#e07070';
+      status.style.display = 'block';
+      return;
+    }
+    form.phone.style.borderColor = '';
+
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
     status.style.display = 'none';
