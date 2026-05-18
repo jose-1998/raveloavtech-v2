@@ -5,38 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager — Ravelo AV Tech</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <!-- Manual init so we can register the widget before CMS starts -->
   <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 <body>
 <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 <script>
 (function () {
-  var React = window.React;
+  // Decap CMS 3 exposes window.h (React.createElement) but NOT window.React
+  // So we use h() directly and avoid hooks entirely.
+  var h = window.h;
 
   // ── Locked-image widget ───────────────────────────────────────────────
-  // • If the field already has a value  → show photo preview (read-only)
-  // • If the field is empty (new entry) → show media-library picker button
+  // • Field has value  → read-only preview + lock message
+  // • Field is empty   → media-library picker button (new entry)
   // ─────────────────────────────────────────────────────────────────────
 
   function LockedImageControl(props) {
-    var value        = props.value;
-    var onChange     = props.onChange;
-    var field        = props.field;
-    var forID        = props.forID;
-    var mediaPaths   = props.mediaPaths;
-    var openMedia    = props.openMediaLibrary;
+    var value      = props.value;
+    var onChange   = props.onChange;
+    var field      = props.field;
+    var forID      = props.forID;
+    var mediaPaths = props.mediaPaths;
+    var openMedia  = props.openMediaLibrary;
 
-    // When user picks a file from the media library, mediaPaths updates
-    React.useEffect(function () {
-      if (!mediaPaths || !mediaPaths.get) return;
+    // When the user picks a file from the media library, Decap CMS
+    // re-renders this component with mediaPaths updated. We read the
+    // selection here (no useEffect needed) and save it via onChange.
+    var displayValue = value;
+    if (!displayValue && mediaPaths && typeof mediaPaths.get === 'function') {
       var picked = mediaPaths.get(forID);
-      if (picked && picked !== value) onChange(picked);
-    }); // run after every render (mediaPaths is immutable so reference changes when updated)
+      if (picked) {
+        displayValue = picked;
+        // Defer onChange so we don't mutate state during render
+        setTimeout(function () { onChange(picked); }, 0);
+      }
+    }
 
     // ── Existing photo → LOCKED ────────────────────────────────────────
-    if (value) {
-      return React.createElement('div', {
+    if (displayValue) {
+      return h('div', {
         style: {
           padding: '12px',
           border: '2px solid rgba(224,112,112,0.4)',
@@ -44,8 +51,8 @@
           background: 'rgba(224,112,112,0.05)'
         }
       },
-        React.createElement('img', {
-          src: value,
+        h('img', {
+          src: displayValue,
           alt: '',
           style: {
             maxWidth: '100%',
@@ -57,7 +64,7 @@
             background: '#0a1a22'
           }
         }),
-        React.createElement('div', {
+        h('div', {
           style: {
             background: 'rgba(224,112,112,0.12)',
             border: '1px solid rgba(224,112,112,0.35)',
@@ -69,61 +76,62 @@
             lineHeight: '1.5'
           }
         },
-          React.createElement('strong', null, '🔒 Foto bloqueada.'),
+          h('strong', null, '🔒 Foto bloqueada.'),
           ' Para cambiarla: usa el botón ',
-          React.createElement('strong', null, '🗑 (arriba a la derecha)'),
-          ' para eliminar esta entrada y agrega una nueva al final con "Add".'
+          h('strong', null, '🗑 (arriba a la derecha)'),
+          ' para eliminar esta entrada y agrega una nueva al final con “Add”.'
         )
       );
     }
 
     // ── New photo → picker button ──────────────────────────────────────
-    return React.createElement('div', null,
-      React.createElement('button', {
+    return h('div', null,
+      h('button', {
         type: 'button',
         onClick: function () {
           if (openMedia) {
             openMedia(field, {
-              controlID:      forID,
-              forImage:       true,
-              allowMultiple:  false,
-              privateUpload:  false,
-              config:         {}
+              controlID:     forID,
+              forImage:      true,
+              allowMultiple: false,
+              privateUpload: false,
+              config:        {}
             });
           }
         },
         style: {
-          display:        'block',
-          width:          '100%',
-          background:     '#0c2d3a',
-          color:          '#82A0CC',
-          border:         '1px solid rgba(130,160,204,0.4)',
-          padding:        '12px 20px',
-          cursor:         'pointer',
-          borderRadius:   '3px',
-          fontFamily:     'sans-serif',
-          fontSize:       '13px',
-          textAlign:      'center'
+          display:      'block',
+          width:        '100%',
+          background:   '#0c2d3a',
+          color:        '#82A0CC',
+          border:       '1px solid rgba(130,160,204,0.4)',
+          padding:      '12px 20px',
+          cursor:       'pointer',
+          borderRadius: '3px',
+          fontFamily:   'sans-serif',
+          fontSize:     '13px',
+          textAlign:    'center'
         }
       }, '📁 Seleccionar o subir foto')
     );
   }
 
-  // Tiny preview shown in the collapsed list item header
+  // Tiny thumbnail shown in the collapsed list-item header
   function LockedImagePreview(props) {
-    var value = props.value;
-    if (!value) return null;
-    return React.createElement('img', {
-      src: value,
+    if (!props.value) return null;
+    return h('img', {
+      src: props.value,
       alt: '',
-      style: { maxWidth: '80px', maxHeight: '56px', objectFit: 'cover', borderRadius: '2px' }
+      style: {
+        maxWidth: '80px',
+        maxHeight: '56px',
+        objectFit: 'cover',
+        borderRadius: '2px'
+      }
     });
   }
 
-  // Register before CMS.init()
   CMS.registerWidget('locked-image', LockedImageControl, LockedImagePreview);
-
-  // ── Boot ─────────────────────────────────────────────────────────────
   CMS.init();
 })();
 </script>
