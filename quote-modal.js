@@ -276,7 +276,7 @@
       status.style.color = '#82A0CC';
       form.reset();
     } catch (_) {
-      status.textContent = 'Something went wrong. Please call us at (931) 933-5040.';
+      status.textContent = 'Something went wrong. Please call us at (615) 962-0401.';
       status.style.color = '#e07070';
     }
     submitBtn.textContent = 'Send message';

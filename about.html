@@ -137,7 +137,7 @@
   </div>
   <div class="about-right">
     <div class="about-right-img">
-      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/truck_3b8b6668-c731-466f-b742-d7542a266e89.jpg" alt="Ravelo AV Tech" />
+      <img src="/uploads/ravelo-van.jpg.png" alt="Ravelo AV Tech" />
     </div>
   </div>
 </div>
@@ -205,11 +205,43 @@
 </div>
 
 <footer class="footer">
-  <div class="footer-left"><img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/Logo_mininal_light_7ac82b3c-2279-4ce4-bff6-a2bc8cdf9c5f.png?v=1668914062" alt="Ravelo AV Tech" /><p>© 2026 Ravelo AV Technologies LLC · Nashville, TN</p></div>
-  <nav class="footer-nav"><a href="index.html">Home</a><a href="offers.html">Offers</a><a href="about.html">Contact</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
-  <div class="footer-social-wrap">
-    <a href="https://www.facebook.com/raveloavtech" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
-    <a href="https://www.instagram.com/raveloav" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+  <div class="footer-body">
+    <div class="footer-brand">
+      <img src="https://cdn.shopify.com/s/files/1/0675/5568/8732/files/Logo_mininal_light_7ac82b3c-2279-4ce4-bff6-a2bc8cdf9c5f.png?v=1668914062" alt="Ravelo AV Tech" />
+      <p>Licensed &amp; insured AV specialists serving the Nashville Metro Area. 15+ years of residential and commercial installs.</p>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/raveloavtech" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a href="https://www.instagram.com/raveloav" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="audiovisual.html">AudioVisual</a></li>
+        <li><a href="smart-homes.html">Smart Homes</a></li>
+        <li><a href="security-systems.html">Security Systems</a></li>
+        <li><a href="soho-networks.html">SOHO Networks</a></li>
+        <li><a href="wireless-network.html">Wireless Networks</a></li>
+        <li><a href="lutron.html">Light Switch Automation</a></li>
+        <li><a href="wiring.html">Wiring</a></li>
+        <li><a href="low-voltage.html">Low Voltage</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <div class="footer-contact-item"><span>Office</span><a href="tel:+19319335040">+1 (931) 933-5040</a></div>
+      <div class="footer-contact-item"><span>Phone / Text</span><a href="tel:+16159620401">+1 (615) 962-0401</a></div>
+      <div class="footer-contact-item"><span>Email</span><a href="mailto:support@raveloavtech.com">support@raveloavtech.com</a></div>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <p>© 2026 Ravelo AV Technologies LLC · Nashville, TN</p>
+    <div class="footer-bar-links">
+      <a href="about.html">About</a>
+      <a href="offers.html">Offers</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </div>
   </div>
 </footer>
 <script>
@@ -256,33 +288,31 @@
       try {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        let ok = false;
-        try {
-          const res = await fetch('/.netlify/functions/send-quote', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-          ok = res.ok;
-        } catch (_) {}
-        if (!ok) {
-          await fetch('https://formspree.io/f/mykvgddk', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json' },
-            body: formData,
-          });
-        }
-        status.textContent = '✓ Message sent! We'll be in touch soon.';
+
+        // 1 — Always send via Formspree (guaranteed business notification)
+        const fsRes = await fetch('https://formspree.io/f/mykvgddk', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData,
+        });
+        if (!fsRes.ok) throw new Error('Formspree error');
+
+        // 2 — Fire Netlify function for auto-reply (won't block submit)
+        fetch('/.netlify/functions/send-quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }).catch(function () {});
+
+        status.textContent = "✓ Message sent! We'll be in touch soon.";
         status.style.color = '#82A0CC';
         form.reset();
-        submitBtn.textContent = 'Send message';
-        submitBtn.disabled = false;
-      } catch {
-        status.textContent = 'Something went wrong. Please call us at (931) 933-5040.';
+      } catch (_) {
+        status.textContent = 'Something went wrong. Please call us at (615) 962-0401.';
         status.style.color = '#e07070';
-        submitBtn.textContent = 'Send message';
-        submitBtn.disabled = false;
       }
+      submitBtn.textContent = 'Send message';
+      submitBtn.disabled = false;
       status.style.display = 'block';
     });
   }
