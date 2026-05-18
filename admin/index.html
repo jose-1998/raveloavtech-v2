@@ -5,8 +5,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager — Ravelo AV Tech</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Manual init so we can register the widget before CMS starts -->
+  <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 <body>
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+<script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+<script>
+(function () {
+  var React = window.React;
+
+  // ── Locked-image widget ───────────────────────────────────────────────
+  // • If the field already has a value  → show photo preview (read-only)
+  // • If the field is empty (new entry) → show media-library picker button
+  // ─────────────────────────────────────────────────────────────────────
+
+  function LockedImageControl(props) {
+    var value        = props.value;
+    var onChange     = props.onChange;
+    var field        = props.field;
+    var forID        = props.forID;
+    var mediaPaths   = props.mediaPaths;
+    var openMedia    = props.openMediaLibrary;
+
+    // When user picks a file from the media library, mediaPaths updates
+    React.useEffect(function () {
+      if (!mediaPaths || !mediaPaths.get) return;
+      var picked = mediaPaths.get(forID);
+      if (picked && picked !== value) onChange(picked);
+    }); // run after every render (mediaPaths is immutable so reference changes when updated)
+
+    // ── Existing photo → LOCKED ────────────────────────────────────────
+    if (value) {
+      return React.createElement('div', {
+        style: {
+          padding: '12px',
+          border: '2px solid rgba(224,112,112,0.4)',
+          borderRadius: '4px',
+          background: 'rgba(224,112,112,0.05)'
+        }
+      },
+        React.createElement('img', {
+          src: value,
+          alt: '',
+          style: {
+            maxWidth: '100%',
+            maxHeight: '200px',
+            display: 'block',
+            marginBottom: '10px',
+            borderRadius: '3px',
+            objectFit: 'contain',
+            background: '#0a1a22'
+          }
+        }),
+        React.createElement('div', {
+          style: {
+            background: 'rgba(224,112,112,0.12)',
+            border: '1px solid rgba(224,112,112,0.35)',
+            borderRadius: '3px',
+            padding: '9px 13px',
+            color: '#e07070',
+            fontSize: '12px',
+            fontFamily: 'sans-serif',
+            lineHeight: '1.5'
+          }
+        },
+          React.createElement('strong', null, '🔒 Foto bloqueada.'),
+          ' Para cambiarla: usa el botón ',
+          React.createElement('strong', null, '🗑 (arriba a la derecha)'),
+          ' para eliminar esta entrada y agrega una nueva al final con "Add".'
+        )
+      );
+    }
+
+    // ── New photo → picker button ──────────────────────────────────────
+    return React.createElement('div', null,
+      React.createElement('button', {
+        type: 'button',
+        onClick: function () {
+          if (openMedia) {
+            openMedia(field, {
+              controlID:      forID,
+              forImage:       true,
+              allowMultiple:  false,
+              privateUpload:  false,
+              config:         {}
+            });
+          }
+        },
+        style: {
+          display:        'block',
+          width:          '100%',
+          background:     '#0c2d3a',
+          color:          '#82A0CC',
+          border:         '1px solid rgba(130,160,204,0.4)',
+          padding:        '12px 20px',
+          cursor:         'pointer',
+          borderRadius:   '3px',
+          fontFamily:     'sans-serif',
+          fontSize:       '13px',
+          textAlign:      'center'
+        }
+      }, '📁 Seleccionar o subir foto')
+    );
+  }
+
+  // Tiny preview shown in the collapsed list item header
+  function LockedImagePreview(props) {
+    var value = props.value;
+    if (!value) return null;
+    return React.createElement('img', {
+      src: value,
+      alt: '',
+      style: { maxWidth: '80px', maxHeight: '56px', objectFit: 'cover', borderRadius: '2px' }
+    });
+  }
+
+  // Register before CMS.init()
+  CMS.registerWidget('locked-image', LockedImageControl, LockedImagePreview);
+
+  // ── Boot ─────────────────────────────────────────────────────────────
+  CMS.init();
+})();
+</script>
 </body>
 </html>
