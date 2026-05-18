@@ -570,17 +570,36 @@
     }
   }, { passive: true });
 
+  // Auto-rotate tabs every 15 seconds
+  var tabTimer;
+  function nextTab() {
+    var visible = Array.from(filterBtns).filter(function (b) { return b.style.display !== 'none'; });
+    if (visible.length < 2) return;
+    var activeIdx = visible.findIndex(function (b) { return b.classList.contains('active'); });
+    var next = visible[(activeIdx + 1) % visible.length];
+    filterBtns.forEach(function (b) { b.classList.remove('active'); });
+    next.classList.add('active');
+    currentFilter = next.dataset.filter;
+    buildCarousel();
+  }
+  function resetTabTimer() {
+    clearInterval(tabTimer);
+    tabTimer = setInterval(nextTab, 15000);
+  }
+
   filterBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
       filterBtns.forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
       currentFilter = btn.dataset.filter;
       buildCarousel();
+      resetTabTimer(); // restart timer on manual tap
     });
   });
 
   window.initGalleryCarousel = buildCarousel;
   buildCarousel();
+  resetTabTimer();
 })();
 </script>
 <script>
