@@ -101,10 +101,12 @@
   overlay.addEventListener('click', closeDrawer);
   const servicesBtn = document.querySelector('.nav-item button');
   const dropdown = document.querySelector('.dropdown');
-  servicesBtn.addEventListener('click', () => {
+  servicesBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     if (window.innerWidth <= 768) {
+      const isOpen = dropdown.classList.contains('open');
       dropdown.classList.toggle('open');
-      servicesBtn.textContent = dropdown.classList.contains('open') ? 'Services ▴' : 'Services ▾';
+      servicesBtn.textContent = isOpen ? 'Services ▾' : 'Services ▴';
     }
   });
 </script>
