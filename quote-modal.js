@@ -1,4 +1,45 @@
 (function () {
+  // ── Google Places address autocomplete ──────────────────────────────────
+  const GOOGLE_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // ← paste your key here
+
+  function loadGooglePlaces(callback) {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      callback(); return;
+    }
+    if (document.getElementById('gmap-places-script')) {
+      window.__gmapQueue = window.__gmapQueue || [];
+      window.__gmapQueue.push(callback);
+      return;
+    }
+    window.__gmapQueue = [callback];
+    window.__gmapPlacesReady = function () {
+      (window.__gmapQueue || []).forEach(function (fn) { fn(); });
+      window.__gmapQueue = [];
+    };
+    const s = document.createElement('script');
+    s.id = 'gmap-places-script';
+    s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY
+           + '&libraries=places&callback=__gmapPlacesReady';
+    s.async = true; s.defer = true;
+    document.head.appendChild(s);
+  }
+
+  function initAutocomplete() {
+    const input = document.querySelector('[name="address"]');
+    if (!input || input._acInit) return;
+    input._acInit = true;
+    const ac = new google.maps.places.Autocomplete(input, {
+      componentRestrictions: { country: 'us' },
+      fields: ['formatted_address'],
+      types: ['address'],
+    });
+    ac.addListener('place_changed', function () {
+      const place = ac.getPlace();
+      if (place.formatted_address) input.value = place.formatted_address;
+    });
+  }
+  // ────────────────────────────────────────────────────────────────────────
+
   // Inject modal HTML
   const modal = document.createElement('div');
   modal.id = 'quoteModal';
@@ -191,6 +232,10 @@
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
     setTimeout(function () { justOpened = false; }, 400);
+    // Load Google Places lazily the first time the modal opens
+    if (GOOGLE_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY') {
+      loadGooglePlaces(initAutocomplete);
+    }
   }
   function closeModal() {
     if (justOpened) return;
