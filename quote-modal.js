@@ -80,7 +80,7 @@
           });
           dropdown.classList.add('open');
         });
-      }, 300);
+      }, 150);
     });
 
     input.addEventListener('blur', function () {
@@ -342,6 +342,18 @@
   });
 
   window.openQuoteModal = openModal;
+
+  // Phone — strip non-digits as user types, keep cursor position
+  var phoneInput = modal.querySelector('[name="phone"]');
+  phoneInput.addEventListener('input', function () {
+    var pos = phoneInput.selectionStart;
+    var raw = phoneInput.value;
+    var digits = raw.replace(/\D/g, '');
+    if (digits !== raw) {
+      phoneInput.value = digits;
+      phoneInput.setSelectionRange(Math.max(0, pos - (raw.length - digits.length)), Math.max(0, pos - (raw.length - digits.length)));
+    }
+  });
 
   // Form submission
   const form = document.getElementById('qm-form');
