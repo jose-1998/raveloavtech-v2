@@ -159,7 +159,7 @@ exports.handler = async function (event) {
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: 'Failed to send email' }),
+      body: JSON.stringify({ error: error.message }),
     };
   }
 };
