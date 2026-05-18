@@ -47,8 +47,16 @@
   `;
   document.body.appendChild(modal);
 
-  // Mobile floating CTA (disabled)
-  const fab = document.createElement('span'); // placeholder so close logic still works
+  // Floating phone button
+  const phoneFab = document.createElement('a');
+  phoneFab.href = 'tel:+16159620401';
+  phoneFab.className = 'phone-fab';
+  phoneFab.setAttribute('aria-label', 'Call us');
+  phoneFab.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>`;
+  document.body.appendChild(phoneFab);
+
+  // Mobile floating CTA placeholder
+  const fab = document.createElement('span');
 
   // Inject styles
   const style = document.createElement('style');
@@ -110,6 +118,36 @@
       .qm-card { padding: 40px 24px; }
       .qm-row { grid-template-columns: 1fr; gap: 0; }
     }
+    .phone-fab {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      z-index: 8000;
+      width: 46px;
+      height: 46px;
+      background: #0c2d3a;
+      border: 1px solid rgba(130,160,204,0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+      transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .phone-fab:hover {
+      background: #82A0CC;
+      border-color: #82A0CC;
+      transform: scale(1.08);
+      box-shadow: 0 6px 24px rgba(130,160,204,0.35);
+    }
+    .phone-fab svg {
+      width: 19px;
+      height: 19px;
+      fill: rgba(255,255,255,0.75);
+      transition: fill 0.2s;
+    }
+    .phone-fab:hover svg { fill: #05181f; }
   `;
   document.head.appendChild(style);
 
