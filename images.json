@@ -14,7 +14,7 @@
     },
     {
       "url": "/uploads/gallery-security-1.jpg",
-      "category": "security"
+      "category": "network"
     },
     {
       "url": "/uploads/gallery-wiring-1.jpg",
@@ -22,11 +22,11 @@
     },
     {
       "url": "/uploads/gallery-smart-1.jpg",
-      "category": "smart"
+      "category": "security"
     },
     {
       "url": "/uploads/gallery-network-2.jpg",
-      "category": "network"
+      "category": "av"
     },
     {
       "url": "/uploads/gallery-wiring-2.jpg",
@@ -49,7 +49,7 @@
       "url": "/uploads/whatsapp_image_2025-09-05_at_12.43.32.jpg"
     },
     {
-      "category": "av",
+      "category": "security",
       "url": "/uploads/img_8668.jpeg"
     },
     {
