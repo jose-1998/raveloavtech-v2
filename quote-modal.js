@@ -113,11 +113,16 @@
   `;
   document.head.appendChild(style);
 
+  var justOpened = false;
+
   function openModal() {
+    justOpened = true;
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
+    setTimeout(function () { justOpened = false; }, 400);
   }
   function closeModal() {
+    if (justOpened) return;
     modal.classList.remove('open');
     document.body.style.overflow = '';
   }
@@ -126,16 +131,14 @@
   modal.querySelector('.qm-close').addEventListener('click', closeModal);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 
-  // Wire up all "Get a quote" links via event delegation (more reliable on iOS)
-  function handleQuoteLink(e) {
+  // Wire up all "Get a quote" links via click only (touchend caused backdrop to close immediately on iOS)
+  document.body.addEventListener('click', function (e) {
     var link = e.target.closest('a[href="#quote"]');
     if (link) {
       e.preventDefault();
       openModal();
     }
-  }
-  document.body.addEventListener('click', handleQuoteLink);
-  document.body.addEventListener('touchend', handleQuoteLink);
+  });
 
   window.openQuoteModal = openModal;
 
