@@ -20,26 +20,16 @@
     }
     .rav-tip strong { color: #82A0CC; }
 
-    /* Lock overlay injected by JS */
-    .rav-lock-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      cursor: not-allowed;
-      background: rgba(10,26,34,0.55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    /* Lock message injected by JS */
     .rav-lock-msg {
-      background: rgba(224,112,112,0.15);
-      border: 1px solid rgba(224,112,112,0.45);
-      border-radius: 4px;
+      display: block;
+      margin-top: 8px;
+      padding: 7px 12px;
+      background: rgba(224,112,112,0.1);
+      border: 1px solid rgba(224,112,112,0.35);
+      border-radius: 3px;
       color: #e07070;
       font: 600 11px/1.5 sans-serif;
-      padding: 6px 12px;
-      text-align: center;
-      pointer-events: none;
     }
   </style>
 </head>
@@ -88,7 +78,9 @@
           var lbl = (btn.getAttribute('aria-label') || '').toLowerCase();
           if (/remove|clear|delete|trash|×|✕/i.test(txt + lbl)) return;
           btn.disabled = true;
-          btn.style.cssText += ';opacity:.3!important;cursor:not-allowed!important;pointer-events:none!important';
+          btn.style.opacity = '0.3';
+          btn.style.cursor = 'not-allowed';
+          btn.style.pointerEvents = 'none';
         });
 
         // Disable hidden file inputs inside the widget
@@ -96,20 +88,12 @@
           fi.disabled = true;
         });
 
-        // Add a visible overlay + message if not already present
-        if (!box.querySelector('.rav-lock-overlay')) {
-          // Make the box positioned so the overlay lines up
-          var pos = window.getComputedStyle(box).position;
-          if (pos === 'static') box.style.position = 'relative';
-
-          var overlay = document.createElement('div');
-          overlay.className = 'rav-lock-overlay';
-          overlay.innerHTML = '<div class="rav-lock-msg">🔒 Foto bloqueada<br>Borra esta entrada (🗑) y agrega una nueva</div>';
-          overlay.addEventListener('click', function (e) {
-            e.stopPropagation();
-            alert('Esta foto está bloqueada.\n\nPara cambiarla:\n1. Clic en el botón de papelera 🗑 (arriba del todo en esta entrada)\n2. Agrega una nueva entrada con el botón "Add"');
-          });
-          box.appendChild(overlay);
+        // Add inline message (no absolute overlay — avoids bleeding onto adjacent entries)
+        if (!box.querySelector('.rav-lock-msg')) {
+          var msg = document.createElement('span');
+          msg.className = 'rav-lock-msg';
+          msg.textContent = '🔒 Foto bloqueada — para cambiarla: borra esta entrada (🗑) y agrega una nueva con "Add".';
+          box.appendChild(msg);
         }
       });
     }
