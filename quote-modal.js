@@ -1,6 +1,6 @@
 (function () {
   // ── Google Places address autocomplete ──────────────────────────────────
-  const GOOGLE_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // ← paste your key here
+  const GOOGLE_API_KEY = 'AIzaSyB35urwsF5EBu7nMSpP_pfdMsjYmfLRrqI';
 
   function loadGooglePlaces(callback) {
     if (window.google && window.google.maps && window.google.maps.places) {
