@@ -58,6 +58,10 @@
   `;
   document.body.appendChild(phoneFab);
 
+  // Auto-open on load, then collapse after 4 s
+  setTimeout(function () { phoneFab.classList.add('open'); }, 600);
+  setTimeout(function () { phoneFab.classList.remove('open'); }, 4600);
+
   // Mobile floating CTA placeholder
   const fab = document.createElement('span');
 
@@ -141,7 +145,7 @@
                   background 0.25s, border-color 0.25s,
                   box-shadow 0.25s, padding 0.35s;
     }
-    .phone-fab:hover {
+    .phone-fab:hover, .phone-fab.open {
       max-width: 220px;
       background: #82A0CC;
       border-color: #82A0CC;
@@ -155,7 +159,8 @@
       fill: rgba(255,255,255,0.85);
       transition: fill 0.2s;
     }
-    .phone-fab:hover .phone-fab-icon { fill: #05181f; }
+    .phone-fab:hover .phone-fab-icon,
+    .phone-fab.open .phone-fab-icon { fill: #05181f; }
     .phone-fab-text {
       font-family: 'Figtree', sans-serif;
       font-size: 13px;
@@ -166,7 +171,8 @@
       opacity: 0;
       transition: opacity 0.15s;
     }
-    .phone-fab:hover .phone-fab-text { opacity: 1; transition-delay: 0.15s; }
+    .phone-fab:hover .phone-fab-text,
+    .phone-fab.open .phone-fab-text { opacity: 1; transition-delay: 0.15s; }
     @media (max-width: 768px) {
       .phone-fab { bottom: 24px; left: 20px; padding: 12px 13px; }
     }
