@@ -1,53 +1,12 @@
 {
-  "audiovisual_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_496566607.jpg?v=1669830879&width=1500",
-  "low_voltage_hero": "https://images.pexels.com/photos/21812143/pexels-photo-21812143.jpeg?auto=compress&cs=tinysrgb&w=1500",
-  "about_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/truck_3b8b6668-c731-466f-b742-d7542a266e89.jpg",
-  "low_voltage_aside": "https://images.pexels.com/photos/27928762/pexels-photo-27928762.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "audiovisual_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_1935896365.jpg?v=1669830403&width=3840",
   "gallery": [
-    {
-      "url": "/uploads/whatsapp_image_2025-09-27_at_11.21.15.jpg",
-      "category": "av"
-    },
-    {
-      "url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2025-09-13_at_15.14.50_1200x.jpg?v=1769457331",
-      "category": "av"
-    },
-    {
-      "url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/3BF3BB51-CD64-4B02-9538-3627531C117A_1_201_a_1200x.jpg?v=1769462302",
-      "category": "av"
-    },
-    {
-      "url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/60235C0D-5AC5-4261-B3FB-3DC352C1D6C9.jpg?v=1769462498&width=2048",
-      "category": "wiring"
-    },
-    {
-      "url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2026-01-26_at_12.01.46_1200x.jpg?v=1769455597",
-      "category": "network"
-    },
-    {
-      "url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5360493423264513379_1200x.jpg?v=1769462609",
-      "category": "security"
-    },
-    {
-      "url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/1683680728038671265_1200x.jpg?v=1769462644",
-      "category": "av"
-    },
-    {
-      "url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5694658739303646542_1200x.jpg?v=1769462687",
-      "category": "av"
-    }
-  ],
-  "lutron_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/4.jpg",
-  "soho_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_311303981.jpg?v=1669831346&width=1420",
-  "wireless_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_1021312720.jpg?v=1669831414&width=1500",
-  "wiring_hero": "https://images.pexels.com/photos/3615735/pexels-photo-3615735.jpeg?auto=compress&cs=tinysrgb&w=1500",
-  "smart_homes_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_675102319.jpg?v=1669831092&width=1420",
-  "security_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_721549570.jpg?v=1669831181&width=1500",
-  "security_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_721549570.jpg?v=1669831181&width=1500",
-  "smart_homes_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_675102319.jpg?v=1669831092&width=1500",
-  "wiring_aside": "https://images.pexels.com/photos/14129563/pexels-photo-14129563.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "wireless_hero": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_1021312720.jpg?v=1669831414&width=1500",
-  "soho_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/shutterstock_311303981.jpg?v=1669831346&width=1420",
-  "lutron_aside": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/4.jpg"
+    {"url": "/uploads/whatsapp_image_2025-09-27_at_11.21.15.jpg", "category": "av"},
+    {"url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2025-09-13_at_15.14.50_1200x.jpg?v=1769457331", "category": "av"},
+    {"url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/3BF3BB51-CD64-4B02-9538-3627531C117A_1_201_a_1200x.jpg?v=1769462302", "category": "av"},
+    {"url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/60235C0D-5AC5-4261-B3FB-3DC352C1D6C9.jpg?v=1769462498&width=2048", "category": "wiring"},
+    {"url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/WhatsApp_Image_2026-01-26_at_12.01.46_1200x.jpg?v=1769455597", "category": "network"},
+    {"url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5360493423264513379_1200x.jpg?v=1769462609", "category": "security"},
+    {"url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/1683680728038671265_1200x.jpg?v=1769462644", "category": "av"},
+    {"url": "https://cdn.shopify.com/s/files/1/0675/5568/8732/files/5694658739303646542_1200x.jpg?v=1769462687", "category": "av"}
+  ]
 }
