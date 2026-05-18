@@ -148,8 +148,8 @@
       .qm-row { grid-template-columns: 1fr; gap: 0; }
     }
     .req { color: #e07070; font-size: 0.85em; }
-    input:required:invalid:not(:placeholder-shown),
-    select:required:invalid {
+    input:user-invalid,
+    select:user-invalid {
       border-color: #e07070 !important;
     }
     .mobile-cta-bar { display: none; }
