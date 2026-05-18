@@ -262,20 +262,13 @@
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      // 1 — Always send via Formspree (guaranteed business notification)
-      const fsRes = await fetch('https://formspree.io/f/mykvgddk', {
-        method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: formData,
-      });
-      if (!fsRes.ok) throw new Error('Formspree error');
-
-      // 2 — Fire Netlify function for auto-reply (won't block submit)
-      fetch('/.netlify/functions/send-quote', {
+      // Send via Netlify function (business notification + auto-reply)
+      const res = await fetch('/.netlify/functions/send-quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-      }).catch(function () {});
+      });
+      if (!res.ok) throw new Error('Send error');
 
       status.textContent = "✓ Message sent! We'll be in touch soon.";
       status.style.color = '#82A0CC';
