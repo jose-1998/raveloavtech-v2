@@ -58,28 +58,6 @@
   `;
   document.body.appendChild(phoneFab);
 
-  // Mobile: tap once to expand, tap again to call. Auto-collapse after 8s. Tap outside to collapse.
-  var fabTimer = null;
-  function closeFab() {
-    phoneFab.classList.remove('fab-open');
-    clearTimeout(fabTimer);
-    fabTimer = null;
-  }
-  phoneFab.addEventListener('click', function (e) {
-    if (window.innerWidth <= 768) {
-      if (!phoneFab.classList.contains('fab-open')) {
-        e.preventDefault();
-        phoneFab.classList.add('fab-open');
-        fabTimer = setTimeout(closeFab, 8000);
-      }
-      // already open → let the href="tel:..." fire naturally
-    }
-  });
-  document.addEventListener('click', function (e) {
-    if (window.innerWidth <= 768 && !phoneFab.contains(e.target)) {
-      closeFab();
-    }
-  });
 
   // Mobile floating CTA placeholder
   const fab = document.createElement('span');
@@ -219,16 +197,21 @@
     }
     .phone-fab:hover .phone-fab-text { opacity: 1; transition-delay: 0.15s; }
     @media (max-width: 768px) {
-      .phone-fab { bottom: 24px; left: 20px; }
-      .phone-fab.fab-open {
-        max-width: 210px;
-        background: #82A0CC;
-        border-color: #82A0CC;
-        padding: 12px 20px 12px 14px;
-        box-shadow: 0 4px 16px rgba(130,160,204,0.3), 0 8px 28px rgba(0,0,0,0.2);
+      .phone-fab {
+        bottom: 24px;
+        left: 20px;
+        max-width: 48px;
+        transition: none;
       }
-      .phone-fab.fab-open .phone-fab-icon { fill: #05181f; }
-      .phone-fab.fab-open .phone-fab-text { opacity: 1; color: #05181f; transition-delay: 0.15s; }
+      .phone-fab:hover {
+        max-width: 48px;
+        background: #0c2d3a;
+        border-color: rgba(130,160,204,0.22);
+        padding: 13px 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 8px 28px rgba(0,0,0,0.22);
+      }
+      .phone-fab:hover .phone-fab-icon { fill: rgba(255,255,255,0.85); }
+      .phone-fab:hover .phone-fab-text { opacity: 0; }
     }
   `;
   document.head.appendChild(style);
