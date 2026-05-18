@@ -4,10 +4,17 @@
 
   function loadGooglePlaces() {
     return new Promise(function (resolve) {
+      // Case 1: Fully ready
       if (window.google && window.google.maps && window.google.maps.places &&
           window.google.maps.places.PlaceAutocompleteElement) {
         resolve(); return;
       }
+      // Case 2: google.maps bootstrap loaded — call importLibrary directly
+      if (window.google && window.google.maps && typeof window.google.maps.importLibrary === 'function') {
+        google.maps.importLibrary('places').then(function () { resolve(); });
+        return;
+      }
+      // Case 3: Script loading in progress — queue
       if (window.__gmapResolvers) {
         window.__gmapResolvers.push(resolve); return;
       }
@@ -15,6 +22,7 @@
         window.__gmapResolvers = window.__gmapResolvers || [];
         window.__gmapResolvers.push(resolve); return;
       }
+      // Case 4: Load bootstrap script fresh
       window.__gmapResolvers = [resolve];
       const s = document.createElement('script');
       s.id = 'gmap-places-script';
