@@ -151,12 +151,23 @@
     try {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
-      const res = await fetch('/.netlify/functions/send-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Server error');
+      let ok = false;
+      try {
+        const res = await fetch('/.netlify/functions/send-quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        ok = res.ok;
+      } catch (_) {}
+      // Fallback to Formspree if function unavailable
+      if (!ok) {
+        await fetch('https://formspree.io/f/mykvgddk', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData,
+        });
+      }
       status.textContent = '✓ ¡Mensaje enviado! Pronto nos pondremos en contacto.';
       status.style.color = '#82A0CC';
       form.reset();

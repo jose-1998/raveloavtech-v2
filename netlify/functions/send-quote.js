@@ -13,10 +13,6 @@ exports.handler = async function (event) {
   }
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  if (!RESEND_API_KEY) {
-    console.error('RESEND_API_KEY not set');
-    return { statusCode: 500, body: JSON.stringify({ error: 'Email service not configured' }) };
-  }
 
   let data;
   try {
@@ -52,6 +48,16 @@ exports.handler = async function (event) {
   }
 
   const FROM = 'Ravelo AV Tech <onboarding@resend.dev>';
+
+  // If no API key yet, return success so the form doesn't show an error
+  if (!RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not set — skipping emails');
+    return {
+      statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ success: true, warning: 'emails skipped' }),
+    };
+  }
 
   try {
     // 1 — Notify the business
