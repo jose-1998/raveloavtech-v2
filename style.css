@@ -3,7 +3,7 @@
    Más carácter, menos template
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Oswald:wght@700&family=DM+Serif+Display:ital@0;1&display=swap');
+/* Fonts moved to <link> tags in each HTML page for non-blocking load */
 
 /* ---------- Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
