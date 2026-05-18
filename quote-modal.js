@@ -168,7 +168,17 @@
     }
     .phone-fab:hover .phone-fab-text { opacity: 1; transition-delay: 0.15s; }
     @media (max-width: 768px) {
-      .phone-fab { bottom: 24px; left: 20px; padding: 12px 13px; }
+      .phone-fab {
+        bottom: 24px;
+        left: 20px;
+        padding: 12px 20px 12px 14px;
+        max-width: 210px;
+        background: #82A0CC;
+        border-color: #82A0CC;
+        box-shadow: 0 4px 16px rgba(130,160,204,0.3), 0 8px 28px rgba(0,0,0,0.2);
+      }
+      .phone-fab-icon { fill: #05181f; }
+      .phone-fab-text { opacity: 1; color: #05181f; }
     }
   `;
   document.head.appendChild(style);
