@@ -10,8 +10,13 @@
     if (gc && Array.isArray(data.gallery) && data.gallery.length) {
       gc.innerHTML = data.gallery
         .map(item => {
-          const url = typeof item === 'string' ? item : item.url;
-          return `<div class="gal-item"><img src="${url}" alt="Install" loading="lazy" /></div>`;
+          const url      = typeof item === 'string' ? item : item.url;
+          const category = item.category || 'av';
+          const label    = item.label    || 'Install';
+          return `<div class="gal-item" data-category="${category}">` +
+            `<img src="${url}" alt="${label}" loading="lazy" />` +
+            `<div class="gal-overlay"><span>${label}</span></div>` +
+            `</div>`;
         })
         .join('');
     }
