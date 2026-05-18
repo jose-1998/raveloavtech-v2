@@ -773,17 +773,7 @@ ul { list-style: none; }
   transition: opacity 0.3s;
 }
 .gal-item:hover .gal-overlay { opacity: 1; }
-.gal-overlay span {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #82A0CC;
-  display: none;
-}
-.gal-item[data-category].filtered .gal-overlay span {
-  display: block;
-}
+.gal-overlay span { display: none; }
 
 /* Lightbox */
 #lightbox {
