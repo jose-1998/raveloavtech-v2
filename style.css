@@ -740,7 +740,7 @@ ul { list-style: none; }
 .gc-wrapper {
   overflow: hidden;
   border-radius: 2px;
-  background: #0a2330;
+  background: transparent;
 }
 
 .gc-track {
