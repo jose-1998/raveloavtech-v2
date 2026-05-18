@@ -39,28 +39,56 @@
   }
 
   function initAutocomplete() {
-    var wrap = document.querySelector('.qm-address-wrap');
-    if (!wrap || wrap._acInit) return;
-    wrap._acInit = true;
+    var input = document.getElementById('qm-address-input');
+    if (!input || input._acInit) return;
+    input._acInit = true;
 
-    var fallback = document.getElementById('qm-address-fallback');
+    var dropdown = document.getElementById('qm-ac-dropdown');
+    var service = new google.maps.places.AutocompleteService();
+    var debounceTimer;
 
-    var placeAC = new google.maps.places.PlaceAutocompleteElement({
-      componentRestrictions: { country: 'us' },
-      types: ['address'],
+    input.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      var val = input.value.trim();
+      if (val.length < 3) {
+        dropdown.innerHTML = '';
+        dropdown.classList.remove('open');
+        return;
+      }
+      debounceTimer = setTimeout(function () {
+        service.getPlacePredictions({
+          input: val,
+          componentRestrictions: { country: 'us' },
+          types: ['address'],
+        }, function (predictions, status) {
+          dropdown.innerHTML = '';
+          if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+            dropdown.classList.remove('open');
+            return;
+          }
+          predictions.slice(0, 5).forEach(function (pred) {
+            var item = document.createElement('div');
+            item.className = 'qm-ac-item';
+            item.textContent = pred.description;
+            item.addEventListener('mousedown', function (e) {
+              e.preventDefault();
+              input.value = pred.description;
+              dropdown.innerHTML = '';
+              dropdown.classList.remove('open');
+            });
+            dropdown.appendChild(item);
+          });
+          dropdown.classList.add('open');
+        });
+      }, 300);
     });
-    placeAC.id = 'qm-place-ac';
 
-    // Insert before fallback, then hide fallback (it stays in form for submission)
-    wrap.insertBefore(placeAC, fallback);
-    fallback.style.display = 'none';
-    fallback.removeAttribute('required'); // validation handled manually
+    input.addEventListener('blur', function () {
+      setTimeout(function () { dropdown.classList.remove('open'); }, 150);
+    });
 
-    // On place selection, write formatted address into fallback (form data)
-    placeAC.addEventListener('gmp-placeselect', function (e) {
-      e.place.fetchFields({ fields: ['formattedAddress'] }).then(function () {
-        fallback.value = e.place.formattedAddress;
-      });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { dropdown.classList.remove('open'); }
     });
   }
   // ────────────────────────────────────────────────────────────────────────
@@ -101,7 +129,8 @@
         <div class="form-field">
           <label>Address <span class="req">*</span></label>
           <div class="qm-address-wrap">
-            <input type="text" name="address" id="qm-address-fallback" placeholder="123 Main St, Nashville TN" required />
+            <input type="text" name="address" id="qm-address-input" placeholder="123 Main St, Nashville TN" required autocomplete="off" />
+            <div class="qm-ac-dropdown" id="qm-ac-dropdown"></div>
           </div>
         </div>
         <div class="form-field">
@@ -220,19 +249,29 @@
     select:user-invalid {
       border-color: #e07070 !important;
     }
-    .qm-address-wrap { display: block; }
-    gmp-place-autocomplete {
-      display: block;
-      width: 100%;
-      --gmp-material-container-color: transparent;
-      --gmp-material-container-low-color: transparent;
-      --gmp-material-on-surface-color: rgba(255,255,255,0.8);
-      --gmp-material-on-surface-variant-color: rgba(255,255,255,0.35);
-      --gmp-material-outline-color: rgba(130,160,204,0.5);
-      --gmp-material-outline-variant-color: rgba(130,160,204,0.3);
-      --gmp-font-family: 'Figtree', sans-serif;
-      --gmp-font-size: 0.95rem;
+    .qm-address-wrap { position: relative; }
+    .qm-ac-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0; right: 0;
+      background: #0d3344;
+      border: 1px solid rgba(130,160,204,0.25);
+      border-radius: 4px;
+      z-index: 10001;
+      overflow: hidden;
     }
+    .qm-ac-dropdown.open { display: block; }
+    .qm-ac-item {
+      padding: 10px 14px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      border-bottom: 1px solid rgba(130,160,204,0.1);
+    }
+    .qm-ac-item:last-child { border-bottom: none; }
+    .qm-ac-item:hover { background: rgba(130,160,204,0.15); color: #fff; }
     .mobile-cta-bar { display: none; }
     @media (max-width: 768px) {
       .mobile-cta-bar {
@@ -283,8 +322,8 @@
       modal.classList.remove('closing');
       document.body.style.overflow = '';
       form.reset();
-      var placeAC = document.getElementById('qm-place-ac');
-      if (placeAC) placeAC.value = '';
+      var dd = document.getElementById('qm-ac-dropdown');
+      if (dd) { dd.innerHTML = ''; dd.classList.remove('open'); }
       status.style.display = 'none';
     }, 200);
   }
@@ -323,20 +362,6 @@
     }
     form.phone.style.borderColor = '';
 
-    // Address validation — require either a selected suggestion or typed text
-    var placeAC = document.getElementById('qm-place-ac');
-    var addressVal = (form.address ? form.address.value : '').trim();
-    var typedAddr  = placeAC ? (placeAC.value || '').trim() : '';
-    if (placeAC && !addressVal && !typedAddr) {
-      status.textContent = 'Please enter your address.';
-      status.style.color = '#e07070';
-      status.style.display = 'block';
-      return;
-    }
-    // If user typed without selecting a suggestion, use typed text
-    if (placeAC && !addressVal && typedAddr) {
-      form.address.value = typedAddr;
-    }
 
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
