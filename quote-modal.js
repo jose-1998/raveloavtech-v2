@@ -520,6 +520,10 @@
       if (overlay) overlay.classList.remove('open');
       document.body.style.overflow = '';
     });
-    navLinks.appendChild(drawerFooter);
+    // Wrap in <li> so <ul> children are valid HTML
+    var drawerFooterLi = document.createElement('li');
+    drawerFooterLi.className = 'nav-drawer-footer-item';
+    drawerFooterLi.appendChild(drawerFooter);
+    navLinks.appendChild(drawerFooterLi);
   }
 })();

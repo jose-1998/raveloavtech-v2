@@ -1103,7 +1103,7 @@ ul { list-style: none; }
 
 .footer-col ul li a {
   font-size: 13px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.6);
   transition: color 0.2s;
 }
 
@@ -1126,7 +1126,7 @@ ul { list-style: none; }
 
 .footer-contact-item a {
   font-size: 13px;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.65);
   transition: color 0.2s;
 }
 
@@ -1455,8 +1455,11 @@ ul { list-style: none; }
   .nav-service-icon svg { width: 15px; height: 15px; }
 
   /* Drawer footer — fills empty space */
-  .nav-drawer-footer {
+  .nav-drawer-footer-item {
     margin-top: auto;
+    list-style: none;
+  }
+  .nav-drawer-footer {
     padding-top: 24px;
     padding-bottom: 8px;
     border-top: 1px solid rgba(130,160,204,0.1);
