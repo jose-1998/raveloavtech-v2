@@ -80,6 +80,81 @@
       .rav-tip { font-size: 11.5px; padding: 8px 40px 8px 12px; }
     }
 
+    /* ── Media library modal — full screen on mobile ── */
+    @media (max-width: 900px) {
+      /* Overlay full screen */
+      [class*="MediaLibrary"] [class*="Overlay"],
+      [class*="media-library"] [class*="overlay"],
+      div[role="dialog"] {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        overflow-y: auto !important;
+      }
+
+      /* Modal card itself — fill the dialog */
+      div[role="dialog"] > div,
+      [class*="MediaLibrary"] > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        overflow-y: auto !important;
+      }
+
+      /* Header button row — wrap so nothing gets cut off */
+      [class*="MediaLibrary"] header,
+      div[role="dialog"] header {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 10px !important;
+        overflow: visible !important;
+      }
+
+      [class*="MediaLibrary"] header button,
+      div[role="dialog"] header button {
+        flex: 1 1 auto !important;
+        min-width: 80px !important;
+        font-size: 13px !important;
+        padding: 10px 8px !important;
+        white-space: nowrap !important;
+      }
+
+      /* Search bar full width */
+      [class*="MediaLibrary"] input[type="search"],
+      [class*="MediaLibrary"] input[placeholder*="Search"],
+      div[role="dialog"] input {
+        width: 100% !important;
+        min-height: 44px !important;
+        font-size: 16px !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Image grid — 2 columns */
+      [class*="MediaLibrary"] [class*="Grid"],
+      [class*="MediaLibrary"] ul,
+      div[role="dialog"] ul {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        padding: 8px !important;
+        width: 100% !important;
+      }
+
+      /* Each image card */
+      [class*="MediaLibrary"] li,
+      div[role="dialog"] li {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+
     /* ── CMS mobile overrides ── */
     @media (max-width: 900px) {
       /* Scrollable toolbars */
