@@ -485,6 +485,7 @@
   var pendingCategory = null;
   var pendingMove = null;    // { url, fromCat }
   var isDirty = false;
+  var blobCache = {};        // url → local blob data URL (while Netlify deploys)
 
   // ── Elements ──────────────────────────────────────────────────────────────
   var loginScreen   = document.getElementById('loginScreen');
@@ -708,14 +709,18 @@
       return new Promise(function (resolve, reject) {
         var reader = new FileReader();
         reader.onload = function () {
-          var b64 = reader.result.split(',')[1];
+          var dataUrl = reader.result;
+          var b64 = dataUrl.split(',')[1];
           var ts  = Date.now();
           var filename = 'gallery-' + category + '-' + ts + '.jpg';
+          var finalUrl = '/uploads/' + filename;
           gitPut('/contents/uploads/' + filename, {
             message: 'Add gallery photo: ' + filename,
             content: b64
           }).then(function () {
-            resolve('/uploads/' + filename);
+            // Cache blob locally so the admin shows it before Netlify redeploys
+            blobCache[finalUrl] = dataUrl;
+            resolve(finalUrl);
           }).catch(reject);
         };
         reader.onerror = reject;
@@ -863,7 +868,7 @@
           card.className = 'photo-card';
 
           var img = document.createElement('img');
-          img.src = photo.url;
+          img.src = blobCache[photo.url] || photo.url;
           img.alt = cat.label;
           img.loading = 'lazy';
           img.onerror = function () {
