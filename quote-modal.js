@@ -82,14 +82,12 @@
       });
     }
 
-    // Desktop only: hide dropdown when card is scrolled manually
-    if (!isMobile) {
-      var card = modal.querySelector('.qm-card');
-      if (card) {
-        card.addEventListener('scroll', function () {
-          dropdown.classList.remove('open');
-        }, { passive: true });
-      }
+    // Hide dropdown when the modal card is scrolled (both mobile and desktop)
+    var card = modal.querySelector('.qm-card');
+    if (card) {
+      card.addEventListener('scroll', function () {
+        dropdown.classList.remove('open');
+      }, { passive: true });
     }
 
     var sessionToken = new ST();
