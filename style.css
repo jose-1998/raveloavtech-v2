@@ -749,7 +749,21 @@ ul { list-style: none; }
   padding: 0 48px;
 }
 
-.gc-wrapper { /* no overflow hidden — grid wraps naturally */ }
+.gc-wrapper {
+  max-height: 600px;
+  overflow-y: auto;
+  border-radius: 2px;
+  /* Fade bottom edge to hint at more content */
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  /* Custom scrollbar — matches dark theme */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(130,160,204,0.3) transparent;
+}
+.gc-wrapper::-webkit-scrollbar { width: 4px; }
+.gc-wrapper::-webkit-scrollbar-track { background: transparent; }
+.gc-wrapper::-webkit-scrollbar-thumb { background: rgba(130,160,204,0.3); border-radius: 2px; }
+.gc-wrapper::-webkit-scrollbar-thumb:hover { background: rgba(130,160,204,0.55); }
 
 .gc-track {
   display: grid;
@@ -905,11 +919,15 @@ ul { list-style: none; }
   .gallery-carousel { padding: 0 24px; }
   .gc-track { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }
+@media (max-width: 900px) {
+  .gc-wrapper { max-height: 520px; }
+}
 @media (max-width: 480px) {
   .gallery-filters { padding: 0 16px; gap: 6px; }
   .gf-btn { padding: 8px 12px; font-size: 10px; }
   .gallery-carousel { padding: 0 16px; }
   .gc-track { gap: 6px; }
+  .gc-wrapper { max-height: 420px; }
   .gc-lb-prev { left: 8px; }
   .gc-lb-next { right: 8px; }
   .gc-lb-arrow { width: 36px; height: 36px; font-size: 1.5rem; }
