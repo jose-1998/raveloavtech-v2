@@ -6,7 +6,7 @@
     },
     {
       "url": "/uploads/gallery-network-1.jpg",
-      "category": "av"
+      "category": "network"
     },
     {
       "url": "/uploads/gallery-theater-2.jpg",
@@ -14,19 +14,19 @@
     },
     {
       "url": "/uploads/gallery-security-1.jpg",
-      "category": "network"
-    },
-    {
-      "url": "/uploads/gallery-wiring-1.jpg",
-      "category": "network"
-    },
-    {
-      "url": "/uploads/gallery-smart-1.jpg",
       "category": "security"
     },
     {
+      "url": "/uploads/gallery-wiring-1.jpg",
+      "category": "wiring"
+    },
+    {
+      "url": "/uploads/gallery-smart-1.jpg",
+      "category": "smart"
+    },
+    {
       "url": "/uploads/gallery-network-2.jpg",
-      "category": "av"
+      "category": "network"
     },
     {
       "category": "wiring",
