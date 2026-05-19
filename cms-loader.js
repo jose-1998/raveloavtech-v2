@@ -1,6 +1,6 @@
 (async function () {
   try {
-    const r = await fetch('/images.json?_=' + Date.now());
+    const r = await fetch('/images.json');
     if (!r.ok) return;
     const data = await r.json();
 

@@ -1,25 +1,45 @@
 [functions]
   node_bundler = "esbuild"
 
-# Long-term cache for images and fonts (content rarely changes)
+# ── Cache headers ────────────────────────────────────────────────────────────
+
+# Images / fonts in /uploads/ — immutable (use CDN invalidation on redeploy)
 [[headers]]
   for = "/uploads/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000"
+    Cache-Control = "public, max-age=31536000, immutable"
 
-# 1-day cache for CSS/JS (Netlify invalidates CDN on each deploy)
+# CSS and JS — 1-year cache; Netlify CDN is purged on each deploy
 [[headers]]
   for = "/*.css"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*.js"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# images.json is updated by CMS — revalidate every 5 minutes
+[[headers]]
+  for = "/images.json"
+  [headers.values]
+    Cache-Control = "public, max-age=300, stale-while-revalidate=60"
 
 # HTML always fresh
 [[headers]]
   for = "/*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# ── Security headers (applied to all routes) ─────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://maps.googleapis.com https://places.googleapis.com https://*.google.com https://netlify-cdp-proxy.netlify.app https://*.netlify.com; frame-src https://www.google.com; worker-src blob:;"
