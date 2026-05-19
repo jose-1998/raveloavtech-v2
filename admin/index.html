@@ -629,8 +629,8 @@
   function saveGallery() {
     setLoading('Guardando…');
 
-    // 1 — Save images.json
-    var p1 = gitGet('/contents/images.json').then(function (data) {
+    // Step 1 — Save images.json (critical)
+    return gitGet('/contents/images.json').then(function (data) {
       var encoded = btoa(unescape(encodeURIComponent(
         JSON.stringify({ gallery: gallery }, null, 2)
       )));
@@ -639,36 +639,46 @@
         content: encoded,
         sha: data.sha
       });
-    });
 
-    // 2 — Update hardcoded fallback in index.html so it always matches
-    var p2 = gitGet('/contents/index.html').then(function (data) {
-      var html = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+    // Step 2 — Sync hardcoded fallback in index.html (non-fatal)
+    }).then(function () {
+      return gitGet('/contents/index.html').then(function (data) {
+        // Robust UTF-8 decode
+        var raw  = atob(data.content.replace(/\n/g, ''));
+        var html = decodeURIComponent(
+          raw.split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join('')
+        );
 
-      var newItems = gallery.map(function (item) {
-        var label = CAT_LABELS[item.category] || item.category;
-        return '    <div class="gal-item" data-category="' + item.category + '">' +
-          '<img loading="lazy" decoding="async" src="' + item.url + '" alt="' + label + '" />' +
-          '<div class="gal-overlay"><span>' + label + '</span></div>' +
-          '</div>';
-      }).join('\n');
+        var newItems = gallery.map(function (item) {
+          var label = CAT_LABELS[item.category] || item.category;
+          // Escape $ to avoid replacement string special chars
+          return ('    <div class="gal-item" data-category="' + item.category + '">' +
+            '<img loading="lazy" decoding="async" src="' + item.url + '" alt="' + label + '" />' +
+            '<div class="gal-overlay"><span>' + label + '</span></div>' +
+            '</div>').replace(/\$/g, '$$$$');
+        }).join('\n');
 
-      var updated = html.replace(
-        /(<div id="gallery-container">)([\s\S]*?)(<\/div>\s*\n\s*<!-- Gallery grid -->)/,
-        '$1\n' + newItems + '\n  $3'
-      );
+        var updated = html.replace(
+          /(<div id="gallery-container">)([\s\S]*?)(<\/div>)(\s*\n\s*<!-- Gallery grid -->)/,
+          '$1\n' + newItems + '\n  $3$4'
+        );
 
-      if (updated === html) return; // nothing changed, skip write
+        if (updated === html) return; // regex didn't match, skip
 
-      var encoded = btoa(unescape(encodeURIComponent(updated)));
-      return gitPut('/contents/index.html', {
-        message: 'Sync gallery fallback with images.json',
-        content: encoded,
-        sha: data.sha
+        var encoded = btoa(unescape(encodeURIComponent(updated)));
+        return gitPut('/contents/index.html', {
+          message: 'Sync gallery fallback with images.json',
+          content: encoded,
+          sha: data.sha
+        });
+      }).catch(function (err) {
+        // index.html update failing is not critical — images.json is already saved
+        console.warn('index.html sync failed (non-fatal):', err);
       });
-    });
 
-    return Promise.all([p1, p2]).then(function () {
+    }).then(function () {
       setLoading(null);
       showToast('✓ Publicado — el sitio se está actualizando', 'ok');
     }).catch(function (err) {
