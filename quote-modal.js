@@ -269,7 +269,7 @@
     }
     .qm-close {
       position: absolute;
-      top: 18px;
+      top: 28px;
       right: 22px;
       background: none;
       border: none;
