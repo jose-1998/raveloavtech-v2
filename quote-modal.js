@@ -66,14 +66,22 @@
       dropdown.style.width = r.width + 'px';
     }
 
-    // Reposition when keyboard opens/closes or viewport scrolls
+    // Reposition when keyboard opens/closes; hide on viewport scroll
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', function () {
         if (dropdown.classList.contains('open')) positionDropdown();
       });
       window.visualViewport.addEventListener('scroll', function () {
-        if (dropdown.classList.contains('open')) positionDropdown();
+        dropdown.classList.remove('open');
       });
+    }
+
+    // Hide dropdown when user scrolls inside the modal card
+    var card = modal.querySelector('.qm-card');
+    if (card) {
+      card.addEventListener('scroll', function () {
+        dropdown.classList.remove('open');
+      }, { passive: true });
     }
 
     var sessionToken = new ST();
@@ -336,10 +344,16 @@
   document.head.appendChild(style);
 
   var justOpened = false;
+  var _savedScrollY = 0;
 
   function openModal() {
     justOpened = true;
     modal.classList.add('open');
+    // iOS Safari ignores overflow:hidden on body — use position:fixed trick
+    _savedScrollY = window.scrollY || window.pageYOffset;
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + _savedScrollY + 'px';
+    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
     setTimeout(function () { justOpened = false; }, 400);
   }
@@ -349,7 +363,11 @@
     setTimeout(function () {
       modal.classList.remove('open');
       modal.classList.remove('closing');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
       document.body.style.overflow = '';
+      window.scrollTo(0, _savedScrollY);
       form.reset();
       var dd = document.getElementById('qm-ac-dropdown');
       if (dd) { dd.innerHTML = ''; dd.classList.remove('open'); }
