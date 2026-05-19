@@ -59,6 +59,33 @@
       padding: 3px 9px;
       border-radius: 3px;
     }
+    .topbar-publish {
+      background: rgba(91,141,238,0.12);
+      border: 1px solid rgba(91,141,238,0.25);
+      color: rgba(91,141,238,0.4);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: default;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .topbar-publish.dirty {
+      background: var(--blue-btn);
+      border-color: var(--blue-btn);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 0 0 0 rgba(91,141,238,0.5);
+      animation: pulse-pub 1.8s ease-in-out infinite;
+    }
+    .topbar-publish.dirty:active { background: #4a7de0; }
+    @keyframes pulse-pub {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(91,141,238,0.45); }
+      50%       { box-shadow: 0 0 0 6px rgba(91,141,238,0); }
+    }
+
     .topbar-logout {
       background: none;
       border: 1px solid rgba(224,112,112,0.35);
@@ -400,6 +427,7 @@
     <div class="topbar-divider"></div>
     <span class="topbar-label">Content Manager</span>
     <div class="topbar-badge">Admin</div>
+    <button class="topbar-publish" id="publishBtn" disabled>Publicar</button>
     <button class="topbar-logout" id="logoutBtn">Salir</button>
   </div>
 
@@ -456,6 +484,7 @@
   var gallery = [];          // [{ url, category }]
   var pendingCategory = null;
   var pendingMove = null;    // { url, fromCat }
+  var isDirty = false;
 
   // ── Elements ──────────────────────────────────────────────────────────────
   var loginScreen   = document.getElementById('loginScreen');
@@ -472,12 +501,32 @@
   var catOverlay    = document.getElementById('catOverlay');
   var catSheet      = document.getElementById('catSheet');
   var catOptionsEl  = document.getElementById('catOptions');
+  var publishBtn    = document.getElementById('publishBtn');
 
   // ── Tip bar ───────────────────────────────────────────────────────────────
   if (sessionStorage.getItem('tipDismissed')) tipBar.classList.add('hidden');
   tipClose.addEventListener('click', function () {
     tipBar.classList.add('hidden');
     sessionStorage.setItem('tipDismissed', '1');
+  });
+
+  // ── Dirty state / Publish ─────────────────────────────────────────────────
+  function markDirty() {
+    isDirty = true;
+    publishBtn.classList.add('dirty');
+    publishBtn.disabled = false;
+  }
+  function markClean() {
+    isDirty = false;
+    publishBtn.classList.remove('dirty');
+    publishBtn.disabled = true;
+  }
+
+  publishBtn.addEventListener('click', function () {
+    if (!isDirty) return;
+    saveGallery().then(function () {
+      markClean();
+    }).catch(function () {});
   });
 
   // ── Toast ─────────────────────────────────────────────────────────────────
@@ -583,7 +632,7 @@
       });
     }).then(function () {
       setLoading(null);
-      showToast('✓ Guardado', 'ok');
+      showToast('✓ Publicado — el sitio se está actualizando', 'ok');
     }).catch(function (err) {
       setLoading(null);
       showToast('Error al guardar', 'err');
@@ -645,9 +694,10 @@
     setLoading('Subiendo foto…');
     uploadImage(file, cat).then(function (url) {
       gallery.push({ url: url, category: cat });
-      return saveGallery();
-    }).then(function () {
+      setLoading(null);
       renderFolders();
+      markDirty();
+      showToast('✓ Foto agregada — toca Publicar para guardar', 'ok');
     }).catch(function (err) {
       setLoading(null);
       showToast('Error al subir foto', 'err');
@@ -694,10 +744,9 @@
       }
       return p;
     });
-    // Keep destination folder open
     openFolders[toCat] = true;
     renderFolders();
-    saveGallery().catch(function () { loadGallery(); });
+    markDirty();
   }
 
   // ── Delete photo ──────────────────────────────────────────────────────────
@@ -707,10 +756,7 @@
       return !(p.url === url && p.category === category);
     });
     renderFolders();
-    saveGallery().catch(function () {
-      // Revert on error
-      loadGallery();
-    });
+    markDirty();
   }
 
   // ── Render folders ────────────────────────────────────────────────────────
