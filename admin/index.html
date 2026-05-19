@@ -1154,11 +1154,14 @@
           (t.phone   ? '<div class="ticket-row">📞 <a href="tel:' + esc(t.phone.replace(/\D/g,'')) + '">' + esc(t.phone) + '</a></div>' : '') +
           (t.address ? '<div class="ticket-row">📍 <strong>' + esc(t.address) + '</strong></div>' : '') +
           (t.message ? '<div class="ticket-msg">"' + esc(t.message) + '"</div>' : '') +
-          (t.email
-            ? '<button class="ticket-review-btn" onclick="sendReview(this,' +
-                JSON.stringify(t.name) + ',' + JSON.stringify(t.email) +
-                ')">⭐ Request Google Review</button>'
-            : '');
+          (t.email   ? '<button class="ticket-review-btn">⭐ Request Google Review</button>' : '');
+        // Attach click handler via JS (avoids quote-escaping issues with inline onclick)
+        if (t.email) {
+          var reviewBtn = card.querySelector('.ticket-review-btn');
+          reviewBtn.addEventListener('click', function () {
+            sendReview(reviewBtn, t.name || '', t.email);
+          });
+        }
         ticketsEl.appendChild(card);
       });
     }).catch(function (err) {
