@@ -753,9 +753,6 @@ ul { list-style: none; }
   max-height: 600px;
   overflow-y: auto;
   border-radius: 2px;
-  /* Fade bottom edge to hint at more content */
-  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
   /* Custom scrollbar — matches dark theme */
   scrollbar-width: thin;
   scrollbar-color: rgba(130,160,204,0.3) transparent;
@@ -927,7 +924,8 @@ ul { list-style: none; }
   .gf-btn { padding: 8px 12px; font-size: 10px; }
   .gallery-carousel { padding: 0 16px; }
   .gc-track { gap: 6px; }
-  .gc-wrapper { max-height: 420px; }
+  /* 2 cols × 2 rows ≈ 4 photos visible — calculated from 4:3 aspect ratio */
+  .gc-wrapper { max-height: 270px; }
   .gc-lb-prev { left: 8px; }
   .gc-lb-next { right: 8px; }
   .gc-lb-arrow { width: 36px; height: 36px; font-size: 1.5rem; }
