@@ -43,20 +43,24 @@
     if (!input || input._acInit) return;
     input._acInit = true;
 
+    var AC = google.maps.places.AutocompleteSuggestion;
+    var ST = google.maps.places.AutocompleteSessionToken;
+
     // Append dropdown to body so overflow-y:auto on .qm-card doesn't clip it
     var dropdown = document.createElement('div');
     dropdown.className = 'qm-ac-dropdown';
     dropdown.id = 'qm-ac-dropdown';
     document.body.appendChild(dropdown);
 
+    // position:fixed uses viewport coords — no scrollY needed
     function positionDropdown() {
       var r = input.getBoundingClientRect();
-      dropdown.style.top   = (r.bottom + window.scrollY + 2) + 'px';
-      dropdown.style.left  = (r.left + window.scrollX) + 'px';
+      dropdown.style.top   = (r.bottom + 2) + 'px';
+      dropdown.style.left  = r.left + 'px';
       dropdown.style.width = r.width + 'px';
     }
 
-    var service = new google.maps.places.AutocompleteService();
+    var sessionToken = new ST();
     var debounceTimer;
 
     input.addEventListener('input', function () {
@@ -68,31 +72,32 @@
         return;
       }
       debounceTimer = setTimeout(function () {
-        service.getPlacePredictions({
+        AC.fetchAutocompleteSuggestions({
           input: val,
-          componentRestrictions: { country: 'us' },
-          types: ['address'],
-        }, function (predictions, status) {
+          includedRegionCodes: ['us'],
+          includedPrimaryTypes: ['address'],
+          sessionToken: sessionToken,
+        }).then(function (result) {
+          var suggestions = result.suggestions || [];
           dropdown.innerHTML = '';
-          if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
-            dropdown.classList.remove('open');
-            return;
-          }
+          if (!suggestions.length) { dropdown.classList.remove('open'); return; }
           positionDropdown();
-          predictions.slice(0, 5).forEach(function (pred) {
+          suggestions.slice(0, 5).forEach(function (sug) {
+            var text = sug.placePrediction.text.toString();
             var item = document.createElement('div');
             item.className = 'qm-ac-item';
-            item.textContent = pred.description;
+            item.textContent = text;
             item.addEventListener('mousedown', function (e) {
               e.preventDefault();
-              input.value = pred.description;
+              input.value = text;
               dropdown.innerHTML = '';
               dropdown.classList.remove('open');
+              sessionToken = new ST(); // reset token after selection
             });
             dropdown.appendChild(item);
           });
           dropdown.classList.add('open');
-        });
+        }).catch(function () { dropdown.classList.remove('open'); });
       }, 150);
     });
 
