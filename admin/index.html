@@ -560,7 +560,7 @@
 
   <!-- Tab bar -->
   <div class="tab-bar">
-    <button class="tab-btn active" id="tabGallery">🖼 Galería</button>
+    <button class="tab-btn active" id="tabGallery">🖼 Gallery</button>
     <button class="tab-btn" id="tabTickets">🎫 Tickets</button>
   </div>
 
@@ -1120,7 +1120,7 @@
   // ── Load tickets ──────────────────────────────────────────────────────────
   function loadTickets() {
     ticketsLoaded = true;
-    ticketsEl.innerHTML = '<div class="tickets-empty">Cargando tickets…</div>';
+    ticketsEl.innerHTML = '<div class="tickets-empty">Loading tickets…</div>';
 
     getToken().then(function (token) {
       return fetch('/.netlify/functions/get-tickets', {
@@ -1132,10 +1132,10 @@
     }).then(function (tickets) {
       if (!tickets.length) {
         ticketsCount.textContent = '';
-        ticketsEl.innerHTML = '<div class="tickets-empty">📭 No hay tickets todavía</div>';
+        ticketsEl.innerHTML = '<div class="tickets-empty">📭 No quote requests yet</div>';
         return;
       }
-      ticketsCount.textContent = tickets.length + ' ticket' + (tickets.length !== 1 ? 's' : '') + ' recibido' + (tickets.length !== 1 ? 's' : '');
+      ticketsCount.textContent = tickets.length + ' quote request' + (tickets.length !== 1 ? 's' : '') + ' received';
       ticketsEl.innerHTML = '';
       tickets.forEach(function (t) {
         var date = new Date(t.created_at).toLocaleString('en-US', {
@@ -1157,13 +1157,13 @@
           (t.email
             ? '<button class="ticket-review-btn" onclick="sendReview(this,' +
                 JSON.stringify(t.name) + ',' + JSON.stringify(t.email) +
-                ')">⭐ Pedir review en Google</button>'
+                ')">⭐ Request Google Review</button>'
             : '');
         ticketsEl.appendChild(card);
       });
     }).catch(function (err) {
       ticketsLoaded = false;
-      ticketsEl.innerHTML = '<div class="tickets-empty">⚠️ Error cargando tickets<br><small>' + err.message + '</small></div>';
+      ticketsEl.innerHTML = '<div class="tickets-empty">⚠️ Error loading tickets<br><small>' + err.message + '</small></div>';
       console.error(err);
     });
   }
@@ -1177,7 +1177,7 @@
   window.sendReview = function sendReview(btn, name, email) {
     if (btn.disabled) return;
     btn.disabled = true;
-    btn.textContent = '⏳ Enviando…';
+    btn.textContent = '⏳ Sending…';
     getToken().then(function(token) {
       return fetch('/.netlify/functions/send-review', {
         method: 'POST',
@@ -1191,13 +1191,20 @@
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     }).then(function() {
-      btn.textContent = '✓ Correo enviado';
-      btn.classList.add('sent');
-      showToast('✓ Review enviado a ' + email, 'ok');
+      // Replace button with a visible "sent" banner
+      var banner = document.createElement('div');
+      banner.style.cssText =
+        'margin-top:12px;padding:10px 14px;background:rgba(52,199,89,0.15);' +
+        'border:1px solid rgba(52,199,89,0.4);border-radius:8px;' +
+        'color:#4cd964;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;';
+      banner.innerHTML = '<span style="font-size:16px;">✅</span>' +
+        '<span>Review request sent to <strong style="font-weight:700;">' + email + '</strong></span>';
+      btn.replaceWith(banner);
+      showToast('✓ Review request sent to ' + email, 'ok');
     }).catch(function(err) {
       btn.disabled = false;
-      btn.textContent = '⭐ Pedir review en Google';
-      showToast('Error al enviar: ' + err.message, 'err');
+      btn.textContent = '⭐ Request Google Review';
+      showToast('Failed to send: ' + err.message, 'err');
     });
   }
 
