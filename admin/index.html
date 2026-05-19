@@ -618,10 +618,16 @@
   }
 
   // ── Save gallery ──────────────────────────────────────────────────────────
+  var CAT_LABELS = {
+    av: 'Home Theater', network: 'Networks', security: 'Security',
+    smart: 'Smart Home', wiring: 'Wiring', lowvoltage: 'Low Voltage', lutron: 'Lutron'
+  };
+
   function saveGallery() {
     setLoading('Guardando…');
-    // Fetch fresh SHA before writing
-    return gitGet('/contents/images.json').then(function (data) {
+
+    // 1 — Save images.json
+    var p1 = gitGet('/contents/images.json').then(function (data) {
       var encoded = btoa(unescape(encodeURIComponent(
         JSON.stringify({ gallery: gallery }, null, 2)
       )));
@@ -630,12 +636,41 @@
         content: encoded,
         sha: data.sha
       });
-    }).then(function () {
+    });
+
+    // 2 — Update hardcoded fallback in index.html so it always matches
+    var p2 = gitGet('/contents/index.html').then(function (data) {
+      var html = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+
+      var newItems = gallery.map(function (item) {
+        var label = CAT_LABELS[item.category] || item.category;
+        return '    <div class="gal-item" data-category="' + item.category + '">' +
+          '<img loading="lazy" decoding="async" src="' + item.url + '" alt="' + label + '" />' +
+          '<div class="gal-overlay"><span>' + label + '</span></div>' +
+          '</div>';
+      }).join('\n');
+
+      var updated = html.replace(
+        /(<div id="gallery-container">)([\s\S]*?)(<\/div>\s*\n\s*<!-- Gallery grid -->)/,
+        '$1\n' + newItems + '\n  $3'
+      );
+
+      if (updated === html) return; // nothing changed, skip write
+
+      var encoded = btoa(unescape(encodeURIComponent(updated)));
+      return gitPut('/contents/index.html', {
+        message: 'Sync gallery fallback with images.json',
+        content: encoded,
+        sha: data.sha
+      });
+    });
+
+    return Promise.all([p1, p2]).then(function () {
       setLoading(null);
       showToast('✓ Publicado — el sitio se está actualizando', 'ok');
     }).catch(function (err) {
       setLoading(null);
-      showToast('Error al guardar', 'err');
+      showToast('Error al publicar', 'err');
       console.error(err);
       throw err;
     });
