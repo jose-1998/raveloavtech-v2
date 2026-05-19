@@ -510,14 +510,24 @@
       border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
+      font-family: inherit;
       text-decoration: none;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s, opacity 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
     .ticket-review-btn:hover, .ticket-review-btn:active {
       background: rgba(52,199,89,0.22);
       border-color: rgba(52,199,89,0.5);
+    }
+    .ticket-review-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .ticket-review-btn.sent {
+      background: rgba(52,199,89,0.25);
+      border-color: rgba(52,199,89,0.6);
+      color: #4cd964;
     }
   </style>
 </head>
@@ -1108,9 +1118,6 @@
   });
 
   // ── Load tickets ──────────────────────────────────────────────────────────
-  // ── Update this URL with the real Google review short-link ──
-  var GOOGLE_REVIEW_URL = 'https://g.page/r/raveloavtech/review';
-
   function loadTickets() {
     ticketsLoaded = true;
     ticketsEl.innerHTML = '<div class="tickets-empty">Cargando tickets…</div>';
@@ -1147,16 +1154,10 @@
           (t.phone   ? '<div class="ticket-row">📞 <a href="tel:' + esc(t.phone.replace(/\D/g,'')) + '">' + esc(t.phone) + '</a></div>' : '') +
           (t.address ? '<div class="ticket-row">📍 <strong>' + esc(t.address) + '</strong></div>' : '') +
           (t.message ? '<div class="ticket-msg">"' + esc(t.message) + '"</div>' : '') +
-          (t.phone
-            ? (function () {
-                var firstName = (t.name || '').split(' ')[0] || 'there';
-                var smsBody = 'Hi ' + firstName + '! Thank you for choosing Ravelo AV Tech. ' +
-                  'We\'d really appreciate if you could leave us a quick Google review — it helps us a lot! ' +
-                  GOOGLE_REVIEW_URL;
-                var phone = t.phone.replace(/\D/g, '');
-                return '<a class="ticket-review-btn" href="sms:' + phone +
-                  '?body=' + encodeURIComponent(smsBody) + '">📲 Pedir review en Google</a>';
-              })()
+          (t.email
+            ? '<button class="ticket-review-btn" onclick="sendReview(this,' +
+                JSON.stringify(t.name) + ',' + JSON.stringify(t.email) +
+                ')">⭐ Pedir review en Google</button>'
             : '');
         ticketsEl.appendChild(card);
       });
@@ -1171,6 +1172,33 @@
     return String(str)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;')
       .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function sendReview(btn, name, email) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = '⏳ Enviando…';
+    getToken().then(function(token) {
+      return fetch('/.netlify/functions/send-review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify({ name: name, email: email }),
+      });
+    }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function() {
+      btn.textContent = '✓ Correo enviado';
+      btn.classList.add('sent');
+      showToast('✓ Review enviado a ' + email, 'ok');
+    }).catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = '⭐ Pedir review en Google';
+      showToast('Error al enviar: ' + err.message, 'err');
+    });
   }
 
 })();
