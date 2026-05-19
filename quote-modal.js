@@ -4,33 +4,32 @@
 
   function loadGooglePlaces() {
     return new Promise(function (resolve) {
-      // Case 1: Fully ready
-      if (window.google && window.google.maps && window.google.maps.places &&
-          window.google.maps.places.PlaceAutocompleteElement) {
-        resolve(); return;
-      }
-      // Case 2: google.maps bootstrap loaded — call importLibrary directly
+      // Already loaded — return cached lib
+      if (window.__gmapPlacesLib) { resolve(window.__gmapPlacesLib); return; }
+      // bootstrap ready — call importLibrary and resolve with the returned lib object
       if (window.google && window.google.maps && typeof window.google.maps.importLibrary === 'function') {
-        google.maps.importLibrary('places').then(function () { resolve(); });
+        google.maps.importLibrary('places').then(function (lib) {
+          window.__gmapPlacesLib = lib;
+          resolve(lib);
+        });
         return;
       }
-      // Case 3: Script loading in progress — queue
-      if (window.__gmapResolvers) {
-        window.__gmapResolvers.push(resolve); return;
-      }
+      // Script loading in progress — queue
+      if (window.__gmapResolvers) { window.__gmapResolvers.push(resolve); return; }
       if (document.getElementById('gmap-places-script')) {
         window.__gmapResolvers = window.__gmapResolvers || [];
         window.__gmapResolvers.push(resolve); return;
       }
-      // Case 4: Load bootstrap script fresh
+      // Load fresh
       window.__gmapResolvers = [resolve];
       const s = document.createElement('script');
       s.id = 'gmap-places-script';
       s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY + '&loading=async';
       s.async = true;
       s.onload = function () {
-        google.maps.importLibrary('places').then(function () {
-          (window.__gmapResolvers || []).forEach(function (fn) { fn(); });
+        google.maps.importLibrary('places').then(function (lib) {
+          window.__gmapPlacesLib = lib;
+          (window.__gmapResolvers || []).forEach(function (fn) { fn(lib); });
           window.__gmapResolvers = [];
         });
       };
@@ -38,13 +37,14 @@
     });
   }
 
-  function initAutocomplete() {
+  function initAutocomplete(lib) {
     var input = document.getElementById('qm-address-input');
     if (!input || input._acInit) return;
     input._acInit = true;
 
-    var AC = google.maps.places.AutocompleteSuggestion;
-    var ST = google.maps.places.AutocompleteSessionToken;
+    // Use the library object returned by importLibrary — not google.maps.places
+    var AC = lib.AutocompleteSuggestion;
+    var ST = lib.AutocompleteSessionToken;
 
     // Append dropdown to body so overflow-y:auto on .qm-card doesn't clip it
     var dropdown = document.createElement('div');
