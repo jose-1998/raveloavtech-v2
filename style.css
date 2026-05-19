@@ -58,6 +58,8 @@ ul { list-style: none; }
   gap: 36px;
 }
 
+.nav-drawer-footer-item { display: none; }
+
 .nav-links a,
 .nav-links button {
   font-family: 'Figtree', sans-serif;
