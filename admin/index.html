@@ -655,7 +655,14 @@
         var canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        canvas.toBlob(function (blob) { resolve(blob); }, 'image/jpeg', 0.85);
+        canvas.toBlob(function (blob) {
+          if (!blob) { reject(new Error('No se pudo convertir la imagen')); return; }
+          resolve(blob);
+        }, 'image/jpeg', 0.85);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('No se pudo leer la imagen'));
       };
       img.src = url;
     });
@@ -690,6 +697,16 @@
 
     var cat = pendingCategory;
     pendingCategory = null;
+
+    // Validate before upload
+    if (!file.type.startsWith('image/')) {
+      showToast('El archivo no es una imagen válida', 'err');
+      return;
+    }
+    if (file.size > 30 * 1024 * 1024) {
+      showToast('La imagen es demasiado grande (máx 30 MB)', 'err');
+      return;
+    }
 
     setLoading('Subiendo foto…');
     uploadImage(file, cat).then(function (url) {
