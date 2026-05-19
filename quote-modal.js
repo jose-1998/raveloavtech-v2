@@ -66,17 +66,17 @@
       dropdown.style.width = r.width + 'px';
     }
 
-    // Reposition when keyboard opens/closes; hide on viewport scroll
+    // Reposition when keyboard opens/closes (both resize and scroll adjust coords)
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', function () {
         if (dropdown.classList.contains('open')) positionDropdown();
       });
       window.visualViewport.addEventListener('scroll', function () {
-        dropdown.classList.remove('open');
+        if (dropdown.classList.contains('open')) positionDropdown();
       });
     }
 
-    // Hide dropdown when user scrolls inside the modal card
+    // Hide dropdown only when user manually scrolls inside the modal card
     var card = modal.querySelector('.qm-card');
     if (card) {
       card.addEventListener('scroll', function () {
