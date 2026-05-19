@@ -41,7 +41,7 @@ exports.handler = async function (event) {
   }
 
   const firstName = name.split(' ')[0] || 'there';
-  const GOOGLE_REVIEW_URL = 'https://g.page/r/raveloavtech/review'; // ← update with real link
+  const GOOGLE_REVIEW_URL = 'https://www.google.com/search?q=Ravelo+AV+Technologies+LLC+Murfreesboro+TN';
 
   try {
     const res = await fetch('https://api.resend.com/emails', {
