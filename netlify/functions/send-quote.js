@@ -63,7 +63,7 @@ exports.handler = async function (event) {
     const submittedAt = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', dateStyle: 'full', timeStyle: 'short' });
     await sendEmail({
       from: FROM,
-      to: ['jose.rojas@raveloavtech.com', 'support@raveloavtech.com'],
+      to: ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'],
       reply_to: email || undefined,
       subject: `New quote request — ${service || 'General inquiry'} (${first_name} ${last_name})`,
       html: `
