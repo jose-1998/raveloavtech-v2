@@ -49,9 +49,9 @@
     var ST = lib.AutocompleteSessionToken;
     if (!AC || !ST) return; // library didn't expose expected classes
 
-    // Mobile: inline dropdown inside the form — no position:fixed, no coordinates.
-    // Desktop: fixed dropdown appended to body (avoids card overflow clipping).
-    var isMobile = window.innerWidth <= 768;
+    // Touch devices (Android/iOS) always use inline dropdown — no position:fixed.
+    // Desktop (non-touch) uses fixed dropdown appended to body.
+    var isMobile = ('ontouchstart' in window) || window.innerWidth <= 768;
 
     var dropdown = document.createElement('div');
     dropdown.className = 'qm-ac-dropdown' + (isMobile ? ' qm-ac-inline' : '');
@@ -65,11 +65,11 @@
 
     function positionDropdown() {
       if (isMobile) return; // inline — no coords needed
-      var r   = input.getBoundingClientRect();
-      var vvT = (window.visualViewport && window.visualViewport.offsetTop)  || 0;
-      var vvL = (window.visualViewport && window.visualViewport.offsetLeft) || 0;
-      dropdown.style.top   = (r.bottom + vvT + 2) + 'px';
-      dropdown.style.left  = (r.left   + vvL)     + 'px';
+      var r = input.getBoundingClientRect();
+      // getBoundingClientRect() is already relative to the visual viewport —
+      // add scrollY/scrollX only to convert to page coordinates for position:fixed.
+      dropdown.style.top   = (r.bottom + 2) + 'px';
+      dropdown.style.left  = r.left + 'px';
       dropdown.style.width = r.width + 'px';
     }
 
