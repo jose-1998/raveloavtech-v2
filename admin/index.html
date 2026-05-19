@@ -831,6 +831,13 @@
           img.src = photo.url;
           img.alt = cat.label;
           img.loading = 'lazy';
+          img.onerror = function () {
+            img.style.display = 'none';
+            var ph = document.createElement('div');
+            ph.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(224,112,112,0.7);font-size:11px;text-align:center;padding:8px;';
+            ph.innerHTML = '<span style="font-size:22px;">⚠️</span><span>Imagen no encontrada</span>';
+            card.appendChild(ph);
+          };
           card.appendChild(img);
 
           var move = document.createElement('button');
