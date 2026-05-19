@@ -498,6 +498,27 @@
       margin-bottom: 12px;
       padding: 0 2px;
     }
+    .ticket-review-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: rgba(52,199,89,0.12);
+      color: #4cd964;
+      border: 1px solid rgba(52,199,89,0.3);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ticket-review-btn:hover, .ticket-review-btn:active {
+      background: rgba(52,199,89,0.22);
+      border-color: rgba(52,199,89,0.5);
+    }
   </style>
 </head>
 <body>
@@ -1087,6 +1108,9 @@
   });
 
   // ── Load tickets ──────────────────────────────────────────────────────────
+  // ── Update this URL with the real Google review short-link ──
+  var GOOGLE_REVIEW_URL = 'https://g.page/r/raveloavtech/review';
+
   function loadTickets() {
     ticketsLoaded = true;
     ticketsEl.innerHTML = '<div class="tickets-empty">Cargando tickets…</div>';
@@ -1122,7 +1146,18 @@
           (t.email   ? '<div class="ticket-row">✉️ <a href="mailto:' + esc(t.email) + '">' + esc(t.email) + '</a></div>' : '') +
           (t.phone   ? '<div class="ticket-row">📞 <a href="tel:' + esc(t.phone.replace(/\D/g,'')) + '">' + esc(t.phone) + '</a></div>' : '') +
           (t.address ? '<div class="ticket-row">📍 <strong>' + esc(t.address) + '</strong></div>' : '') +
-          (t.message ? '<div class="ticket-msg">"' + esc(t.message) + '"</div>' : '');
+          (t.message ? '<div class="ticket-msg">"' + esc(t.message) + '"</div>' : '') +
+          (t.phone
+            ? (function () {
+                var firstName = (t.name || '').split(' ')[0] || 'there';
+                var smsBody = 'Hi ' + firstName + '! Thank you for choosing Ravelo AV Tech. ' +
+                  'We\'d really appreciate if you could leave us a quick Google review — it helps us a lot! ' +
+                  GOOGLE_REVIEW_URL;
+                var phone = t.phone.replace(/\D/g, '');
+                return '<a class="ticket-review-btn" href="sms:' + phone +
+                  '?body=' + encodeURIComponent(smsBody) + '">📲 Pedir review en Google</a>';
+              })()
+            : '');
         ticketsEl.appendChild(card);
       });
     }).catch(function (err) {
