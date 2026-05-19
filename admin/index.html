@@ -198,6 +198,80 @@
     }
     .photo-delete:active { background: #e07070; }
 
+    .photo-move {
+      position: absolute;
+      top: 5px; left: 5px;
+      width: 28px; height: 28px;
+      background: rgba(13,27,42,0.75);
+      border: 1px solid rgba(130,160,204,0.35);
+      border-radius: 50%;
+      color: var(--blue);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      backdrop-filter: blur(4px);
+    }
+    .photo-move:active { background: rgba(91,141,238,0.3); }
+
+    /* ── Category sheet ── */
+    .cat-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 9000;
+    }
+    .cat-overlay.show { display: block; }
+    .cat-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 9001;
+      background: var(--navy);
+      border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
+      padding: 0 0 env(safe-area-inset-bottom, 12px);
+      transform: translateY(100%);
+      transition: transform 0.28s cubic-bezier(.32,.72,0,1);
+    }
+    .cat-sheet.show { transform: translateY(0); }
+    .cat-sheet-handle {
+      width: 36px; height: 4px;
+      background: rgba(130,160,204,0.25);
+      border-radius: 2px;
+      margin: 10px auto 14px;
+    }
+    .cat-sheet-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 0 16px 10px;
+    }
+    .cat-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      border-top: 1px solid var(--border);
+      transition: background 0.12s;
+    }
+    .cat-option:active { background: rgba(130,160,204,0.08); }
+    .cat-option-icon  { font-size: 18px; flex-shrink: 0; }
+    .cat-option-check { margin-left: auto; color: var(--blue-btn); font-size: 16px; }
+
     /* ── Add photo button ── */
     .add-row { padding: 7px 10px 12px; }
     .add-btn {
@@ -338,8 +412,7 @@
 <div class="tip-bar" id="tipBar">
   <span>⚠️</span>
   <span>
-    <strong>Para cambiar una foto:</strong>
-    usa <em>eliminar (✕)</em> en esa foto y agrega una <em>nueva</em> con el botón azul.
+    <strong>✕</strong> elimina · <strong>⇄</strong> cambia categoría · <em>+ Agregar foto</em> sube una nueva imagen.
   </span>
   <button class="tip-close" id="tipClose" aria-label="Cerrar aviso">✕</button>
 </div>
@@ -351,6 +424,14 @@
 <div id="loadingOverlay">
   <div class="spinner"></div>
   <span id="loadingMsg">Guardando…</span>
+</div>
+
+<!-- Category picker sheet -->
+<div class="cat-overlay" id="catOverlay"></div>
+<div class="cat-sheet" id="catSheet">
+  <div class="cat-sheet-handle"></div>
+  <div class="cat-sheet-title">Mover a categoría</div>
+  <div id="catOptions"></div>
 </div>
 
 <!-- Hidden file input -->
@@ -374,6 +455,7 @@
 
   var gallery = [];          // [{ url, category }]
   var pendingCategory = null;
+  var pendingMove = null;    // { url, fromCat }
 
   // ── Elements ──────────────────────────────────────────────────────────────
   var loginScreen   = document.getElementById('loginScreen');
@@ -387,6 +469,9 @@
   var loadingMsgEl  = document.getElementById('loadingMsg');
   var tipBar        = document.getElementById('tipBar');
   var tipClose      = document.getElementById('tipClose');
+  var catOverlay    = document.getElementById('catOverlay');
+  var catSheet      = document.getElementById('catSheet');
+  var catOptionsEl  = document.getElementById('catOptions');
 
   // ── Tip bar ───────────────────────────────────────────────────────────────
   if (sessionStorage.getItem('tipDismissed')) tipBar.classList.add('hidden');
@@ -570,6 +655,51 @@
     });
   });
 
+  // ── Category sheet ────────────────────────────────────────────────────────
+  function openCatSheet(url, fromCat) {
+    pendingMove = { url: url, fromCat: fromCat };
+
+    catOptionsEl.innerHTML = '';
+    CATEGORIES.forEach(function (cat) {
+      var btn = document.createElement('button');
+      btn.className = 'cat-option';
+      btn.innerHTML =
+        '<span class="cat-option-icon">' + cat.icon + '</span>' +
+        '<span>' + cat.label + '</span>' +
+        (cat.key === fromCat ? '<span class="cat-option-check">✓</span>' : '');
+      btn.addEventListener('click', function () {
+        closeCatSheet();
+        if (cat.key !== fromCat) movePhoto(url, fromCat, cat.key);
+      });
+      catOptionsEl.appendChild(btn);
+    });
+
+    catOverlay.classList.add('show');
+    // next frame so transition plays
+    requestAnimationFrame(function () { catSheet.classList.add('show'); });
+  }
+
+  function closeCatSheet() {
+    catSheet.classList.remove('show');
+    catOverlay.classList.remove('show');
+    pendingMove = null;
+  }
+
+  catOverlay.addEventListener('click', closeCatSheet);
+
+  function movePhoto(url, fromCat, toCat) {
+    gallery = gallery.map(function (p) {
+      if (p.url === url && p.category === fromCat) {
+        return { url: p.url, category: toCat };
+      }
+      return p;
+    });
+    // Keep destination folder open
+    openFolders[toCat] = true;
+    renderFolders();
+    saveGallery().catch(function () { loadGallery(); });
+  }
+
   // ── Delete photo ──────────────────────────────────────────────────────────
   function deletePhoto(url, category) {
     if (!confirm('¿Eliminar esta foto?')) return;
@@ -639,6 +769,16 @@
           img.alt = cat.label;
           img.loading = 'lazy';
           card.appendChild(img);
+
+          var move = document.createElement('button');
+          move.className = 'photo-move';
+          move.textContent = '⇄';
+          move.setAttribute('aria-label', 'Cambiar categoría');
+          move.addEventListener('click', function (e) {
+            e.stopPropagation();
+            openCatSheet(photo.url, photo.category);
+          });
+          card.appendChild(move);
 
           var del = document.createElement('button');
           del.className = 'photo-delete';
