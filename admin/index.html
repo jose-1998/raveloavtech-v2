@@ -465,7 +465,7 @@
 </div>
 
 <!-- Hidden file input -->
-<input type="file" id="fileInput" accept="image/*" style="display:none;" />
+<input type="file" id="fileInput" accept="image/*" multiple style="display:none;" />
 
 <script>
 (function () {
@@ -733,35 +733,52 @@
 
   // ── File input handler ────────────────────────────────────────────────────
   fileInput.addEventListener('change', function () {
-    var file = fileInput.files[0];
+    var files = Array.from(fileInput.files);
     fileInput.value = '';
-    if (!file || !pendingCategory) return;
+    if (!files.length || !pendingCategory) return;
 
     var cat = pendingCategory;
     pendingCategory = null;
 
-    // Validate before upload
-    if (!file.type.startsWith('image/')) {
-      showToast('El archivo no es una imagen válida', 'err');
-      return;
-    }
-    if (file.size > 30 * 1024 * 1024) {
-      showToast('La imagen es demasiado grande (máx 30 MB)', 'err');
-      return;
+    // Validate all files first
+    for (var i = 0; i < files.length; i++) {
+      if (!files[i].type.startsWith('image/')) {
+        showToast('"' + files[i].name + '" no es una imagen válida', 'err');
+        return;
+      }
+      if (files[i].size > 30 * 1024 * 1024) {
+        showToast('"' + files[i].name + '" es demasiado grande (máx 30 MB)', 'err');
+        return;
+      }
     }
 
-    setLoading('Subiendo foto…');
-    uploadImage(file, cat).then(function (url) {
-      gallery.push({ url: url, category: cat });
-      setLoading(null);
-      renderFolders();
-      markDirty();
-      showToast('✓ Foto agregada — toca Publicar para guardar', 'ok');
-    }).catch(function (err) {
-      setLoading(null);
-      showToast('Error al subir foto', 'err');
-      console.error(err);
-    });
+    var total = files.length;
+    var done = 0;
+    var failed = 0;
+
+    function uploadNext(idx) {
+      if (idx >= total) {
+        setLoading(null);
+        renderFolders();
+        markDirty();
+        var msg = (total - failed) + ' foto' + (total - failed !== 1 ? 's' : '') + ' agregada' + (total - failed !== 1 ? 's' : '');
+        if (failed > 0) msg += ' (' + failed + ' fallaron)';
+        showToast('✓ ' + msg + ' — toca Publicar para guardar', failed ? 'err' : 'ok');
+        return;
+      }
+      setLoading('Subiendo ' + (idx + 1) + ' de ' + total + '…');
+      uploadImage(files[idx], cat).then(function (url) {
+        gallery.push({ url: url, category: cat });
+        done++;
+        uploadNext(idx + 1);
+      }).catch(function (err) {
+        failed++;
+        console.error(err);
+        uploadNext(idx + 1);
+      });
+    }
+
+    uploadNext(0);
   });
 
   // ── Category sheet ────────────────────────────────────────────────────────
