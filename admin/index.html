@@ -729,7 +729,7 @@
       var count  = photos.length;
       var isOpen = openFolders[cat.key] !== undefined
         ? openFolders[cat.key]
-        : count > 0;
+        : false;
 
       var folder = document.createElement('div');
       folder.className = 'folder' + (isOpen ? ' open' : '');
