@@ -4,35 +4,38 @@
 
   function loadGooglePlaces() {
     return new Promise(function (resolve) {
-      // Already loaded — return cached lib
+      // Already loaded
       if (window.__gmapPlacesLib) { resolve(window.__gmapPlacesLib); return; }
-      // bootstrap ready — call importLibrary and resolve with the returned lib object
-      if (window.google && window.google.maps && typeof window.google.maps.importLibrary === 'function') {
-        google.maps.importLibrary('places').then(function (lib) {
-          window.__gmapPlacesLib = lib;
-          resolve(lib);
-        });
-        return;
-      }
-      // Script loading in progress — queue
+      // Queue if loading in progress
       if (window.__gmapResolvers) { window.__gmapResolvers.push(resolve); return; }
       if (document.getElementById('gmap-places-script')) {
         window.__gmapResolvers = window.__gmapResolvers || [];
         window.__gmapResolvers.push(resolve); return;
       }
-      // Load fresh
+      // google.maps already on page — just importLibrary
+      if (window.google && window.google.maps && typeof window.google.maps.importLibrary === 'function') {
+        window.__gmapResolvers = [resolve];
+        google.maps.importLibrary('places').then(function (lib) {
+          window.__gmapPlacesLib = lib;
+          (window.__gmapResolvers || []).forEach(function (fn) { fn(lib); });
+          window.__gmapResolvers = [];
+        });
+        return;
+      }
+      // Fresh load — use callback so Maps calls us when fully ready
       window.__gmapResolvers = [resolve];
-      const s = document.createElement('script');
-      s.id = 'gmap-places-script';
-      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY + '&loading=async';
-      s.async = true;
-      s.onload = function () {
+      window.__gmapReady = function () {
         google.maps.importLibrary('places').then(function (lib) {
           window.__gmapPlacesLib = lib;
           (window.__gmapResolvers || []).forEach(function (fn) { fn(lib); });
           window.__gmapResolvers = [];
         });
       };
+      var s = document.createElement('script');
+      s.id = 'gmap-places-script';
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY
+            + '&loading=async&callback=__gmapReady';
+      s.async = true;
       document.head.appendChild(s);
     });
   }
