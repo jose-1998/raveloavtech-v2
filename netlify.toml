@@ -1,2 +1,25 @@
 [functions]
   node_bundler = "esbuild"
+
+# Long-term cache for images and fonts (content rarely changes)
+[[headers]]
+  for = "/uploads/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+# 1-day cache for CSS/JS (Netlify invalidates CDN on each deploy)
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# HTML always fresh
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

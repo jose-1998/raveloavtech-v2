@@ -45,19 +45,26 @@
     if (!input || input._acInit) return;
     input._acInit = true;
 
-    // Use the library object returned by importLibrary — not google.maps.places
     var AC = lib.AutocompleteSuggestion;
     var ST = lib.AutocompleteSessionToken;
+    if (!AC || !ST) return; // library didn't expose expected classes
 
-    // Append dropdown to body so overflow-y:auto on .qm-card doesn't clip it
+    // Mobile: inline dropdown inside the form — no position:fixed, no coordinates.
+    // Desktop: fixed dropdown appended to body (avoids card overflow clipping).
+    var isMobile = window.innerWidth <= 768;
+
     var dropdown = document.createElement('div');
-    dropdown.className = 'qm-ac-dropdown';
+    dropdown.className = 'qm-ac-dropdown' + (isMobile ? ' qm-ac-inline' : '');
     dropdown.id = 'qm-ac-dropdown';
-    document.body.appendChild(dropdown);
 
-    // On mobile, position:fixed is relative to the layout viewport.
-    // When the keyboard opens, visualViewport shifts — we must add its offset.
+    if (isMobile) {
+      input.parentElement.appendChild(dropdown); // inside .qm-address-wrap
+    } else {
+      document.body.appendChild(dropdown);
+    }
+
     function positionDropdown() {
+      if (isMobile) return; // inline — no coords needed
       var r   = input.getBoundingClientRect();
       var vvT = (window.visualViewport && window.visualViewport.offsetTop)  || 0;
       var vvL = (window.visualViewport && window.visualViewport.offsetLeft) || 0;
@@ -66,8 +73,7 @@
       dropdown.style.width = r.width + 'px';
     }
 
-    // Reposition when keyboard opens/closes (both resize and scroll adjust coords)
-    if (window.visualViewport) {
+    if (!isMobile && window.visualViewport) {
       window.visualViewport.addEventListener('resize', function () {
         if (dropdown.classList.contains('open')) positionDropdown();
       });
@@ -76,12 +82,14 @@
       });
     }
 
-    // Hide dropdown only when user manually scrolls inside the modal card
-    var card = modal.querySelector('.qm-card');
-    if (card) {
-      card.addEventListener('scroll', function () {
-        dropdown.classList.remove('open');
-      }, { passive: true });
+    // Desktop only: hide dropdown when card is scrolled manually
+    if (!isMobile) {
+      var card = modal.querySelector('.qm-card');
+      if (card) {
+        card.addEventListener('scroll', function () {
+          dropdown.classList.remove('open');
+        }, { passive: true });
+      }
     }
 
     var sessionToken = new ST();
@@ -111,7 +119,7 @@
             var item = document.createElement('div');
             item.className = 'qm-ac-item';
             item.textContent = text;
-            // Desktop: mousedown fires before blur — prevents input losing focus
+            // Desktop: mousedown before blur prevents focus loss
             item.addEventListener('mousedown', function (e) {
               e.preventDefault();
               input.value = text;
@@ -119,7 +127,7 @@
               dropdown.classList.remove('open');
               sessionToken = new ST();
             });
-            // Mobile (Android): touchstart fires before blur — select immediately
+            // Mobile: touchstart before blur — select immediately on touch
             item.addEventListener('touchstart', function (e) {
               e.preventDefault();
               input.value = text;
@@ -130,12 +138,18 @@
             dropdown.appendChild(item);
           });
           dropdown.classList.add('open');
+          // Scroll suggestions into view on mobile
+          if (isMobile) {
+            setTimeout(function () {
+              dropdown.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }, 80);
+          }
         }).catch(function () { dropdown.classList.remove('open'); });
       }, 150);
     });
 
     input.addEventListener('blur', function () {
-      setTimeout(function () { dropdown.classList.remove('open'); }, 150);
+      setTimeout(function () { dropdown.classList.remove('open'); }, 200);
     });
 
     input.addEventListener('keydown', function (e) {
@@ -313,6 +327,13 @@
       overflow: hidden;
     }
     .qm-ac-dropdown.open { display: block; }
+    /* Mobile: inline dropdown — no fixed positioning, just flows in the card */
+    .qm-ac-inline {
+      position: static !important;
+      top: auto !important; left: auto !important; width: 100% !important;
+      margin-top: 4px;
+      z-index: auto;
+    }
     .qm-ac-item {
       padding: 10px 14px;
       font-family: 'Figtree', sans-serif;
@@ -361,6 +382,10 @@
     justOpened = true;
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
+    if (!_gmapStarted) {
+      _gmapStarted = true;
+      loadGooglePlaces().then(initAutocomplete);
+    }
     setTimeout(function () { justOpened = false; }, 400);
   }
   function closeModal() {
@@ -392,8 +417,8 @@
 
   window.openQuoteModal = openModal;
 
-  // Load Google Places eagerly so autocomplete is ready before user types
-  loadGooglePlaces().then(initAutocomplete);
+  // Load Google Places lazily on first modal open (saves ~300KB on initial page load)
+  var _gmapStarted = false;
 
   // Phone — strip non-digits as user types, keep cursor position
   var phoneInput = modal.querySelector('[name="phone"]');
