@@ -49,16 +49,16 @@
       "url": "/uploads/ab77627b-6125-4a5e-b37c-9e3b477c74d4.jpeg"
     },
     {
-      "url": "/uploads/gallery-av-1779202426273.jpg",
+      "url": "/uploads/gallery-smart-1779203535625.jpg",
+      "category": "smart"
+    },
+    {
+      "url": "/uploads/gallery-av-1779203830945.jpg",
       "category": "av"
     },
     {
-      "url": "/uploads/gallery-lutron-1779203286507.jpg",
+      "url": "/uploads/gallery-lutron-1779203851312.jpg",
       "category": "lutron"
-    },
-    {
-      "url": "/uploads/gallery-smart-1779203535625.jpg",
-      "category": "smart"
     }
   ]
 }
