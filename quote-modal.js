@@ -344,17 +344,19 @@
   document.head.appendChild(style);
 
   var justOpened = false;
-  var _savedScrollY = 0;
+
+  // Prevent background scroll on iOS without touching body position
+  // (body position:fixed breaks position:fixed children on Android)
+  function _blockScroll(e) {
+    if (e.target.closest && e.target.closest('.qm-card')) return;
+    e.preventDefault();
+  }
 
   function openModal() {
     justOpened = true;
     modal.classList.add('open');
-    // iOS Safari ignores overflow:hidden on body — use position:fixed trick
-    _savedScrollY = window.scrollY || window.pageYOffset;
-    document.body.style.position = 'fixed';
-    document.body.style.top = '-' + _savedScrollY + 'px';
-    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
+    document.addEventListener('touchmove', _blockScroll, { passive: false });
     setTimeout(function () { justOpened = false; }, 400);
   }
   function closeModal() {
@@ -363,11 +365,8 @@
     setTimeout(function () {
       modal.classList.remove('open');
       modal.classList.remove('closing');
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
       document.body.style.overflow = '';
-      window.scrollTo(0, _savedScrollY);
+      document.removeEventListener('touchmove', _blockScroll);
       form.reset();
       var dd = document.getElementById('qm-ac-dropdown');
       if (dd) { dd.innerHTML = ''; dd.classList.remove('open'); }
