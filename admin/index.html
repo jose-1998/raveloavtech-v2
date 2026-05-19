@@ -386,45 +386,38 @@
       });
     })();
 
-    // Mobile toolbar overflow fix — runs every 600ms for 20s after mount
+    // Prevent ALL horizontal overflow on mobile using MutationObserver
     if (window.innerWidth <= 900) {
-      function fixCmsOverflow() {
-        document.querySelectorAll('header, nav, [role="toolbar"]').forEach(function(el) {
-          el.style.overflowX = 'auto';
-          el.style.webkitOverflowScrolling = 'touch';
-          var node = el;
-          for (var i = 0; i < 8; i++) {
-            node = node.parentElement;
-            if (!node || node === document.documentElement) break;
-            var cs = window.getComputedStyle(node);
-            if (cs.overflow === 'hidden' || cs.overflowX === 'hidden') {
-              node.style.overflowX = 'auto';
-            }
-          }
-        });
-        document.querySelectorAll('div').forEach(function(div) {
-          var btns = div.querySelectorAll(':scope > button, :scope > a');
-          if (btns.length >= 2) {
-            div.style.overflowX = 'auto';
-            div.style.webkitOverflowScrolling = 'touch';
-            div.style.flexShrink = '0';
-          }
-        });
+      var vw = window.innerWidth;
+
+      function clampNode(el) {
+        if (!(el instanceof HTMLElement)) return;
+        // Force every element to stay within viewport width
+        el.style.maxWidth = vw + 'px';
+        el.style.boxSizing = 'border-box';
+        // Un-clip any ancestor hiding overflow
+        var cs = window.getComputedStyle(el);
+        if (cs.overflowX === 'hidden') el.style.overflowX = 'auto';
+        if (cs.minWidth && parseInt(cs.minWidth) > vw) el.style.minWidth = '0';
       }
 
-      var attempts = 0;
-      var iv = setInterval(function() {
-        fixCmsOverflow();
-        if (++attempts >= 34) clearInterval(iv);
-      }, 600);
+      function fixAll() {
+        document.querySelectorAll('#nc-root *').forEach(clampNode);
+        // Also fix html/body in case CMS sets width there
+        document.documentElement.style.overflowX = 'hidden';
+        document.body.style.overflowX = 'hidden';
+        document.body.style.maxWidth = '100vw';
+      }
 
-      window.addEventListener('hashchange', function() {
-        attempts = 0;
-        clearInterval(iv);
-        iv = setInterval(function() {
-          fixCmsOverflow();
-          if (++attempts >= 20) clearInterval(iv);
-        }, 600);
+      // Run immediately and on every DOM change
+      fixAll();
+      new MutationObserver(function() {
+        fixAll();
+      }).observe(document.body, { childList: true, subtree: true, attributes: false });
+
+      window.addEventListener('resize', function() {
+        vw = window.innerWidth;
+        fixAll();
       });
     }
   </script>
