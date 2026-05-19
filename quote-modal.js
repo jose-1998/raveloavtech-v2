@@ -78,7 +78,7 @@
         AC.fetchAutocompleteSuggestions({
           input: val,
           includedRegionCodes: ['us'],
-          includedPrimaryTypes: ['address'],
+          includedPrimaryTypes: ['street_address', 'route'],
           sessionToken: sessionToken,
         }).then(function (result) {
           var suggestions = result.suggestions || [];
