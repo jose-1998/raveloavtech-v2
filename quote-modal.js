@@ -55,12 +55,25 @@
     dropdown.id = 'qm-ac-dropdown';
     document.body.appendChild(dropdown);
 
-    // position:fixed uses viewport coords — no scrollY needed
+    // On mobile, position:fixed is relative to the layout viewport.
+    // When the keyboard opens, visualViewport shifts — we must add its offset.
     function positionDropdown() {
-      var r = input.getBoundingClientRect();
-      dropdown.style.top   = (r.bottom + 2) + 'px';
-      dropdown.style.left  = r.left + 'px';
+      var r   = input.getBoundingClientRect();
+      var vvT = (window.visualViewport && window.visualViewport.offsetTop)  || 0;
+      var vvL = (window.visualViewport && window.visualViewport.offsetLeft) || 0;
+      dropdown.style.top   = (r.bottom + vvT + 2) + 'px';
+      dropdown.style.left  = (r.left   + vvL)     + 'px';
       dropdown.style.width = r.width + 'px';
+    }
+
+    // Reposition when keyboard opens/closes or viewport scrolls
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function () {
+        if (dropdown.classList.contains('open')) positionDropdown();
+      });
+      window.visualViewport.addEventListener('scroll', function () {
+        if (dropdown.classList.contains('open')) positionDropdown();
+      });
     }
 
     var sessionToken = new ST();
