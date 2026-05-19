@@ -207,6 +207,7 @@
       z-index: 9999;
       align-items: center;
       justify-content: center;
+      touch-action: none;
     }
     #quoteModal.open { display: flex; }
     #quoteModal.open .qm-backdrop {
@@ -252,6 +253,8 @@
       width: 92%;
       max-height: 92vh;
       overflow-y: auto;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
       padding: 52px 48px;
       z-index: 1;
     }
@@ -345,18 +348,10 @@
 
   var justOpened = false;
 
-  // Prevent background scroll on iOS without touching body position
-  // (body position:fixed breaks position:fixed children on Android)
-  function _blockScroll(e) {
-    if (e.target.closest && e.target.closest('.qm-card')) return;
-    e.preventDefault();
-  }
-
   function openModal() {
     justOpened = true;
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
-    document.addEventListener('touchmove', _blockScroll, { passive: false });
     setTimeout(function () { justOpened = false; }, 400);
   }
   function closeModal() {
@@ -366,7 +361,6 @@
       modal.classList.remove('open');
       modal.classList.remove('closing');
       document.body.style.overflow = '';
-      document.removeEventListener('touchmove', _blockScroll);
       form.reset();
       var dd = document.getElementById('qm-ac-dropdown');
       if (dd) { dd.innerHTML = ''; dd.classList.remove('open'); }
