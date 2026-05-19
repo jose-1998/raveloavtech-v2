@@ -1174,7 +1174,7 @@
       .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function sendReview(btn, name, email) {
+  window.sendReview = function sendReview(btn, name, email) {
     if (btn.disabled) return;
     btn.disabled = true;
     btn.textContent = '⏳ Enviando…';
