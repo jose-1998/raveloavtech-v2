@@ -6,140 +6,258 @@
   <title>Content Manager — Ravelo AV Tech</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    :root {
+      --navy: #0c2d3a;
+      --navy-light: #0d1b2a;
+      --blue: #82A0CC;
+      --blue-bright: #5b8dee;
+      --red: #e07070;
+      --text: rgba(255,255,255,0.85);
+      --text-dim: rgba(255,255,255,0.45);
     }
 
-    /* Make the CMS fill available space above the tip bar */
-    body.tip-open   { padding-bottom: var(--tip-h, 56px); }
-    body.tip-closed { padding-bottom: 0; }
+    html, body { height: 100%; background: var(--navy-light); }
 
-    /* Tip bar */
+    /* ── Branded top bar ── */
+    .rav-topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100000;
+      height: 52px;
+      background: var(--navy);
+      border-bottom: 1px solid rgba(130,160,204,0.15);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+    }
+    .rav-topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .rav-topbar-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .rav-topbar-title {
+      font-family: sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.04em;
+    }
+    .rav-topbar-title span {
+      color: var(--blue);
+      font-weight: 400;
+    }
+    .rav-topbar-badge {
+      margin-left: auto;
+      background: rgba(130,160,204,0.12);
+      border: 1px solid rgba(130,160,204,0.2);
+      color: var(--blue);
+      font-family: sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+
+    /* ── Warning tip bar ── */
     .rav-tip {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      z-index: 99999;
-      background: #0c2d3a;
-      border-top: 2px solid #e07070;
-      color: rgba(255,255,255,0.85);
-      font: 13px/1.5 sans-serif;
-      padding: 8px 44px 8px 16px;
+      z-index: 100000;
+      background: linear-gradient(90deg, #1a0c0c 0%, #2a1010 100%);
+      border-top: 2px solid var(--red);
+      color: var(--text);
+      font-family: sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 10px 48px 10px 16px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      transition: transform 0.25s ease;
+      gap: 10px;
+      box-shadow: 0 -4px 20px rgba(224,112,112,0.15);
+      transition: transform 0.3s ease;
     }
-    .rav-tip.hidden {
-      transform: translateY(100%);
-      pointer-events: none;
-    }
+    .rav-tip.hidden { transform: translateY(100%); pointer-events: none; }
+    .rav-tip-icon { font-size: 16px; flex-shrink: 0; }
     .rav-tip-text { flex: 1; }
-    .rav-tip strong { color: #e07070; }
-    .rav-tip em { color: #82A0CC; font-style: normal; }
-
-    /* Close button */
+    .rav-tip strong { color: var(--red); }
+    .rav-tip em { color: var(--blue); font-style: normal; font-weight: 600; }
     .rav-tip-close {
       position: absolute;
       right: 10px; top: 50%;
       transform: translateY(-50%);
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: #fff;
-      font-size: 16px;
-      line-height: 1;
-      width: 28px; height: 28px;
-      border-radius: 4px;
+      background: rgba(224,112,112,0.15);
+      border: 1px solid rgba(224,112,112,0.3);
+      color: var(--red);
+      font-size: 14px;
+      width: 30px; height: 30px;
+      border-radius: 6px;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
     }
-    .rav-tip-close:hover { background: rgba(255,255,255,0.2); }
+    .rav-tip-close:hover { background: rgba(224,112,112,0.25); }
 
-    /* Reopen button (floats bottom-left when tip is dismissed) */
     .rav-tip-reopen {
       position: fixed;
-      bottom: 10px; left: 10px;
-      z-index: 99998;
-      background: #0c2d3a;
-      border: 1px solid #e07070;
-      color: #e07070;
-      font: 12px sans-serif;
-      padding: 5px 10px;
-      border-radius: 4px;
+      bottom: 12px; left: 12px;
+      z-index: 99999;
+      background: var(--navy);
+      border: 1px solid var(--red);
+      color: var(--red);
+      font-family: sans-serif;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
       display: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
     }
     .rav-tip-reopen.visible { display: block; }
 
-    /* Mobile tweaks */
-    @media (max-width: 600px) {
-      .rav-tip { font-size: 11.5px; padding: 8px 40px 8px 12px; }
+    /* ── Push content below topbar and above tip ── */
+    body.tip-open   { padding-top: 52px; padding-bottom: var(--tip-h, 56px); }
+    body.tip-closed { padding-top: 52px; padding-bottom: 0; }
+
+    /* ── Decap CMS global overrides ── */
+    #nc-root, #root {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
     }
 
-    /* ── Media library modal — full screen on mobile ── */
+    /* Nav sidebar */
+    [class*="Nav"],
+    nav[class] {
+      background: var(--navy) !important;
+      border-right: 1px solid rgba(130,160,204,0.1) !important;
+    }
+
+    /* Top app header */
+    header[class] {
+      background: #0a2030 !important;
+      border-bottom: 1px solid rgba(130,160,204,0.12) !important;
+      box-shadow: none !important;
+    }
+
+    /* Primary buttons */
+    button[class*="primary"],
+    button[class*="Primary"],
+    [class*="button"][class*="primary"] {
+      background: var(--blue-bright) !important;
+      border-color: var(--blue-bright) !important;
+      border-radius: 6px !important;
+    }
+    button[class*="primary"]:hover,
+    button[class*="Primary"]:hover {
+      background: #4a7de0 !important;
+    }
+
+    /* All CMS buttons — rounded */
+    button[class] {
+      border-radius: 6px !important;
+      min-height: 36px !important;
+    }
+
+    /* Input fields */
+    input[class], textarea[class], select[class] {
+      border-radius: 6px !important;
+      border-color: rgba(130,160,204,0.25) !important;
+    }
+    input[class]:focus, textarea[class]:focus, select[class]:focus {
+      border-color: var(--blue-bright) !important;
+      outline: none !important;
+      box-shadow: 0 0 0 3px rgba(91,141,238,0.15) !important;
+    }
+
+    /* Cards / panels */
+    [class*="Card"], [class*="card"] {
+      border-radius: 8px !important;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12) !important;
+    }
+
+    /* Media library modal */
     @media (max-width: 900px) {
-      /* Overlay full screen */
-      [class*="MediaLibrary"] [class*="Overlay"],
-      [class*="media-library"] [class*="overlay"],
-      div[role="dialog"] {
+      div[role="dialog"],
+      [class*="MediaLibrary"] [class*="Overlay"] {
         position: fixed !important;
         inset: 0 !important;
         width: 100vw !important;
-        height: 100vh !important;
+        height: 100dvh !important;
         max-width: 100vw !important;
-        max-height: 100vh !important;
+        max-height: 100dvh !important;
         margin: 0 !important;
         border-radius: 0 !important;
         overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
       }
 
-      /* Modal card itself — fill the dialog */
       div[role="dialog"] > div,
       [class*="MediaLibrary"] > div {
         width: 100% !important;
         max-width: 100% !important;
-        height: 100% !important;
+        min-height: 100% !important;
         border-radius: 0 !important;
-        overflow-y: auto !important;
       }
 
-      /* Header button row — wrap so nothing gets cut off */
-      [class*="MediaLibrary"] header,
-      div[role="dialog"] header {
+      /* Close button — make sure it's visible */
+      div[role="dialog"] button[aria-label*="close"],
+      div[role="dialog"] button[aria-label*="Close"],
+      div[role="dialog"] button[title*="close"],
+      [class*="CloseButton"],
+      [class*="close-button"] {
+        position: fixed !important;
+        top: 12px !important;
+        right: 12px !important;
+        z-index: 999999 !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        background: rgba(255,255,255,0.1) !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 18px !important;
+      }
+
+      /* Header button row wraps */
+      div[role="dialog"] header,
+      [class*="MediaLibrary"] header {
         display: flex !important;
         flex-wrap: wrap !important;
         gap: 6px !important;
-        padding: 10px !important;
-        overflow: visible !important;
+        padding: 12px !important;
+        position: sticky !important;
+        top: 0 !important;
+        background: inherit !important;
+        z-index: 10 !important;
       }
 
-      [class*="MediaLibrary"] header button,
-      div[role="dialog"] header button {
+      div[role="dialog"] header button,
+      [class*="MediaLibrary"] header button {
         flex: 1 1 auto !important;
         min-width: 80px !important;
+        min-height: 44px !important;
         font-size: 13px !important;
         padding: 10px 8px !important;
-        white-space: nowrap !important;
       }
 
-      /* Search bar full width */
-      [class*="MediaLibrary"] input[type="search"],
-      [class*="MediaLibrary"] input[placeholder*="Search"],
-      div[role="dialog"] input {
+      /* Search input */
+      div[role="dialog"] input,
+      [class*="MediaLibrary"] input {
         width: 100% !important;
         min-height: 44px !important;
         font-size: 16px !important;
         box-sizing: border-box !important;
       }
 
-      /* Image grid — 2 columns */
-      [class*="MediaLibrary"] [class*="Grid"],
+      /* 2-column image grid */
+      div[role="dialog"] ul,
       [class*="MediaLibrary"] ul,
-      div[role="dialog"] ul {
+      [class*="MediaLibrary"] [class*="Grid"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
@@ -147,30 +265,17 @@
         width: 100% !important;
       }
 
-      /* Each image card */
-      [class*="MediaLibrary"] li,
-      div[role="dialog"] li {
+      div[role="dialog"] li,
+      [class*="MediaLibrary"] li {
         width: 100% !important;
         max-width: 100% !important;
       }
     }
 
-    /* ── CMS mobile overrides ── */
+    /* ── General mobile CMS overrides ── */
     @media (max-width: 900px) {
-      /* Scrollable toolbars */
-      header,
-      [class*="Toolbar"],
-      [class*="toolbar"],
-      [class*="AppBar"],
-      [class*="EditorControl"],
-      [class*="ControlPane"] {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-      }
-
-      /* Bigger tap targets on header buttons */
-      header button,
-      header a {
+      header[class] button,
+      header[class] a {
         min-height: 44px !important;
         min-width: 44px !important;
         font-size: 13px !important;
@@ -178,47 +283,51 @@
         white-space: nowrap !important;
       }
 
-      /* Full-width app container */
       #root, #nc-root, [id^="cms-"] {
         overflow-x: auto !important;
         width: 100% !important;
       }
 
-      /* List items in gallery editor — full width, easier to tap */
-      [class*="ListItem"],
-      [class*="list-item"],
-      [class*="SortableList"] > div {
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-
-      /* Image widget — bigger preview */
-      [class*="ImageWidget"] img,
-      [class*="image-widget"] img {
-        max-width: 100% !important;
-        height: auto !important;
-      }
-
-      /* Select/input fields — comfortable touch size */
       select, input, textarea {
         min-height: 44px !important;
-        font-size: 16px !important; /* prevents iOS zoom on focus */
+        font-size: 16px !important;
       }
 
-      /* Add/remove buttons in list widget — bigger */
       [class*="ListControl"] button,
       [class*="list-control"] button {
         min-height: 44px !important;
         padding: 10px 16px !important;
+      }
+
+      [class*="ListItem"],
+      [class*="list-item"] {
+        width: 100% !important;
+        max-width: 100% !important;
       }
     }
   </style>
 </head>
 <body class="tip-open">
 
+  <!-- Branded top bar -->
+  <div class="rav-topbar">
+    <a class="rav-topbar-logo" href="/" target="_blank">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="6" fill="#0c2d3a"/>
+        <path d="M7 8h8.5c2.5 0 4.5 2 4.5 4.5S18 17 15.5 17H7V8z" stroke="#82A0CC" stroke-width="1.8" fill="none"/>
+        <path d="M15 17l5 7" stroke="#82A0CC" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M7 22v-5" stroke="#82A0CC" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <div class="rav-topbar-title">Ravelo AV Tech <span>/ Content Manager</span></div>
+    <div class="rav-topbar-badge">Admin</div>
+  </div>
+
+  <!-- Warning tip -->
   <div class="rav-tip" id="ravTip">
+    <span class="rav-tip-icon">⚠️</span>
     <span class="rav-tip-text">
-      ⚠️ <strong>Para cambiar una foto:</strong>
+      <strong>Para cambiar una foto:</strong>
       usa 🗑 <em>eliminar</em> en esa entrada y agrega una <em>nueva</em> —
       <strong>NO uses "Choose an image" en entradas existentes.</strong>
     </span>
@@ -231,12 +340,11 @@
 
   <script>
     (function () {
-      var tip     = document.getElementById('ravTip');
+      var tip      = document.getElementById('ravTip');
       var closeBtn = document.getElementById('ravClose');
-      var reopen  = document.getElementById('ravReopen');
-      var body    = document.body;
+      var reopen   = document.getElementById('ravReopen');
+      var body     = document.body;
 
-      // Measure tip height and expose as CSS var
       function setTipHeight() {
         var h = tip.offsetHeight;
         document.documentElement.style.setProperty('--tip-h', h + 'px');
@@ -244,7 +352,6 @@
       setTipHeight();
       window.addEventListener('resize', setTipHeight);
 
-      // Restore dismissed state
       if (sessionStorage.getItem('ravTipDismissed')) {
         tip.classList.add('hidden');
         reopen.classList.add('visible');
@@ -267,11 +374,9 @@
       });
     })();
 
-    // Force mobile scrollable toolbar — runs every 600ms for 20s
-    // (CMS uses inline styles we can't override with CSS alone)
+    // Mobile toolbar overflow fix — runs every 600ms for 20s after mount
     if (window.innerWidth <= 900) {
       function fixCmsOverflow() {
-        // Walk up from every header/nav and un-clip any overflow:hidden ancestor
         document.querySelectorAll('header, nav, [role="toolbar"]').forEach(function(el) {
           el.style.overflowX = 'auto';
           el.style.webkitOverflowScrolling = 'touch';
@@ -285,7 +390,6 @@
             }
           }
         });
-        // Also catch any div that is acting as a toolbar (has multiple buttons as direct children)
         document.querySelectorAll('div').forEach(function(div) {
           var btns = div.querySelectorAll(':scope > button, :scope > a');
           if (btns.length >= 2) {
@@ -299,10 +403,9 @@
       var attempts = 0;
       var iv = setInterval(function() {
         fixCmsOverflow();
-        if (++attempts >= 34) clearInterval(iv); // ~20 seconds
+        if (++attempts >= 34) clearInterval(iv);
       }, 600);
 
-      // Also re-run on every navigation inside the CMS
       window.addEventListener('hashchange', function() {
         attempts = 0;
         clearInterval(iv);
