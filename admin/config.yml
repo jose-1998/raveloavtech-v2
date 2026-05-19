@@ -5,6 +5,9 @@ backend:
 media_folder: uploads
 public_folder: /uploads
 
+editor:
+  preview: false
+
 collections:
   - name: site_images
     label: Site Images

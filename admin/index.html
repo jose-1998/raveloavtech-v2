@@ -80,9 +80,9 @@
       .rav-tip { font-size: 11.5px; padding: 8px 40px 8px 12px; }
     }
 
-    /* ── CMS mobile overrides (injected before CMS mounts) ── */
-    @media (max-width: 768px) {
-      /* Make every fixed toolbar/header in the CMS scrollable horizontally */
+    /* ── CMS mobile overrides ── */
+    @media (max-width: 900px) {
+      /* Scrollable toolbars */
       header,
       [class*="Toolbar"],
       [class*="toolbar"],
@@ -93,17 +93,48 @@
         -webkit-overflow-scrolling: touch !important;
       }
 
-      /* Shrink header button text & padding so more fits */
+      /* Bigger tap targets on header buttons */
       header button,
       header a {
-        font-size: 12px !important;
-        padding: 6px 10px !important;
+        min-height: 44px !important;
+        min-width: 44px !important;
+        font-size: 13px !important;
+        padding: 8px 14px !important;
         white-space: nowrap !important;
       }
 
-      /* Prevent the whole app from clipping overflow */
+      /* Full-width app container */
       #root, #nc-root, [id^="cms-"] {
         overflow-x: auto !important;
+        width: 100% !important;
+      }
+
+      /* List items in gallery editor — full width, easier to tap */
+      [class*="ListItem"],
+      [class*="list-item"],
+      [class*="SortableList"] > div {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      /* Image widget — bigger preview */
+      [class*="ImageWidget"] img,
+      [class*="image-widget"] img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+
+      /* Select/input fields — comfortable touch size */
+      select, input, textarea {
+        min-height: 44px !important;
+        font-size: 16px !important; /* prevents iOS zoom on focus */
+      }
+
+      /* Add/remove buttons in list widget — bigger */
+      [class*="ListControl"] button,
+      [class*="list-control"] button {
+        min-height: 44px !important;
+        padding: 10px 16px !important;
       }
     }
   </style>
