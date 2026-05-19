@@ -277,6 +277,21 @@ exports.handler = async function (event) {
       });
     }
 
+    // Also save to Netlify Forms so submissions are stored in the dashboard
+    try {
+      const siteUrl = process.env.URL || 'https://raveloavtech.com';
+      await fetch(siteUrl + '/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          'form-name': 'quote-request',
+          first_name, last_name, email, phone, service, address, message,
+        }).toString(),
+      });
+    } catch (formErr) {
+      console.warn('Netlify Forms save failed (non-fatal):', formErr.message);
+    }
+
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*' },

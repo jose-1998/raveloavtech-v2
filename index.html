@@ -476,6 +476,13 @@
   reset();
 })();
 </script>
+<!-- Hidden form so Netlify detects fields at build time -->
+<form name="quote-request" data-netlify="true" hidden aria-hidden="true">
+  <input name="first_name" /><input name="last_name" />
+  <input name="email" /><input name="phone" />
+  <input name="service" /><input name="address" /><input name="message" />
+</form>
+
 <script src="/cms-loader.js" defer></script>
 <script src="/quote-modal.js" defer></script>
 <script>

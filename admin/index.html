@@ -404,6 +404,100 @@
       .topbar-label  { display: none; }
       .topbar-divider { display: none; }
     }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      background: rgba(130,160,204,0.07);
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: none;
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab-btn.active {
+      background: var(--navy);
+      color: var(--text);
+    }
+
+    /* ── Ticket cards ── */
+    .ticket-card {
+      background: var(--navy);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 9px;
+    }
+    .ticket-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .ticket-name {
+      font-weight: 700;
+      font-size: 14px;
+      flex: 1;
+    }
+    .ticket-service {
+      background: rgba(91,141,238,0.15);
+      color: var(--blue-btn);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .ticket-date {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .ticket-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+    }
+    .ticket-row a { color: var(--blue); text-decoration: none; }
+    .ticket-row a:hover { text-decoration: underline; }
+    .ticket-row strong { color: var(--text); font-weight: 400; }
+    .ticket-msg {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .tickets-empty {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 14px;
+      padding: 40px 0;
+    }
+    .tickets-count {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      padding: 0 2px;
+    }
   </style>
 </head>
 <body>
@@ -433,8 +527,24 @@
     <button class="topbar-logout" id="logoutBtn">Salir</button>
   </div>
 
-  <p class="page-title">Our Work — Gallery</p>
-  <div id="foldersContainer"></div>
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabGallery">🖼 Galería</button>
+    <button class="tab-btn" id="tabTickets">🎫 Tickets</button>
+  </div>
+
+  <!-- Gallery view -->
+  <div id="viewGallery">
+    <p class="page-title">Our Work — Gallery</p>
+    <div id="foldersContainer"></div>
+  </div>
+
+  <!-- Tickets view -->
+  <div id="viewTickets" style="display:none;">
+    <p class="page-title">Quote Requests</p>
+    <div id="ticketsCount" class="tickets-count"></div>
+    <div id="ticketsContainer"></div>
+  </div>
 
 </div>
 
@@ -950,6 +1060,82 @@
       folder.appendChild(body);
       foldersEl.appendChild(folder);
     });
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  var tabGallery    = document.getElementById('tabGallery');
+  var tabTickets    = document.getElementById('tabTickets');
+  var viewGallery   = document.getElementById('viewGallery');
+  var viewTickets   = document.getElementById('viewTickets');
+  var ticketsEl     = document.getElementById('ticketsContainer');
+  var ticketsCount  = document.getElementById('ticketsCount');
+  var ticketsLoaded = false;
+
+  tabGallery.addEventListener('click', function () {
+    tabGallery.classList.add('active');
+    tabTickets.classList.remove('active');
+    viewGallery.style.display = 'block';
+    viewTickets.style.display = 'none';
+  });
+
+  tabTickets.addEventListener('click', function () {
+    tabTickets.classList.add('active');
+    tabGallery.classList.remove('active');
+    viewGallery.style.display = 'none';
+    viewTickets.style.display = 'block';
+    if (!ticketsLoaded) loadTickets();
+  });
+
+  // ── Load tickets ──────────────────────────────────────────────────────────
+  function loadTickets() {
+    ticketsLoaded = true;
+    ticketsEl.innerHTML = '<div class="tickets-empty">Cargando tickets…</div>';
+
+    getToken().then(function (token) {
+      return fetch('/.netlify/functions/get-tickets', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (tickets) {
+      if (!tickets.length) {
+        ticketsCount.textContent = '';
+        ticketsEl.innerHTML = '<div class="tickets-empty">📭 No hay tickets todavía</div>';
+        return;
+      }
+      ticketsCount.textContent = tickets.length + ' ticket' + (tickets.length !== 1 ? 's' : '') + ' recibido' + (tickets.length !== 1 ? 's' : '');
+      ticketsEl.innerHTML = '';
+      tickets.forEach(function (t) {
+        var date = new Date(t.created_at).toLocaleString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: 'numeric', minute: '2-digit', hour12: true
+        });
+        var card = document.createElement('div');
+        card.className = 'ticket-card';
+        card.innerHTML =
+          '<div class="ticket-header">' +
+            '<span class="ticket-name">' + esc(t.name || 'Unknown') + '</span>' +
+            (t.service ? '<span class="ticket-service">' + esc(t.service) + '</span>' : '') +
+          '</div>' +
+          '<div class="ticket-date">📅 ' + date + '</div>' +
+          (t.email   ? '<div class="ticket-row">✉️ <a href="mailto:' + esc(t.email) + '">' + esc(t.email) + '</a></div>' : '') +
+          (t.phone   ? '<div class="ticket-row">📞 <a href="tel:' + esc(t.phone.replace(/\D/g,'')) + '">' + esc(t.phone) + '</a></div>' : '') +
+          (t.address ? '<div class="ticket-row">📍 <strong>' + esc(t.address) + '</strong></div>' : '') +
+          (t.message ? '<div class="ticket-msg">"' + esc(t.message) + '"</div>' : '');
+        ticketsEl.appendChild(card);
+      });
+    }).catch(function (err) {
+      ticketsLoaded = false;
+      ticketsEl.innerHTML = '<div class="tickets-empty">⚠️ Error cargando tickets<br><small>' + err.message + '</small></div>';
+      console.error(err);
+    });
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
 })();
