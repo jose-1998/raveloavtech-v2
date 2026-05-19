@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Content Manager — Ravelo AV Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&display=swap" /></noscript>
+  <link rel="icon" type="image/png" href="/uploads/favicon.png" />
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,48 +25,59 @@
 
     html, body { height: 100%; background: var(--navy-light); }
 
-    /* ── Branded top bar ── */
+    /* ── Branded top bar — matches main site nav ── */
     .rav-topbar {
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100000;
-      height: 52px;
+      height: 64px;
       background: var(--navy);
-      border-bottom: 1px solid rgba(130,160,204,0.15);
+      border-bottom: 1px solid rgba(130,160,204,0.1);
       display: flex;
       align-items: center;
-      padding: 0 20px;
-      gap: 12px;
+      padding: 0 28px;
+      gap: 16px;
     }
     .rav-topbar-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
       text-decoration: none;
+      flex-shrink: 0;
     }
-    .rav-topbar-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .rav-topbar-logo img {
+      height: 38px;
+      width: auto;
+      display: block;
+    }
+    .rav-topbar-divider {
+      width: 1px;
+      height: 22px;
+      background: rgba(130,160,204,0.2);
+    }
     .rav-topbar-title {
-      font-family: sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: 0.04em;
-    }
-    .rav-topbar-title span {
-      color: var(--blue);
+      font-family: 'Figtree', sans-serif;
+      font-size: 12px;
       font-weight: 400;
+      color: var(--blue);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
     }
     .rav-topbar-badge {
       margin-left: auto;
-      background: rgba(130,160,204,0.12);
+      background: rgba(130,160,204,0.1);
       border: 1px solid rgba(130,160,204,0.2);
       color: var(--blue);
-      font-family: sans-serif;
+      font-family: 'Figtree', sans-serif;
       font-size: 10px;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 3px;
+    }
+    @media (max-width: 480px) {
+      .rav-topbar { padding: 0 16px; }
+      .rav-topbar-title { display: none; }
+      .rav-topbar-divider { display: none; }
     }
 
     /* ── Warning tip bar ── */
@@ -120,8 +136,8 @@
     .rav-tip-reopen.visible { display: block; }
 
     /* ── Push content below topbar and above tip ── */
-    body.tip-open   { padding-top: 52px; padding-bottom: var(--tip-h, 56px); }
-    body.tip-closed { padding-top: 52px; padding-bottom: 0; }
+    body.tip-open   { padding-top: 64px; padding-bottom: var(--tip-h, 56px); }
+    body.tip-closed { padding-top: 64px; padding-bottom: 0; }
 
     /* ── Decap CMS global overrides ── */
     #nc-root, #root {
@@ -312,14 +328,10 @@
   <!-- Branded top bar -->
   <div class="rav-topbar">
     <a class="rav-topbar-logo" href="/" target="_blank">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="32" height="32" rx="6" fill="#0c2d3a"/>
-        <path d="M7 8h8.5c2.5 0 4.5 2 4.5 4.5S18 17 15.5 17H7V8z" stroke="#82A0CC" stroke-width="1.8" fill="none"/>
-        <path d="M15 17l5 7" stroke="#82A0CC" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M7 22v-5" stroke="#82A0CC" stroke-width="1.8" stroke-linecap="round"/>
-      </svg>
+      <img src="/uploads/logo.png" alt="Ravelo AV Tech" width="124" height="38" />
     </a>
-    <div class="rav-topbar-title">Ravelo AV Tech <span>/ Content Manager</span></div>
+    <div class="rav-topbar-divider"></div>
+    <div class="rav-topbar-title">Content Manager</div>
     <div class="rav-topbar-badge">Admin</div>
   </div>
 
