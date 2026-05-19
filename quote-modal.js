@@ -111,13 +111,22 @@
             var item = document.createElement('div');
             item.className = 'qm-ac-item';
             item.textContent = text;
+            // Desktop: mousedown fires before blur — prevents input losing focus
             item.addEventListener('mousedown', function (e) {
               e.preventDefault();
               input.value = text;
               dropdown.innerHTML = '';
               dropdown.classList.remove('open');
-              sessionToken = new ST(); // reset token after selection
+              sessionToken = new ST();
             });
+            // Mobile (Android): touchstart fires before blur — select immediately
+            item.addEventListener('touchstart', function (e) {
+              e.preventDefault();
+              input.value = text;
+              dropdown.innerHTML = '';
+              dropdown.classList.remove('open');
+              sessionToken = new ST();
+            }, { passive: false });
             dropdown.appendChild(item);
           });
           dropdown.classList.add('open');
@@ -444,4 +453,48 @@
     submitBtn.disabled = false;
     status.style.display = 'block';
   });
+  // ── Mobile drawer: service icons + footer ──────────────────────────────
+  var navLinks = document.querySelector('.nav-links');
+  if (navLinks) {
+    // 1. Inject icon before each service link text
+    var ICONS = {
+      'audiovisual.html':      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="1"/><path d="M8 21h8M12 17v4"/></svg>',
+      'smart-homes.html':      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+      'security-systems.html': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      'soho-networks.html':    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
+      'wireless-network.html': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+      'lutron.html':            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="16" cy="12" r="3"/></svg>',
+      'wiring.html':            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h7"/><path d="M15 5v14"/><path d="M19 8l3 4-3 4"/></svg>',
+      'low-voltage.html':       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    };
+    document.querySelectorAll('.dropdown a').forEach(function (a) {
+      var key = (a.getAttribute('href') || '').replace(/^\//, '');
+      if (ICONS[key]) {
+        var span = document.createElement('span');
+        span.className = 'nav-service-icon';
+        span.innerHTML = ICONS[key];
+        a.insertBefore(span, a.firstChild);
+      }
+    });
+
+    // 2. Footer: phone + quote CTA fills the empty space at bottom of drawer
+    var drawerFooter = document.createElement('div');
+    drawerFooter.className = 'nav-drawer-footer';
+    drawerFooter.innerHTML =
+      '<a href="tel:+16159620401" class="nav-drawer-phone">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">' +
+          '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.33 2 2 0 0 1 3.59 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.42-.42a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2z"/>' +
+        '</svg>' +
+        '(615) 962-0401' +
+      '</a>' +
+      '<a href="#quote" class="nav-drawer-cta">Get a free quote</a>';
+    // Close drawer when quote CTA is tapped
+    drawerFooter.querySelector('.nav-drawer-cta').addEventListener('click', function () {
+      var overlay = document.querySelector('.nav-overlay');
+      navLinks.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+    navLinks.appendChild(drawerFooter);
+  }
 })();
