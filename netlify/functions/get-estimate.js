@@ -216,7 +216,8 @@ function normalizeEstimate(e, customer) {
 
   // Customer contact info
   const phone = customer?.PrimaryPhone?.FreeFormNumber || customer?.Mobile?.FreeFormNumber || '';
-  const email = customer?.PrimaryEmailAddr?.Address || '';
+  // BillEmail is what QB actually uses when the boss hits "Send" — prefer it over the customer record
+  const email = e.BillEmail?.Address || customer?.PrimaryEmailAddr?.Address || '';
 
   return {
     id: e.Id,
