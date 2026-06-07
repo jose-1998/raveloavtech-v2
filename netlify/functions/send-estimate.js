@@ -45,12 +45,14 @@ exports.handler = async function (event) {
 // ── Called when QB fires a new estimate event ─────────────────────────────────
 async function handleNewEstimate(estimateId) {
   const SITE_URL = process.env.URL || 'https://raveloavtech.com';
-  const link = `${SITE_URL}/dev/estimate.html?id=${estimateId}`;
 
-  // Pull estimate data from get-estimate (same function, reused)
-  const res = await fetch(`${SITE_URL}/.netlify/functions/get-estimate?id=${estimateId}`);
+  // estimateId is QB's internal ID — fetch by ?qbid so get-estimate can look it up
+  const res = await fetch(`${SITE_URL}/.netlify/functions/get-estimate?qbid=${estimateId}`);
   if (!res.ok) throw new Error(`Could not load estimate ${estimateId}`);
   const estimate = await res.json();
+
+  // Link uses DocNumber (e.g. ?id=1187) — that's what get-estimate queries by
+  const link = `${SITE_URL}/dev/estimate.html?id=${estimate.docNumber}`;
 
   await sendEmail({
     from: FROM,

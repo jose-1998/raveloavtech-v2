@@ -18,81 +18,18 @@ exports.handler = async function (event) {
   }
 
   const params = event.queryStringParameters || {};
-  const id = params.id;
+  const id   = params.id;   // DocNumber — used by estimate.html client link
+  const qbid = params.qbid; // QB internal ID — used by send-estimate webhook
 
-  // Debug mode — ?debug=env shows masked env var values the function is reading
-  if (params.debug === 'env') {
-    const show = (v) => v ? `...${String(v).slice(-4)}` : '(not set)';
-    return {
-      statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        QUICKBOOKS_ENV:            process.env.QUICKBOOKS_ENV,
-        IS_PRODUCTION,
-        QB_BASE,
-        QUICKBOOKS_CLIENT_ID:      show(process.env.QUICKBOOKS_CLIENT_ID),
-        QUICKBOOKS_CLIENT_SECRET:  show(process.env.QUICKBOOKS_CLIENT_SECRET),
-        QUICKBOOKS_REALM_ID:       process.env.QUICKBOOKS_REALM_ID,
-        QUICKBOOKS_ACCESS_TOKEN:   show(process.env.QUICKBOOKS_ACCESS_TOKEN),
-        QUICKBOOKS_REFRESH_TOKEN:  show(process.env.QUICKBOOKS_REFRESH_TOKEN),
-        NETLIFY_TOKEN:             show(process.env.NETLIFY_TOKEN),
-        SITE_ID:                   process.env.SITE_ID,
-      })
-    };
-  }
-
-  // Debug company-info — ?debug=company tests if token works against QB at all
-  if (params.debug === 'company') {
-    try {
-      let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
-      const realmId = process.env.QUICKBOOKS_REALM_ID;
-      // Try company info — simplest QB endpoint
-      let res = await fetch(`${QB_BASE}/${realmId}/companyinfo/${realmId}?minorversion=65`, {
-        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-      });
-      if (res.status === 401) {
-        token = await refreshAccessToken();
-        res = await fetch(`${QB_BASE}/${realmId}/companyinfo/${realmId}?minorversion=65`, {
-          headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-        });
-      }
-      const rawText = await res.text();
-      let raw; try { raw = JSON.parse(rawText); } catch(e) { raw = rawText; }
-      return {
-        statusCode: 200,
-        headers: { ...CORS, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: res.status, qbResponse: raw })
-      };
-    } catch (err) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
-    }
-  }
-
-  // Diagnostic list mode — ?list=true returns recent estimates
-  if (params.list === 'true') {
-    try {
-      let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
-      const realmId = process.env.QUICKBOOKS_REALM_ID;
-      const query = encodeURIComponent('SELECT * FROM Estimate MAXRESULTS 20');
-      let res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, {
-        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-      });
-      if (res.status === 401) { token = await refreshAccessToken(); res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }); }
-      const rawText = await res.text();
-      let raw; try { raw = JSON.parse(rawText); } catch(e) { raw = rawText; }
-      const list = (raw?.QueryResponse?.Estimate || []).map(e => ({ id: e.Id, docNumber: e.DocNumber, date: e.TxnDate, total: e.TotalAmt, customer: e.CustomerRef?.name }));
-      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ status: res.status, list, qbResponse: raw }) };
-    } catch (err) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
-    }
-  }
-
-  if (!id) {
+  if (!id && !qbid) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing estimate id' }) };
   }
 
   try {
-    const estimate = await getQBEstimate(id);
+    const estimate = qbid
+      ? await getQBEstimateByInternalId(qbid)
+      : await getQBEstimate(id);
+
     if (!estimate) {
       return { statusCode: 404, headers: CORS, body: JSON.stringify({ error: 'Estimate not found' }) };
     }
@@ -132,6 +69,32 @@ async function getQBEstimate(docNumber) {
   // Get customer details for email/phone
   const customer = await getQBCustomer(token, realmId, e.CustomerRef.value);
 
+  return normalizeEstimate(e, customer);
+}
+
+// ── QB API: fetch estimate by QB internal ID (used by webhook) ────────────────
+async function getQBEstimateByInternalId(qbId) {
+  let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
+  const realmId = process.env.QUICKBOOKS_REALM_ID;
+
+  let res = await fetch(`${QB_BASE}/${realmId}/estimate/${qbId}?minorversion=65`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+  });
+  if (res.status === 401) {
+    token = await refreshAccessToken();
+    res = await fetch(`${QB_BASE}/${realmId}/estimate/${qbId}?minorversion=65`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+    });
+  }
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`QB API ${res.status}: ${body}`);
+  }
+  const data = await res.json();
+  const e = data.Estimate;
+  if (!e) throw new Error(`Estimate QB ID ${qbId} not found`);
+
+  const customer = await getQBCustomer(token, realmId, e.CustomerRef.value);
   return normalizeEstimate(e, customer);
 }
 
