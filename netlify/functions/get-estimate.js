@@ -20,6 +20,27 @@ exports.handler = async function (event) {
   const params = event.queryStringParameters || {};
   const id = params.id;
 
+  // Debug mode — ?debug=env shows masked env var values the function is reading
+  if (params.debug === 'env') {
+    const show = (v) => v ? `...${String(v).slice(-4)}` : '(not set)';
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        QUICKBOOKS_ENV:            process.env.QUICKBOOKS_ENV,
+        IS_PRODUCTION,
+        QB_BASE,
+        QUICKBOOKS_CLIENT_ID:      show(process.env.QUICKBOOKS_CLIENT_ID),
+        QUICKBOOKS_CLIENT_SECRET:  show(process.env.QUICKBOOKS_CLIENT_SECRET),
+        QUICKBOOKS_REALM_ID:       process.env.QUICKBOOKS_REALM_ID,
+        QUICKBOOKS_ACCESS_TOKEN:   show(process.env.QUICKBOOKS_ACCESS_TOKEN),
+        QUICKBOOKS_REFRESH_TOKEN:  show(process.env.QUICKBOOKS_REFRESH_TOKEN),
+        NETLIFY_TOKEN:             show(process.env.NETLIFY_TOKEN),
+        SITE_ID:                   process.env.SITE_ID,
+      })
+    };
+  }
+
   // Diagnostic list mode — ?list=true returns recent estimates
   if (params.list === 'true') {
     try {
