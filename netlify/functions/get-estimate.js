@@ -25,14 +25,14 @@ exports.handler = async function (event) {
     try {
       let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
       const realmId = process.env.QUICKBOOKS_REALM_ID;
-      const query = encodeURIComponent('SELECT Id, DocNumber, TxnDate, TotalAmt, CustomerRef FROM Estimate ORDERBY TxnDate DESC MAXRESULTS 20');
+      const query = encodeURIComponent('SELECT * FROM Estimate MAXRESULTS 20');
       let res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       });
       if (res.status === 401) { token = await refreshAccessToken(); res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }); }
-      const data = await res.json();
-      const list = (data.QueryResponse?.Estimate || []).map(e => ({ id: e.Id, docNumber: e.DocNumber, date: e.TxnDate, total: e.TotalAmt, customer: e.CustomerRef?.name }));
-      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(list) };
+      const raw = await res.json();
+      const list = (raw.QueryResponse?.Estimate || []).map(e => ({ id: e.Id, docNumber: e.DocNumber, date: e.TxnDate, total: e.TotalAmt, customer: e.CustomerRef?.name }));
+      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ list, raw: raw.QueryResponse }) };
     } catch (err) {
       return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
     }
