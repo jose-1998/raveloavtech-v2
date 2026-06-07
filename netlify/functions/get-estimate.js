@@ -35,16 +35,16 @@ exports.handler = async function (event) {
 };
 
 // ── QB API: fetch estimate with auto token refresh ────────────────────────────
-async function getQBEstimate(id) {
+async function getQBEstimate(docNumber) {
   let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
   const realmId = process.env.QUICKBOOKS_REALM_ID;
 
-  // Try request — if 401, refresh token and retry once
-  let res = await qbFetch(token, realmId, id);
+  // Query by DocNumber (the number shown in QB, e.g. 1169)
+  let res = await qbQuery(token, realmId, docNumber);
   if (res.status === 401) {
     console.log('Access token expired — refreshing...');
     token = await refreshAccessToken();
-    res = await qbFetch(token, realmId, id);
+    res = await qbQuery(token, realmId, docNumber);
   }
 
   if (!res.ok) {
@@ -53,8 +53,8 @@ async function getQBEstimate(id) {
   }
 
   const data = await res.json();
-  const e = data.Estimate || data.QueryResponse?.Estimate?.[0];
-  if (!e) throw new Error('Estimate not found in QB response');
+  const e = data.QueryResponse?.Estimate?.[0];
+  if (!e) throw new Error(`Estimate #${docNumber} not found in QB`);
 
   // Get customer details for email/phone
   const customer = await getQBCustomer(token, realmId, e.CustomerRef.value);
@@ -62,8 +62,9 @@ async function getQBEstimate(id) {
   return normalizeEstimate(e, customer);
 }
 
-function qbFetch(token, realmId, id) {
-  return fetch(`${QB_BASE}/${realmId}/estimate/${id}?minorversion=65`, {
+function qbQuery(token, realmId, docNumber) {
+  const query = encodeURIComponent(`SELECT * FROM Estimate WHERE DocNumber = '${docNumber}'`);
+  return fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, {
     headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
   });
 }
