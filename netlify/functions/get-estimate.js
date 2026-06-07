@@ -41,6 +41,33 @@ exports.handler = async function (event) {
     };
   }
 
+  // Debug company-info — ?debug=company tests if token works against QB at all
+  if (params.debug === 'company') {
+    try {
+      let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
+      const realmId = process.env.QUICKBOOKS_REALM_ID;
+      // Try company info — simplest QB endpoint
+      let res = await fetch(`${QB_BASE}/${realmId}/companyinfo/${realmId}?minorversion=65`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      });
+      if (res.status === 401) {
+        token = await refreshAccessToken();
+        res = await fetch(`${QB_BASE}/${realmId}/companyinfo/${realmId}?minorversion=65`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+        });
+      }
+      const rawText = await res.text();
+      let raw; try { raw = JSON.parse(rawText); } catch(e) { raw = rawText; }
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: res.status, qbResponse: raw })
+      };
+    } catch (err) {
+      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
+    }
+  }
+
   // Diagnostic list mode — ?list=true returns recent estimates
   if (params.list === 'true') {
     try {
