@@ -7,7 +7,7 @@ const SCOPES = 'com.intuit.quickbooks.accounting';
 
 exports.handler = async function () {
   const CLIENT_ID = process.env.QUICKBOOKS_CLIENT_ID;
-  const IS_SANDBOX = (process.env.QUICKBOOKS_ENV || 'sandbox') === 'sandbox';
+  const IS_SANDBOX = process.env.QUICKBOOKS_ENV !== 'production';
   const SITE_URL   = process.env.URL || 'https://raveloavtech.com';
 
   const redirectUri = `${SITE_URL}/.netlify/functions/qb-callback`;
