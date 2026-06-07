@@ -5,7 +5,11 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-const QB_BASE = 'https://quickbooks.api.intuit.com/v3/company';
+// Use sandbox endpoint unless QUICKBOOKS_ENV=production
+const IS_PRODUCTION = process.env.QUICKBOOKS_ENV === 'production';
+const QB_BASE = IS_PRODUCTION
+  ? 'https://quickbooks.api.intuit.com/v3/company'
+  : 'https://sandbox-quickbooks.api.intuit.com/v3/company';
 const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 
 exports.handler = async function (event) {
