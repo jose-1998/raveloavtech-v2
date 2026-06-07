@@ -549,6 +549,45 @@ body {
   margin-bottom: 0.3rem;
 }
 
+/* PAY DEPOSIT */
+.pay-section {
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+  border-top: 2px solid var(--navy);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+.pay-notice {
+  background: rgba(130,160,204,0.12);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 4px 4px 0;
+  padding: 1.2rem 1.6rem;
+  font-size: 1.3rem;
+  color: var(--navy);
+  line-height: 1.6;
+  width: 100%;
+}
+.pay-notice strong { font-weight: 700; }
+.btn-pay {
+  width: 100%;
+  background: #1a7f4e;
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  padding: 1.6rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  border-radius: 3px;
+}
+.btn-pay:hover:not(:disabled) { background: #155f3a; transform: translateY(-1px); }
+.btn-pay:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
 /* SUCCESS BANNER */
 .success-banner {
   display: none;
@@ -771,6 +810,16 @@ function renderEstimate(e) {
         support@raveloavtech.com<br>
         Murfreesboro, TN 37129
       </div>
+    </div>
+
+    <div class="pay-section">
+      <div class="pay-notice">
+        <strong>Ready to move forward?</strong> A 50% deposit of <strong>${fmt(e.total * 0.5)}</strong> is required to schedule your installation.
+        You can pay securely below — we accept credit card and bank transfer.
+      </div>
+      <button class="btn-pay" id="btn-pay" onclick="payDeposit()">
+        Pay 50% Deposit — ${fmt(e.total * 0.5)}
+      </button>
     </div>`;
 }
 
@@ -892,6 +941,25 @@ function checkForm() {
   const sigReady = activeTab === 'draw' ? hasSig : hasUpload;
   const btn = document.getElementById('btn-sign');
   btn.disabled = !(name.length > 2 && sigReady && checked);
+}
+
+// ── PAY DEPOSIT ──
+async function payDeposit() {
+  const id  = new URLSearchParams(window.location.search).get('id');
+  const btn = document.getElementById('btn-pay');
+  btn.disabled = true;
+  btn.textContent = 'Creating secure payment link…';
+  try {
+    const res  = await fetch('/.netlify/functions/create-payment?id=' + id);
+    const data = await res.json();
+    if (!res.ok || !data.paymentUrl) throw new Error(data.error || 'No payment link returned');
+    window.location.href = data.paymentUrl;
+  } catch (err) {
+    console.error('Payment error:', err.message);
+    btn.disabled = false;
+    btn.textContent = 'Pay 50% Deposit';
+    alert('Could not create payment link. Please contact us at (615) 962-0401 or support@raveloavtech.com.');
+  }
 }
 
 // ── UNLOCK ESTIMATE ──
