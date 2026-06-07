@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Ravelo AV Tech — Estimate</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: rgb(7,43,62);
+  --navy2: rgba(7,43,62,0.06);
+  --blue: rgb(130,160,204);
+  --gold: #c9a84c;
+  --white: #ffffff;
+  --font-body: Figtree, sans-serif;
+  --font-head: Oswald, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 62.5%; }
+body {
+  font-family: var(--font-body);
+  background: #f0f4f8;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3rem 1.5rem;
+}
+
+/* HEADER */
+.header {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+}
+.logo-text {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.estimate-badge {
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  padding: 0.5rem 1.4rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* CARD */
+.card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--white);
+  border-radius: 4px;
+  box-shadow: 0 4px 40px rgba(7,43,62,0.12);
+  overflow: hidden;
+}
+
+/* NDA SECTION */
+.nda-section {
+  padding: 3.5rem 4rem;
+  border-bottom: 1px solid rgba(7,43,62,0.1);
+}
+
+.section-label {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 0.8rem;
+}
+
+.nda-title {
+  font-family: var(--font-head);
+  font-size: 2.6rem;
+  font-weight: 500;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+}
+
+.nda-subtitle {
+  font-size: 1.4rem;
+  color: rgba(7,43,62,0.55);
+  margin-bottom: 2.5rem;
+}
+
+.lock-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  background: rgba(130,160,204,0.12);
+  border-left: 3px solid var(--blue);
+  padding: 1.5rem 1.8rem;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 2.5rem;
+}
+.lock-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.lock-notice p {
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: var(--navy);
+}
+.lock-notice strong { font-weight: 700; }
+
+/* NDA TEXT */
+.nda-text {
+  background: rgba(7,43,62,0.03);
+  border: 1px solid rgba(7,43,62,0.08);
+  border-radius: 4px;
+  padding: 2rem 2.2rem;
+  margin-bottom: 2.5rem;
+  max-height: 18rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.nda-text h4 {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.8rem;
+  margin-top: 1.5rem;
+}
+.nda-text h4:first-child { margin-top: 0; }
+.nda-text p {
+  font-size: 1.3rem;
+  line-height: 1.7;
+  color: rgba(7,43,62,0.7);
+}
+
+/* SIGNATURE */
+.sig-section { margin-bottom: 2rem; }
+.sig-section label {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.sig-section input[type="text"] {
+  width: 100%;
+  border: 1.5px solid rgba(7,43,62,0.2);
+  border-radius: 3px;
+  padding: 1.1rem 1.4rem;
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  color: var(--navy);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sig-section input[type="text"]:focus {
+  border-color: var(--blue);
+}
+
+/* SIG TABS */
+.sig-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+  border: 1.5px solid rgba(7,43,62,0.2);
+  border-radius: 3px 3px 0 0;
+  overflow: hidden;
+}
+.sig-tab {
+  flex: 1;
+  padding: 0.8rem 1.2rem;
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: #f4f7fa;
+  color: rgba(7,43,62,0.45);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.sig-tab + .sig-tab { border-left: 1.5px solid rgba(7,43,62,0.2); }
+.sig-tab.active {
+  background: var(--navy);
+  color: #fff;
+}
+
+.canvas-wrapper {
+  border: 1.5px solid rgba(7,43,62,0.2);
+  border-top: none;
+  border-radius: 0 0 3px 3px;
+  background: #fafbfc;
+  position: relative;
+  cursor: crosshair;
+}
+.canvas-wrapper canvas {
+  display: block;
+  width: 100%;
+  height: 12rem;
+  touch-action: none;
+}
+.canvas-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.3rem;
+  color: rgba(7,43,62,0.25);
+  pointer-events: none;
+  transition: opacity 0.2s;
+  text-align: center;
+}
+.canvas-clear {
+  position: absolute;
+  bottom: 0.8rem; right: 1rem;
+  font-size: 1.2rem;
+  color: rgba(7,43,62,0.4);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  transition: color 0.2s;
+}
+.canvas-clear:hover { color: var(--navy); }
+
+/* UPLOAD PANEL */
+.upload-wrapper {
+  display: none;
+  border: 1.5px solid rgba(7,43,62,0.2);
+  border-top: none;
+  border-radius: 0 0 3px 3px;
+  background: #fafbfc;
+  height: 12rem;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.8rem;
+  cursor: pointer;
+}
+.upload-wrapper.active { display: flex; }
+.upload-wrapper:hover { background: rgba(130,160,204,0.08); }
+.upload-wrapper input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.upload-placeholder {
+  text-align: center;
+  pointer-events: none;
+}
+.upload-placeholder .upload-icon { font-size: 2.6rem; }
+.upload-placeholder p {
+  font-size: 1.3rem;
+  color: rgba(7,43,62,0.4);
+  margin-top: 0.4rem;
+}
+.upload-placeholder small {
+  font-size: 1.1rem;
+  color: rgba(7,43,62,0.3);
+}
+.upload-preview {
+  display: none;
+  max-height: 10rem;
+  max-width: 90%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.upload-preview.show { display: block; }
+.upload-clear {
+  position: absolute;
+  bottom: 0.8rem; right: 1rem;
+  font-size: 1.2rem;
+  color: rgba(7,43,62,0.4);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  transition: color 0.2s;
+  pointer-events: all;
+  z-index: 2;
+  display: none;
+}
+.upload-clear.show { display: block; }
+.upload-clear:hover { color: var(--navy); }
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1.8rem;
+  margin-bottom: 2.5rem;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 1.8rem; height: 1.8rem;
+  flex-shrink: 0; margin-top: 0.1rem;
+  cursor: pointer; accent-color: var(--navy);
+}
+.checkbox-row label {
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: rgba(7,43,62,0.7);
+  cursor: pointer;
+}
+
+.btn-sign {
+  width: 100%;
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  padding: 1.6rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  border-radius: 3px;
+}
+.btn-sign:hover:not(:disabled) {
+  background: rgba(7,43,62,0.85);
+  transform: translateY(-1px);
+}
+.btn-sign:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ESTIMATE SECTION — locked by default */
+.estimate-section {
+  padding: 3.5rem 4rem;
+  position: relative;
+}
+
+.estimate-blur {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.6s ease;
+}
+.estimate-blur.unlocked {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+}
+
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  transition: opacity 0.4s ease;
+  gap: 1rem;
+}
+.locked-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.locked-overlay .big-lock { font-size: 4rem; }
+.locked-overlay p {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+/* ESTIMATE CONTENT */
+.est-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--navy);
+}
+.est-header-left h2 {
+  font-family: var(--font-head);
+  font-size: 2.8rem;
+  font-weight: 500;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.est-header-left p {
+  font-size: 1.3rem;
+  color: rgba(7,43,62,0.5);
+  margin-top: 0.3rem;
+}
+.est-number {
+  text-align: right;
+}
+.est-number span {
+  display: block;
+  font-size: 1.2rem;
+  color: rgba(7,43,62,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.est-number strong {
+  font-family: var(--font-head);
+  font-size: 2rem;
+  color: var(--navy);
+}
+
+.client-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+.info-block label {
+  display: block;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(7,43,62,0.4);
+  margin-bottom: 0.4rem;
+}
+.info-block p {
+  font-size: 1.4rem;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* LINE ITEMS */
+.line-items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+.line-items thead tr {
+  background: var(--navy);
+  color: #fff;
+}
+.line-items thead th {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1rem 1.4rem;
+  text-align: left;
+  font-weight: 500;
+}
+.line-items thead th:last-child { text-align: right; }
+.line-items tbody tr {
+  border-bottom: 1px solid rgba(7,43,62,0.07);
+  transition: background 0.15s;
+}
+.line-items tbody tr:hover { background: rgba(130,160,204,0.08); }
+.line-items tbody td {
+  padding: 1.2rem 1.4rem;
+  font-size: 1.4rem;
+  color: var(--navy);
+}
+.line-items tbody td:last-child {
+  text-align: right;
+  font-weight: 600;
+}
+.line-items tbody td.desc {
+  color: rgba(7,43,62,0.55);
+  font-size: 1.2rem;
+}
+
+/* TOTALS */
+.totals {
+  margin-left: auto;
+  width: 26rem;
+}
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.7rem 0;
+  font-size: 1.4rem;
+  border-bottom: 1px solid rgba(7,43,62,0.07);
+}
+.totals-row span:first-child { color: rgba(7,43,62,0.55); }
+.totals-row span:last-child { font-weight: 600; color: var(--navy); }
+.totals-row.total {
+  border-bottom: none;
+  border-top: 2px solid var(--navy);
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+}
+.totals-row.total span {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  color: var(--navy) !important;
+  font-weight: 500 !important;
+}
+
+.est-footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(7,43,62,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.est-footer p {
+  font-size: 1.2rem;
+  color: rgba(7,43,62,0.45);
+  max-width: 36rem;
+  line-height: 1.6;
+}
+.est-footer-contact {
+  text-align: right;
+  font-size: 1.3rem;
+  color: rgba(7,43,62,0.6);
+  line-height: 1.8;
+}
+.est-footer-contact strong {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+}
+
+/* SUCCESS BANNER */
+.success-banner {
+  display: none;
+  align-items: center;
+  gap: 1.2rem;
+  background: rgba(7,43,62,0.05);
+  border: 1px solid rgba(7,43,62,0.15);
+  border-radius: 4px;
+  padding: 1.4rem 2rem;
+  margin-bottom: 2rem;
+}
+.success-banner.show { display: flex; }
+.success-banner span { font-size: 1.8rem; }
+.success-banner p { font-size: 1.4rem; color: var(--navy); font-weight: 600; }
+
+@media(max-width:600px) {
+  .nda-section, .estimate-section { padding: 2.5rem 2rem; }
+  .client-info { grid-template-columns: 1fr; }
+  .est-header { flex-direction: column; gap: 1rem; }
+  .est-number { text-align: left; }
+  .totals { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-text">Ravelo AV Tech</div>
+  <div class="estimate-badge" id="header-badge">Estimate</div>
+</div>
+
+<div class="card">
+
+  <!-- NDA SECTION -->
+  <div class="nda-section">
+    <div class="section-label">Step 1 of 2</div>
+    <h1 class="nda-title">Non-Disclosure<br>Agreement</h1>
+    <p class="nda-subtitle">Please sign before viewing your estimate</p>
+
+    <div class="lock-notice">
+      <div class="lock-icon">🔒</div>
+      <p><strong>Your estimate is ready.</strong> To protect our pricing and proprietary methods, please read and sign the NDA below. Your estimate will unlock immediately after signing.</p>
+    </div>
+
+    <!-- NDA TEXT -->
+    <div class="nda-text">
+      <h4>1. Confidentiality</h4>
+      <p>The recipient agrees to keep all information contained in this estimate — including pricing, labor rates, equipment specifications, and vendor sources — strictly confidential. This information may not be shared with third parties without written consent from Ravelo AV Technologies LLC.</p>
+
+      <h4>2. Purpose of Disclosure</h4>
+      <p>This estimate is provided solely for the purpose of evaluating a potential service agreement between the recipient and Ravelo AV Technologies LLC. It shall not be used to solicit competing bids using our proprietary pricing information.</p>
+
+      <h4>3. Duration</h4>
+      <p>This agreement remains in effect for a period of two (2) years from the date of signing, or until the information becomes publicly available through no fault of the recipient.</p>
+
+      <h4>4. Governing Law</h4>
+      <p>This agreement shall be governed by the laws of the State of Tennessee. Any disputes arising under this agreement shall be resolved in the courts of Rutherford County, Tennessee.</p>
+
+      <h4>5. Acknowledgment</h4>
+      <p>By signing below, you acknowledge that you have read, understood, and agree to be bound by the terms of this Non-Disclosure Agreement.</p>
+    </div>
+
+    <!-- FULL NAME -->
+    <div class="sig-section">
+      <label>Full Name *</label>
+      <input type="text" id="full-name" placeholder="Enter your full legal name" oninput="checkForm()"/>
+    </div>
+
+    <!-- SIGNATURE PAD -->
+    <div class="sig-section" style="margin-top:1.8rem">
+      <label>Signature *</label>
+      <div class="sig-tabs">
+        <button class="sig-tab active" id="tab-draw" onclick="switchTab('draw')">✏️ Draw</button>
+        <button class="sig-tab" id="tab-upload" onclick="switchTab('upload')">📁 Upload image</button>
+      </div>
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="sig-canvas"></canvas>
+        <div class="canvas-label" id="canvas-label">Draw your signature here</div>
+        <button class="canvas-clear" onclick="clearCanvas()">Clear</button>
+      </div>
+      <div class="upload-wrapper" id="upload-wrapper">
+        <input type="file" id="sig-upload" accept="image/*" onchange="handleUpload(event)" />
+        <div class="upload-placeholder" id="upload-placeholder">
+          <div class="upload-icon">🖼️</div>
+          <p>Click or drag your signature image here</p>
+          <small>PNG, JPG, GIF — transparent background recommended</small>
+        </div>
+        <img class="upload-preview" id="upload-preview" alt="Signature preview" />
+        <button class="upload-clear" id="upload-clear" onclick="clearUpload(event)">Clear</button>
+      </div>
+    </div>
+
+    <!-- CHECKBOX -->
+    <div class="checkbox-row">
+      <input type="checkbox" id="agree-check" onchange="checkForm()"/>
+      <label for="agree-check">I have read and agree to the Non-Disclosure Agreement above. I understand this is a legally binding document.</label>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-banner" id="success-banner">
+      <span>✅</span>
+      <p>NDA signed successfully — your estimate is now unlocked below.</p>
+    </div>
+
+    <button class="btn-sign" id="btn-sign" disabled onclick="unlockEstimate()">
+      Sign &amp; View Estimate
+    </button>
+  </div>
+
+  <!-- ESTIMATE SECTION -->
+  <div class="estimate-section">
+
+    <div class="locked-overlay" id="locked-overlay">
+      <div class="big-lock">🔒</div>
+      <p>Sign NDA to unlock</p>
+    </div>
+
+    <div class="estimate-blur" id="estimate-content">
+
+      <!-- Populated dynamically by loadEstimate() -->
+      <div id="est-body"></div>
+
+    </div><!-- /estimate-blur -->
+  </div><!-- /estimate-section -->
+
+</div><!-- /card -->
+
+<script>
+// ── LOAD ESTIMATE FROM API ──
+const fmt = n => '$' + Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+async function loadEstimate() {
+  const id = new URLSearchParams(window.location.search).get('id') || '1042';
+  document.getElementById('header-badge').textContent = 'Estimate #' + id;
+
+  try {
+    const res = await fetch('/.netlify/functions/get-estimate?id=' + id);
+    if (!res.ok) throw new Error('Not found');
+    const e = await res.json();
+    renderEstimate(e);
+  } catch {
+    document.getElementById('est-body').innerHTML =
+      '<p style="padding:2rem;color:#c00;font-size:1.4rem;">Could not load estimate. Please check the link or contact us at (615) 962-0401.</p>';
+  }
+}
+
+function renderEstimate(e) {
+  const linesHTML = e.lines.map(l => `
+    <tr>
+      <td><strong>${l.name}</strong><div class="desc">${l.description}</div></td>
+      <td>${l.qty}</td>
+      <td>${fmt(l.unitPrice)}</td>
+      <td>${fmt(l.total)}</td>
+    </tr>`).join('');
+
+  const discountHTML = e.discount
+    ? `<div class="totals-row"><span>${e.discount.label}</span><span style="color:#2a7a4b">−${fmt(e.discount.amount)}</span></div>`
+    : '';
+
+  const addrHTML = (e.client.address || '').replace(/\n/g, '<br>');
+
+  document.getElementById('est-body').innerHTML = `
+    <div class="est-header">
+      <div class="est-header-left">
+        <h2>Estimate</h2>
+        <p>Valid until ${e.validUntil}</p>
+      </div>
+      <div class="est-number">
+        <span>Estimate No.</span>
+        <strong>#${e.docNumber}</strong>
+        <span style="margin-top:0.5rem">Date: ${e.date}</span>
+      </div>
+    </div>
+
+    <div class="client-info">
+      <div class="info-block">
+        <label>Bill To</label>
+        <p>${e.client.name}</p>
+        <p style="font-weight:400;font-size:1.3rem;color:rgba(7,43,62,0.55)">${addrHTML}</p>
+      </div>
+      <div class="info-block">
+        <label>Project</label>
+        <p>${e.project.name}</p>
+        <p style="font-weight:400;font-size:1.3rem;color:rgba(7,43,62,0.55)">${e.project.description}</p>
+      </div>
+      <div class="info-block">
+        <label>Phone</label>
+        <p>${e.client.phone}</p>
+      </div>
+      <div class="info-block">
+        <label>Email</label>
+        <p>${e.client.email}</p>
+      </div>
+    </div>
+
+    <table class="line-items">
+      <thead>
+        <tr>
+          <th style="width:40%">Service / Item</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>${linesHTML}</tbody>
+    </table>
+
+    <div class="totals">
+      <div class="totals-row"><span>Subtotal</span><span>${fmt(e.subtotal)}</span></div>
+      <div class="totals-row"><span>Tax (${e.taxRate}%)</span><span>${fmt(e.tax)}</span></div>
+      ${discountHTML}
+      <div class="totals-row total"><span>Total</span><span>${fmt(e.total)}</span></div>
+    </div>
+
+    <div class="est-footer">
+      <p>${e.notes}</p>
+      <div class="est-footer-contact">
+        <strong>Ravelo AV Technologies LLC</strong>
+        (615) 962-0401<br>
+        support@raveloavtech.com<br>
+        Murfreesboro, TN 37129
+      </div>
+    </div>`;
+}
+
+loadEstimate();
+
+// ── TAB SWITCH ──
+let activeTab = 'draw';
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tab-draw').classList.toggle('active', tab === 'draw');
+  document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+  document.getElementById('canvas-wrapper').style.display = tab === 'draw' ? 'block' : 'none';
+  document.getElementById('upload-wrapper').classList.toggle('active', tab === 'upload');
+  checkForm();
+}
+
+// ── SIGNATURE CANVAS ──
+const canvas = document.getElementById('sig-canvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let hasSig = false;
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = 120;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+}
+
+canvas.addEventListener('mousedown', e => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener('mousemove', e => {
+  if (!drawing) return;
+  const p = getPos(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.strokeStyle = 'rgb(7,43,62)';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  hasSig = true;
+  document.getElementById('canvas-label').style.opacity = '0';
+  checkForm();
+});
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseleave', () => drawing = false);
+
+canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!drawing) return;
+  const p = getPos(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.strokeStyle = 'rgb(7,43,62)';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  hasSig = true;
+  document.getElementById('canvas-label').style.opacity = '0';
+  checkForm();
+}, { passive: false });
+canvas.addEventListener('touchend', () => drawing = false);
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  hasSig = false;
+  document.getElementById('canvas-label').style.opacity = '1';
+  checkForm();
+}
+
+// ── UPLOAD SIGNATURE ──
+let hasUpload = false;
+
+function handleUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const preview = document.getElementById('upload-preview');
+    const placeholder = document.getElementById('upload-placeholder');
+    const clearBtn = document.getElementById('upload-clear');
+    preview.src = ev.target.result;
+    preview.classList.add('show');
+    placeholder.style.display = 'none';
+    clearBtn.classList.add('show');
+    // disable the file input click-through so clear button works
+    document.getElementById('sig-upload').style.pointerEvents = 'none';
+    hasUpload = true;
+    checkForm();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearUpload(e) {
+  e.stopPropagation();
+  const preview = document.getElementById('upload-preview');
+  const placeholder = document.getElementById('upload-placeholder');
+  const clearBtn = document.getElementById('upload-clear');
+  preview.src = '';
+  preview.classList.remove('show');
+  placeholder.style.display = '';
+  clearBtn.classList.remove('show');
+  document.getElementById('sig-upload').value = '';
+  document.getElementById('sig-upload').style.pointerEvents = '';
+  hasUpload = false;
+  checkForm();
+}
+
+// ── FORM VALIDATION ──
+function checkForm() {
+  const name = document.getElementById('full-name').value.trim();
+  const checked = document.getElementById('agree-check').checked;
+  const sigReady = activeTab === 'draw' ? hasSig : hasUpload;
+  const btn = document.getElementById('btn-sign');
+  btn.disabled = !(name.length > 2 && sigReady && checked);
+}
+
+// ── UNLOCK ESTIMATE ──
+function unlockEstimate() {
+  document.getElementById('success-banner').classList.add('show');
+  document.getElementById('btn-sign').disabled = true;
+  document.getElementById('btn-sign').textContent = '✓ NDA Signed';
+  document.getElementById('full-name').disabled = true;
+  document.getElementById('agree-check').disabled = true;
+
+  setTimeout(() => {
+    document.getElementById('locked-overlay').classList.add('hidden');
+    document.getElementById('estimate-content').classList.add('unlocked');
+    document.getElementById('estimate-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 600);
+}
+</script>
+</body>
+</html>
