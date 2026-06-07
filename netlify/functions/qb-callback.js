@@ -43,10 +43,18 @@ exports.handler = async function (event) {
 
     const tokens = await res.json();
 
-    // Show tokens — copy these to Netlify env vars
+    // Auto-save tokens to Netlify env vars (no manual copy needed)
+    const saved = await saveNetlifyEnvVars({
+      QUICKBOOKS_REALM_ID: realmId,
+      QUICKBOOKS_ACCESS_TOKEN: tokens.access_token,
+      QUICKBOOKS_REFRESH_TOKEN: tokens.refresh_token,
+    });
+
+    // Show tokens — for reference
     return html(`
       <h1 style="color:#072b3e;font-family:sans-serif">✅ QuickBooks Connected!</h1>
-      <p style="font-family:sans-serif;color:#555">Copy these three values to <strong>Netlify → Environment Variables</strong>:</p>
+      <p style="font-family:sans-serif;color:#28a745;font-weight:600">🎉 Tokens saved automatically to Netlify — no manual copy needed.</p>
+      <p style="font-family:sans-serif;color:#555">For reference, here are the values that were saved:</p>
 
       <table style="font-family:monospace;border-collapse:collapse;margin:24px 0">
         <tr style="background:#072b3e;color:#fff">
@@ -86,4 +94,32 @@ function html(body) {
       <style>body{margin:40px;background:#f0f4f8}pre{background:#fff;padding:16px;border-radius:4px}</style>
     </head><body>${body}</body></html>`,
   };
+}
+
+// ── Save env vars via Netlify API so tokens persist automatically ─────────────
+async function saveNetlifyEnvVars(vars) {
+  const NETLIFY_TOKEN = process.env.NETLIFY_TOKEN;
+  const siteId = process.env.SITE_ID; // Auto-injected by Netlify
+
+  if (!NETLIFY_TOKEN || !siteId) {
+    console.warn('NETLIFY_TOKEN or SITE_ID not set — skipping auto-save');
+    return false;
+  }
+
+  for (const [key, value] of Object.entries(vars)) {
+    const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/env/${key}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${NETLIFY_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ context: 'all', value }),
+    });
+    if (!res.ok) {
+      console.warn(`Failed to save ${key}:`, await res.text());
+    } else {
+      console.log(`Saved ${key} to Netlify`);
+    }
+  }
+  return true;
 }
