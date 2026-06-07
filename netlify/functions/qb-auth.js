@@ -1,5 +1,5 @@
-// qb-auth.js
-// Step 1 of OAuth2 — redirects to QuickBooks login page.
+﻿// qb-auth.js
+// Step 1 of OAuth2 â€” redirects to QuickBooks login page.
 // Usage: visit https://raveloavtech.com/.netlify/functions/qb-auth
 // QB will ask you to sign in and authorize the app, then redirect to qb-callback.
 
