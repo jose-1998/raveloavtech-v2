@@ -24,7 +24,7 @@ exports.handler = async function (event) {
       const notifications = payload.eventNotifications || [];
       for (const n of notifications) {
         for (const entity of (n.dataChangeEvent?.entities || [])) {
-          if (entity.name === 'Estimate' && (entity.operation === 'Create' || entity.operation === 'Update')) {
+          if (entity.name === 'Estimate' && entity.operation === 'Create') {
             console.log(`New QB estimate: ${entity.id}`);
             await handleNewEstimate(entity.id);
           }
