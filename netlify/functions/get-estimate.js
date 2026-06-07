@@ -98,29 +98,26 @@ async function refreshAccessToken() {
 
 // ── Save env vars via Netlify API ─────────────────────────────────────────────
 async function saveNetlifyEnvVars(vars) {
-  const { NETLIFY_TOKEN, NETLIFY_SITE_ID } = process.env;
-  if (!NETLIFY_TOKEN || !NETLIFY_SITE_ID) {
-    console.warn('NETLIFY_TOKEN or NETLIFY_SITE_ID not set — skipping token save');
+  const NETLIFY_TOKEN = process.env.NETLIFY_TOKEN;
+  const siteId = process.env.SITE_ID; // Netlify injects this automatically
+
+  if (!NETLIFY_TOKEN || !siteId) {
+    console.warn('NETLIFY_TOKEN or SITE_ID not available — skipping token save');
     return;
   }
 
-  const entries = Object.entries(vars).map(([key, value]) => ({
-    key,
-    scopes: ['functions', 'runtime', 'builds'],
-    values: [{ context: 'all', value }],
-  }));
-
-  const res = await fetch(`https://api.netlify.com/api/v1/accounts/${NETLIFY_SITE_ID}/env`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${NETLIFY_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(entries),
-  });
-
-  if (!res.ok) console.warn('Failed to update Netlify env vars:', await res.text());
-  else console.log('QB tokens refreshed and saved to Netlify');
+  for (const [key, value] of Object.entries(vars)) {
+    const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/env/${key}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${NETLIFY_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ context: 'all', value }),
+    });
+    if (!res.ok) console.warn(`Failed to save ${key}:`, await res.text());
+    else console.log(`Saved ${key} to Netlify`);
+  }
 }
 
 // ── Fetch QB customer details ─────────────────────────────────────────────────
