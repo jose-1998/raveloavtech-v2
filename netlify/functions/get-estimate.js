@@ -30,9 +30,10 @@ exports.handler = async function (event) {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       });
       if (res.status === 401) { token = await refreshAccessToken(); res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }); }
-      const raw = await res.json();
-      const list = (raw.QueryResponse?.Estimate || []).map(e => ({ id: e.Id, docNumber: e.DocNumber, date: e.TxnDate, total: e.TotalAmt, customer: e.CustomerRef?.name }));
-      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ list, raw: raw.QueryResponse }) };
+      const rawText = await res.text();
+      let raw; try { raw = JSON.parse(rawText); } catch(e) { raw = rawText; }
+      const list = (raw?.QueryResponse?.Estimate || []).map(e => ({ id: e.Id, docNumber: e.DocNumber, date: e.TxnDate, total: e.TotalAmt, customer: e.CustomerRef?.name }));
+      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ status: res.status, list, qbResponse: raw }) };
     } catch (err) {
       return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
     }
