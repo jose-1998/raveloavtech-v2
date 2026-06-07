@@ -1,6 +1,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[build]
+  ignore_secrets = ["QUICKBOOKS_ENV"]
+
 # ── Cache headers ────────────────────────────────────────────────────────────
 
 [[headers]]
