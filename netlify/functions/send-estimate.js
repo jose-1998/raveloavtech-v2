@@ -17,17 +17,23 @@ exports.handler = async function (event) {
     return { statusCode: 200, headers: CORS, body: '' };
   }
 
-  // ── Phase 2: uncomment when QB webhook is active ──────────────────────────
-  // const payload = JSON.parse(event.body || '{}');
-  // const notifications = payload.eventNotifications || [];
-  // for (const n of notifications) {
-  //   for (const entity of (n.dataChangeEvent?.entities || [])) {
-  //     if (entity.name === 'Estimate' && entity.operation === 'Create') {
-  //       await handleNewEstimate(entity.id);
-  //     }
-  //   }
-  // }
-  // ─────────────────────────────────────────────────────────────────────────
+  // QB POSTs here when a new estimate is created
+  if (event.httpMethod === 'POST' && event.body) {
+    try {
+      const payload = JSON.parse(event.body);
+      const notifications = payload.eventNotifications || [];
+      for (const n of notifications) {
+        for (const entity of (n.dataChangeEvent?.entities || [])) {
+          if (entity.name === 'Estimate' && entity.operation === 'Create') {
+            console.log(`New QB estimate: ${entity.id}`);
+            await handleNewEstimate(entity.id);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Webhook error:', err.message);
+    }
+  }
 
   return {
     statusCode: 200,

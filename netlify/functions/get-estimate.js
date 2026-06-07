@@ -1,11 +1,12 @@
-// get-estimate.js
-// Phase 1: returns mock estimate data by ID.
-// Phase 2: swap getMockEstimate() for getQBEstimate() once QB OAuth is connected.
+// get-estimate.js — Phase 2: pulls real data from QuickBooks API
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+
+const QB_BASE = 'https://quickbooks.api.intuit.com/v3/company';
+const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') {
@@ -14,119 +15,197 @@ exports.handler = async function (event) {
 
   const id = (event.queryStringParameters || {}).id;
   if (!id) {
-    return {
-      statusCode: 400,
-      headers: CORS,
-      body: JSON.stringify({ error: 'Missing estimate id' }),
-    };
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing estimate id' }) };
   }
 
   try {
-    // ── Phase 2: replace this line with → const estimate = await getQBEstimate(id);
-    const estimate = getMockEstimate(id);
-
+    const estimate = await getQBEstimate(id);
     if (!estimate) {
-      return {
-        statusCode: 404,
-        headers: CORS,
-        body: JSON.stringify({ error: 'Estimate not found' }),
-      };
+      return { statusCode: 404, headers: CORS, body: JSON.stringify({ error: 'Estimate not found' }) };
     }
-
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json' },
       body: JSON.stringify(estimate),
     };
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: CORS,
-      body: JSON.stringify({ error: err.message }),
-    };
+    console.error('get-estimate error:', err.message);
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
   }
 };
 
-// ── MOCK DATA — matches the QB Estimate object shape exactly ──────────────────
-// When QB is connected, getQBEstimate() returns data in this same structure.
-function getMockEstimate(id) {
-  const estimates = {
-    '1042': {
-      id: '1042',
-      docNumber: '1042',
-      date: 'June 6, 2026',
-      validUntil: 'July 6, 2026',
-      status: 'Pending Approval',
-      client: {
-        name: 'John Smith',
-        address: '123 Oak Street\nMurfreesboro, TN 37129',
-        phone: '(615) 555-0192',
-        email: 'john.smith@email.com',
-      },
-      project: {
-        name: 'Home Theater Installation',
-        description: 'Living Room + Master Bedroom',
-      },
-      lines: [
-        {
-          name: '75" 4K Smart TV — Samsung QN75',
-          description: 'Supply and installation, wall mount included',
-          qty: 1,
-          unitPrice: 1299.00,
-          total: 1299.00,
-        },
-        {
-          name: 'Surround Sound System — Sonos',
-          description: '5.1 channel, Arc soundbar + Sub + 2 rear speakers',
-          qty: 1,
-          unitPrice: 1850.00,
-          total: 1850.00,
-        },
-        {
-          name: 'HDMI & Speaker Wiring',
-          description: 'In-wall cable management, up to 50ft run',
-          qty: 1,
-          unitPrice: 350.00,
-          total: 350.00,
-        },
-        {
-          name: 'Apple TV 4K (3rd gen)',
-          description: 'Supply, programming and setup',
-          qty: 1,
-          unitPrice: 179.00,
-          total: 179.00,
-        },
-        {
-          name: 'Labor — Installation',
-          description: 'Professional installation, estimated 6 hours',
-          qty: 6,
-          unitPrice: 95.00,
-          total: 570.00,
-        },
-      ],
-      subtotal: 4248.00,
-      tax: 414.18,
-      taxRate: 9.75,
-      discount: { label: 'Veteran Discount (10%)', amount: 424.80 },
-      total: 4237.38,
-      notes: 'Thank you for choosing Ravelo AV Technologies LLC. This estimate is valid for 30 days. A 50% deposit is required to schedule installation.',
-    },
-  };
+// ── QB API: fetch estimate with auto token refresh ────────────────────────────
+async function getQBEstimate(id) {
+  let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
+  const realmId = process.env.QUICKBOOKS_REALM_ID;
 
-  return estimates[String(id)] || null;
+  // Try request — if 401, refresh token and retry once
+  let res = await qbFetch(token, realmId, id);
+  if (res.status === 401) {
+    console.log('Access token expired — refreshing...');
+    token = await refreshAccessToken();
+    res = await qbFetch(token, realmId, id);
+  }
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`QB API ${res.status}: ${body}`);
+  }
+
+  const data = await res.json();
+  const e = data.Estimate || data.QueryResponse?.Estimate?.[0];
+  if (!e) throw new Error('Estimate not found in QB response');
+
+  // Get customer details for email/phone
+  const customer = await getQBCustomer(token, realmId, e.CustomerRef.value);
+
+  return normalizeEstimate(e, customer);
 }
 
-// ── Phase 2: QB API fetch (uncomment and fill in when ready) ──────────────────
-// async function getQBEstimate(id) {
-//   const { QUICKBOOKS_ACCESS_TOKEN, QUICKBOOKS_REALM_ID } = process.env;
-//   const url = `https://quickbooks.api.intuit.com/v3/company/${QUICKBOOKS_REALM_ID}/estimate/${id}?minorversion=65`;
-//   const res = await fetch(url, {
-//     headers: {
-//       Authorization: `Bearer ${QUICKBOOKS_ACCESS_TOKEN}`,
-//       Accept: 'application/json',
-//     },
-//   });
-//   if (!res.ok) throw new Error(`QB API error: ${res.status}`);
-//   const { Estimate: e } = await res.json();
-//   return normalizeQBEstimate(e);
-// }
+function qbFetch(token, realmId, id) {
+  return fetch(`${QB_BASE}/${realmId}/estimate/${id}?minorversion=65`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+  });
+}
+
+// ── Refresh token and save new tokens to Netlify env vars ─────────────────────
+async function refreshAccessToken() {
+  const { QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET, QUICKBOOKS_REFRESH_TOKEN } = process.env;
+  const credentials = Buffer.from(`${QUICKBOOKS_CLIENT_ID}:${QUICKBOOKS_CLIENT_SECRET}`).toString('base64');
+
+  const res = await fetch(TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json',
+    },
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: QUICKBOOKS_REFRESH_TOKEN }).toString(),
+  });
+
+  if (!res.ok) throw new Error(`Token refresh failed: ${await res.text()}`);
+  const tokens = await res.json();
+
+  // Save new tokens to Netlify so they persist for next invocation
+  await saveNetlifyEnvVars({
+    QUICKBOOKS_ACCESS_TOKEN: tokens.access_token,
+    QUICKBOOKS_REFRESH_TOKEN: tokens.refresh_token,
+  });
+
+  return tokens.access_token;
+}
+
+// ── Save env vars via Netlify API ─────────────────────────────────────────────
+async function saveNetlifyEnvVars(vars) {
+  const { NETLIFY_TOKEN, NETLIFY_SITE_ID } = process.env;
+  if (!NETLIFY_TOKEN || !NETLIFY_SITE_ID) {
+    console.warn('NETLIFY_TOKEN or NETLIFY_SITE_ID not set — skipping token save');
+    return;
+  }
+
+  const entries = Object.entries(vars).map(([key, value]) => ({
+    key,
+    scopes: ['functions', 'runtime', 'builds'],
+    values: [{ context: 'all', value }],
+  }));
+
+  const res = await fetch(`https://api.netlify.com/api/v1/accounts/${NETLIFY_SITE_ID}/env`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${NETLIFY_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(entries),
+  });
+
+  if (!res.ok) console.warn('Failed to update Netlify env vars:', await res.text());
+  else console.log('QB tokens refreshed and saved to Netlify');
+}
+
+// ── Fetch QB customer details ─────────────────────────────────────────────────
+async function getQBCustomer(token, realmId, customerId) {
+  try {
+    const res = await fetch(`${QB_BASE}/${realmId}/customer/${customerId}?minorversion=65`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.Customer || null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Normalize QB Estimate → our format ───────────────────────────────────────
+function normalizeEstimate(e, customer) {
+  const fmt = d => {
+    if (!d) return '';
+    const [y, m, day] = d.split('-');
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return `${months[parseInt(m,10)-1]} ${parseInt(day,10)}, ${y}`;
+  };
+
+  // Build address from BillAddr
+  const addr = e.BillAddr || {};
+  const addrParts = [addr.Line1, addr.Line2, addr.Line3].filter(Boolean);
+  const cityLine = [addr.City, addr.CountrySubDivisionCode, addr.PostalCode].filter(Boolean).join(', ');
+  if (cityLine) addrParts.push(cityLine);
+
+  // Line items (skip SubTotal and DiscountLine types)
+  const lines = (e.Line || [])
+    .filter(l => l.DetailType === 'SalesItemLineDetail')
+    .map(l => {
+      const detail = l.SalesItemLineDetail || {};
+      return {
+        name: detail.ItemRef?.name || l.Description || 'Service',
+        description: l.Description || '',
+        qty: detail.Qty || 1,
+        unitPrice: detail.UnitPrice || 0,
+        total: l.Amount || 0,
+      };
+    });
+
+  // Discount line
+  const discountLine = (e.Line || []).find(l => l.DetailType === 'DiscountLineDetail');
+  const discount = discountLine ? {
+    label: 'Discount',
+    amount: Math.abs(discountLine.Amount || 0),
+  } : null;
+
+  // SubTotal
+  const subTotalLine = (e.Line || []).find(l => l.DetailType === 'SubTotalLineDetail');
+  const subtotal = subTotalLine?.Amount || lines.reduce((s, l) => s + l.total, 0);
+
+  const tax = e.TxnTax?.TotalTax || 0;
+  const taxRate = 9.75; // TN rate — QB doesn't always return the rate
+  const total = e.TotalAmt || 0;
+
+  // Customer contact info
+  const phone = customer?.PrimaryPhone?.FreeFormNumber || customer?.Mobile?.FreeFormNumber || '';
+  const email = customer?.PrimaryEmailAddr?.Address || '';
+
+  return {
+    id: e.Id,
+    docNumber: e.DocNumber,
+    date: fmt(e.TxnDate),
+    validUntil: fmt(e.ExpirationDate),
+    status: e.TxnStatus || 'Pending',
+    client: {
+      name: e.CustomerRef?.name || '',
+      address: addrParts.join('\n'),
+      phone,
+      email,
+    },
+    project: {
+      name: e.CustomerMemo?.value || e.CustomerRef?.name || 'Project',
+      description: e.ShipAddr?.Line1 || '',
+    },
+    lines,
+    subtotal,
+    tax,
+    taxRate,
+    discount,
+    total,
+    notes: 'Thank you for choosing Ravelo AV Technologies LLC. This estimate is valid for 30 days. A 50% deposit is required to schedule installation.',
+  };
+}
