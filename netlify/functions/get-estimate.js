@@ -17,7 +17,27 @@ exports.handler = async function (event) {
     return { statusCode: 200, headers: CORS, body: '' };
   }
 
-  const id = (event.queryStringParameters || {}).id;
+  const params = event.queryStringParameters || {};
+  const id = params.id;
+
+  // Diagnostic list mode — ?list=true returns recent estimates
+  if (params.list === 'true') {
+    try {
+      let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
+      const realmId = process.env.QUICKBOOKS_REALM_ID;
+      const query = encodeURIComponent('SELECT Id, DocNumber, TxnDate, TotalAmt, CustomerRef FROM Estimate ORDERBY TxnDate DESC MAXRESULTS 20');
+      let res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      });
+      if (res.status === 401) { token = await refreshAccessToken(); res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }); }
+      const data = await res.json();
+      const list = (data.QueryResponse?.Estimate || []).map(e => ({ id: e.Id, docNumber: e.DocNumber, date: e.TxnDate, total: e.TotalAmt, customer: e.CustomerRef?.name }));
+      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(list) };
+    } catch (err) {
+      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
+    }
+  }
+
   if (!id) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing estimate id' }) };
   }
