@@ -468,6 +468,11 @@
       status.textContent = "✓ Message sent! We'll be in touch soon.";
       status.style.color = '#82A0CC';
       form.reset();
+
+      // Google Ads conversion — "Submit lead form"
+      if (typeof gtag === 'function') {
+        gtag('event', 'conversion', { send_to: 'AW-305909877/OmQfCP_P3LocEPWg75EB' });
+      }
     } catch (_) {
       status.textContent = 'Something went wrong. Please call us at (615) 962-0401.';
       status.style.color = '#e07070';
