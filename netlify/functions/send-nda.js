@@ -1,13 +1,11 @@
-// send-estimate.js
-// Phase 1: placeholder — structure ready for QB webhook.
-// Phase 2: QB POSTs here when an estimate is created/sent to a customer.
-//   QB Developer Portal → Webhooks:
-//   URL → https://raveloavtech.com/.netlify/functions/send-estimate
-//   Entity: Estimate  |  Operations: Create
+// send-nda.js
+// Boss-triggered NDA email send for a specific estimate.
+// Called by admin/estimates.html when boss clicks "Send NDA Email".
+// Protected by Netlify Identity JWT validation.
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 const FROM = 'Ravelo AV Tech <support@raveloavtech.com>';
@@ -17,65 +15,107 @@ exports.handler = async function (event) {
     return { statusCode: 200, headers: CORS, body: '' };
   }
 
-  // QB POSTs here when an estimate event fires.
-  // Auto-send is DISABLED — boss manually triggers NDA emails from admin/estimates.html
-  if (event.httpMethod === 'POST' && event.body) {
-    try {
-      const payload = JSON.parse(event.body);
-      const notifications = payload.eventNotifications || [];
-      for (const n of notifications) {
-        for (const entity of (n.dataChangeEvent?.entities || [])) {
-          if (entity.name === 'Estimate') {
-            console.log(`QB Estimate event (${entity.operation}) id=${entity.id} — auto-send disabled, boss triggers manually.`);
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Webhook error:', err.message);
-    }
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  return {
-    statusCode: 200,
-    headers: CORS,
-    body: JSON.stringify({ status: 'ok' }),
-  };
+  // ── Auth: validate Netlify Identity JWT ────────────────────────────────────
+  const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
+  const SITE_URL   = process.env.URL || 'https://raveloavtech.com';
+
+  const authed = await validateNetlifyJWT(authHeader, SITE_URL);
+  if (!authed) {
+    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
+  }
+
+  // ── Parse body ─────────────────────────────────────────────────────────────
+  let docNumber;
+  try {
+    const body = JSON.parse(event.body || '{}');
+    docNumber = String(body.docNumber || '').trim();
+  } catch {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+  }
+
+  if (!docNumber) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing docNumber' }) };
+  }
+
+  try {
+    // ── Fetch estimate from QB ─────────────────────────────────────────────
+    const res = await fetch(`${SITE_URL}/.netlify/functions/get-estimate?id=${encodeURIComponent(docNumber)}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      throw new Error(err.error || `Estimate #${docNumber} not found`);
+    }
+    const estimate = await res.json();
+
+    if (!estimate.client?.email) {
+      throw new Error(`Estimate #${docNumber} has no email address. Add the client email in QuickBooks first.`);
+    }
+
+    const link = `${SITE_URL}/dev/estimate.html?id=${estimate.docNumber}`;
+
+    // ── Send NDA email to client ───────────────────────────────────────────
+    await sendEmail({
+      from: FROM,
+      to:   [estimate.client.email],
+      reply_to: 'support@raveloavtech.com',
+      subject:  `Your Estimate #${estimate.docNumber} — Ravelo AV Technologies LLC`,
+      html:     buildEmailHTML(estimate, link),
+    });
+
+    // ── Notify business ────────────────────────────────────────────────────
+    await sendEmail({
+      from: FROM,
+      to:   ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'],
+      subject: `NDA sent: Estimate #${estimate.docNumber} → ${estimate.client.name}`,
+      html: `<p style="font-family:Arial,sans-serif;font-size:14px;color:#222;">
+        NDA email manually sent for estimate <strong>#${estimate.docNumber}</strong>.<br>
+        Client: <strong>${estimate.client.name}</strong> — <a href="mailto:${estimate.client.email}">${estimate.client.email}</a><br>
+        Total: <strong>$${Number(estimate.total).toFixed(2)}</strong><br><br>
+        <a href="${link}">Preview estimate →</a>
+      </p>`,
+    });
+
+    console.log(`NDA sent for estimate #${estimate.docNumber} to ${estimate.client.email}`);
+
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ok:         true,
+        docNumber:  estimate.docNumber,
+        clientName: estimate.client.name,
+        clientEmail: estimate.client.email,
+        total:      estimate.total,
+      }),
+    };
+
+  } catch (err) {
+    console.error('send-nda error:', err.message);
+    return {
+      statusCode: 500,
+      headers: CORS,
+      body: JSON.stringify({ error: err.message }),
+    };
+  }
 };
 
-// ── Called when QB fires a new estimate event ─────────────────────────────────
-async function handleNewEstimate(estimateId) {
-  const SITE_URL = process.env.URL || 'https://raveloavtech.com';
-
-  // estimateId is QB's internal ID — fetch by ?qbid so get-estimate can look it up
-  const res = await fetch(`${SITE_URL}/.netlify/functions/get-estimate?qbid=${estimateId}`);
-  if (!res.ok) throw new Error(`Could not load estimate ${estimateId}`);
-  const estimate = await res.json();
-
-  // Link uses DocNumber (e.g. ?id=1187) — that's what get-estimate queries by
-  const link = `${SITE_URL}/dev/estimate.html?id=${estimate.docNumber}`;
-
-  await sendEmail({
-    from: FROM,
-    to: [estimate.client.email],
-    reply_to: 'support@raveloavtech.com',
-    subject: `Your Estimate #${estimate.docNumber} — Ravelo AV Technologies LLC`,
-    html: buildEmailHTML(estimate, link),
-  });
-
-  // Optionally notify the business too
-  await sendEmail({
-    from: FROM,
-    to: ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'],
-    subject: `Estimate #${estimate.docNumber} sent to ${estimate.client.name}`,
-    html: `<p style="font-family:Arial,sans-serif;font-size:14px;color:#222;">
-      Estimate <strong>#${estimate.docNumber}</strong> was automatically sent to
-      <a href="mailto:${estimate.client.email}">${estimate.client.name}</a>.<br><br>
-      <a href="${link}">Preview estimate →</a>
-    </p>`,
-  });
+// ── Validate Netlify Identity JWT ──────────────────────────────────────────────
+async function validateNetlifyJWT(authHeader, siteUrl) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
+  try {
+    const res = await fetch(`${siteUrl}/.netlify/identity/user`, {
+      headers: { Authorization: authHeader },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
-// ── Reusable send helper (same pattern as send-quote.js) ─────────────────────
+// ── Resend email helper ────────────────────────────────────────────────────────
 async function sendEmail(payload) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (!RESEND_API_KEY) {
@@ -85,19 +125,19 @@ async function sendEmail(payload) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
+      Authorization:  `Bearer ${RESEND_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(err);
+    throw new Error(`Resend error: ${err}`);
   }
   return res.json();
 }
 
-// ── Client email template ─────────────────────────────────────────────────────
+// ── Email template (same as send-estimate.js) ──────────────────────────────────
 function buildEmailHTML(estimate, link) {
   return `<!DOCTYPE html>
 <html lang="en">

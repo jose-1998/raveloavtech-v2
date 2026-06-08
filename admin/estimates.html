@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Send Estimate NDA — Ravelo AV Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="/uploads/favicon.png" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0c2d3a;
+      --navy-dark: #0d1b2a;
+      --navy-mid:  #0a2030;
+      --blue:      #82A0CC;
+      --blue-btn:  #5b8dee;
+      --green:     #34c759;
+      --red:       #e07070;
+      --text:      rgba(255,255,255,0.85);
+      --text-dim:  rgba(255,255,255,0.45);
+      --border:    rgba(130,160,204,0.13);
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--navy-dark);
+      font-family: 'Figtree', -apple-system, sans-serif;
+      color: var(--text);
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      height: 58px;
+      background: var(--navy);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+    }
+    .topbar-logo img { height: 34px; width: auto; display: block; }
+    .topbar-divider  { width: 1px; height: 20px; background: rgba(130,160,204,0.2); flex-shrink: 0; }
+    .topbar-label    { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); flex: 1; }
+    .topbar-nav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .topbar-link {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .topbar-link:hover { color: var(--text); border-color: var(--border); }
+    .topbar-link.active { color: var(--blue); border-color: rgba(130,160,204,0.25); background: rgba(130,160,204,0.07); }
+    .topbar-logout {
+      background: none;
+      border: 1px solid rgba(224,112,112,0.35);
+      color: var(--red);
+      font-size: 11px;
+      font-family: inherit;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .topbar-logout:hover { background: rgba(224,112,112,0.1); }
+
+    /* ── Login screen ── */
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .login-card {
+      background: var(--navy);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
+    .login-card img { height: 40px; width: auto; margin-bottom: 24px; }
+    .login-card h1  { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .login-card p   { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; }
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--blue-btn);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .login-btn:hover { background: #4a7de0; }
+
+    /* ── Main screen ── */
+    #mainScreen { display: none; padding: 80px 16px 60px; max-width: 600px; margin: 0 auto; }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .section-sub {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+      line-height: 1.55;
+    }
+
+    /* ── Send form ── */
+    .send-card {
+      background: var(--navy);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      margin-bottom: 20px;
+    }
+    .send-card-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .field-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-appearance: none;
+    }
+    .field-input::placeholder { color: var(--text-dim); font-weight: 400; }
+    .field-input:focus {
+      border-color: rgba(130,160,204,0.45);
+      background: rgba(255,255,255,0.08);
+    }
+    .field-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .send-btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px;
+      background: var(--blue-btn);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .send-btn:hover:not(:disabled) { background: #4a7de0; }
+    .send-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ── Result card ── */
+    .result-card {
+      border-radius: 10px;
+      padding: 18px 18px;
+      margin-top: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .result-card.show { display: flex; }
+    .result-card.ok  { background: rgba(52,199,89,0.1);  border: 1px solid rgba(52,199,89,0.3); }
+    .result-card.err { background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); }
+    .result-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+    .result-body { flex: 1; }
+    .result-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .result-card.ok  .result-title { color: #4cd964; }
+    .result-card.err .result-title { color: var(--red); }
+    .result-detail {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .result-detail strong { color: var(--text); }
+
+    /* ── Recent estimates list ── */
+    .estimates-list { margin-top: 28px; }
+    .estimates-list-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+    .est-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      background: var(--navy);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .est-row:hover  { background: var(--navy-mid); border-color: rgba(130,160,204,0.22); }
+    .est-row:active { background: #071824; }
+    .est-num {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue-btn);
+      min-width: 52px;
+    }
+    .est-info { flex: 1; min-width: 0; }
+    .est-name {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .est-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    .est-amount {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .est-send-btn {
+      padding: 6px 12px;
+      background: rgba(91,141,238,0.12);
+      border: 1px solid rgba(91,141,238,0.25);
+      color: var(--blue-btn);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .est-send-btn:hover { background: rgba(91,141,238,0.22); border-color: rgba(91,141,238,0.5); }
+    .est-send-btn:disabled { opacity: 0.5; cursor: default; }
+    .est-send-btn.sent {
+      background: rgba(52,199,89,0.15);
+      border-color: rgba(52,199,89,0.35);
+      color: #4cd964;
+    }
+
+    .list-loading {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+    .spinner {
+      width: 24px; height: 24px;
+      border: 2.5px solid rgba(130,160,204,0.2);
+      border-top-color: var(--blue-btn);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      top: 70px; left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      z-index: 9999;
+      background: #0c2d3a;
+      border: 1px solid rgba(130,160,204,0.25);
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.ok   { color: #6ee7b7; border-color: rgba(110,231,183,0.3); }
+    #toast.err  { color: var(--red); border-color: rgba(224,112,112,0.3); }
+
+    @media (max-width: 480px) {
+      .topbar-label { display: none; }
+      .topbar-link  { font-size: 10px; padding: 4px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login screen -->
+<div id="loginScreen">
+  <div class="login-card">
+    <img src="/uploads/logo.png" alt="Ravelo AV Tech" />
+    <h1>Estimates Panel</h1>
+    <p>Sign in to send NDA emails to clients.</p>
+    <button class="login-btn" id="loginBtn">Iniciar sesión</button>
+  </div>
+</div>
+
+<!-- Main screen -->
+<div id="mainScreen">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <a class="topbar-logo" href="/" target="_blank">
+      <img src="/uploads/logo.png" alt="Ravelo AV Tech" width="110" height="34" />
+    </a>
+    <div class="topbar-divider"></div>
+    <span class="topbar-label">Estimates — Send NDA</span>
+    <nav class="topbar-nav">
+      <a class="topbar-link" href="/admin/">Gallery</a>
+      <a class="topbar-link active" href="/admin/estimates.html">Estimates</a>
+    </nav>
+    <button class="topbar-logout" id="logoutBtn">Salir</button>
+  </div>
+
+  <p class="section-title">Send NDA Email</p>
+  <p class="section-sub">
+    Finish building the estimate in QuickBooks first.<br>
+    When it's ready, enter the estimate number below and click Send.
+  </p>
+
+  <!-- Manual send form -->
+  <div class="send-card">
+    <p class="send-card-title">📋 Send by Estimate Number</p>
+
+    <label class="field-label" for="estInput">Estimate # (from QuickBooks)</label>
+    <input
+      class="field-input"
+      id="estInput"
+      type="number"
+      inputmode="numeric"
+      placeholder="e.g. 1190"
+      min="1"
+      autocomplete="off"
+    />
+    <p class="field-hint">The number shown at the top of the estimate in QB (e.g. #1190).</p>
+
+    <button class="send-btn" id="sendBtn">
+      <span id="sendBtnIcon">✉️</span>
+      <span id="sendBtnLabel">Send NDA Email</span>
+    </button>
+
+    <!-- Result -->
+    <div class="result-card" id="resultCard">
+      <div class="result-icon" id="resultIcon"></div>
+      <div class="result-body">
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-detail" id="resultDetail"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent estimates list -->
+  <div class="estimates-list" id="estimatesList">
+    <p class="estimates-list-title">Recent Estimates</p>
+    <div id="estimatesContainer">
+      <div class="list-loading">
+        <div class="spinner"></div>
+        Loading estimates from QuickBooks…
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var loginScreen  = document.getElementById('loginScreen');
+  var mainScreen   = document.getElementById('mainScreen');
+  var loginBtn     = document.getElementById('loginBtn');
+  var logoutBtn    = document.getElementById('logoutBtn');
+  var estInput     = document.getElementById('estInput');
+  var sendBtn      = document.getElementById('sendBtn');
+  var sendBtnIcon  = document.getElementById('sendBtnIcon');
+  var sendBtnLabel = document.getElementById('sendBtnLabel');
+  var resultCard   = document.getElementById('resultCard');
+  var resultIcon   = document.getElementById('resultIcon');
+  var resultTitle  = document.getElementById('resultTitle');
+  var resultDetail = document.getElementById('resultDetail');
+  var estimatesContainer = document.getElementById('estimatesContainer');
+  var toastEl      = document.getElementById('toast');
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  function getToken() {
+    var user = netlifyIdentity.currentUser();
+    if (!user) return Promise.reject(new Error('Not logged in'));
+    return user.jwt();
+  }
+
+  function showLogin() { loginScreen.style.display = 'flex'; mainScreen.style.display = 'none'; }
+  function showMain()  { loginScreen.style.display = 'none'; mainScreen.style.display = 'block'; }
+
+  loginBtn.addEventListener('click', function () { netlifyIdentity.open(); });
+  logoutBtn.addEventListener('click', function () { netlifyIdentity.logout(); });
+
+  netlifyIdentity.on('login', function () {
+    netlifyIdentity.close();
+    showMain();
+    loadEstimates();
+  });
+  netlifyIdentity.on('logout', showLogin);
+  netlifyIdentity.on('init', function (user) {
+    if (user) { showMain(); loadEstimates(); }
+    else showLogin();
+  });
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  var toastTimer;
+  function showToast(msg, type) {
+    clearTimeout(toastTimer);
+    toastEl.textContent = msg;
+    toastEl.className = 'show ' + (type || 'ok');
+    toastTimer = setTimeout(function () { toastEl.className = ''; }, 3500);
+  }
+
+  // ── Load recent estimates ─────────────────────────────────────────────────
+  function loadEstimates() {
+    estimatesContainer.innerHTML = '<div class="list-loading"><div class="spinner"></div>Loading estimates from QuickBooks…</div>';
+
+    fetch('/.netlify/functions/get-estimate?list=recent')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : (data.estimates || []);
+        if (!list.length) {
+          estimatesContainer.innerHTML = '<div class="list-loading">No estimates found.</div>';
+          return;
+        }
+        estimatesContainer.innerHTML = '';
+        list.forEach(function (est) {
+          var row = buildEstimateRow(est);
+          estimatesContainer.appendChild(row);
+        });
+      })
+      .catch(function (err) {
+        estimatesContainer.innerHTML = '<div class="list-loading" style="color:var(--red);">Could not load estimates.<br><small>' + err.message + '</small></div>';
+      });
+  }
+
+  function buildEstimateRow(est) {
+    var row = document.createElement('div');
+    row.className = 'est-row';
+    row.innerHTML =
+      '<div class="est-num">#' + esc(String(est.docNumber || est.id || '')) + '</div>' +
+      '<div class="est-info">' +
+        '<div class="est-name">' + esc(est.client && est.client.name ? est.client.name : (est.name || '—')) + '</div>' +
+        '<div class="est-meta">' + esc(est.date || '') + (est.client && est.client.email ? ' · ' + esc(est.client.email) : '') + '</div>' +
+      '</div>' +
+      '<div class="est-amount">$' + Number(est.total || 0).toFixed(2) + '</div>' +
+      '<button class="est-send-btn" data-doc="' + esc(String(est.docNumber || '')) + '">Send NDA</button>';
+
+    var btn = row.querySelector('.est-send-btn');
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var docNum = btn.getAttribute('data-doc');
+      estInput.value = docNum;
+      sendNDA(docNum, btn);
+    });
+
+    // Clicking the row fills the input
+    row.addEventListener('click', function () {
+      estInput.value = est.docNumber || '';
+      estInput.focus();
+    });
+
+    return row;
+  }
+
+  // ── Send NDA ──────────────────────────────────────────────────────────────
+  sendBtn.addEventListener('click', function () {
+    var docNum = estInput.value.trim();
+    if (!docNum) { estInput.focus(); return; }
+    sendNDA(docNum, null);
+  });
+
+  // Also allow Enter key
+  estInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      var docNum = estInput.value.trim();
+      if (docNum) sendNDA(docNum, null);
+    }
+  });
+
+  function sendNDA(docNumber, rowBtn) {
+    // Set loading state
+    sendBtn.disabled = true;
+    sendBtnIcon.textContent = '⏳';
+    sendBtnLabel.textContent = 'Sending…';
+    resultCard.className = 'result-card';
+    if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = '⏳'; }
+
+    getToken().then(function (token) {
+      return fetch('/.netlify/functions/send-nda', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify({ docNumber: docNumber }),
+      });
+    }).then(function (r) {
+      return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+    }).then(function (res) {
+      sendBtn.disabled = false;
+      sendBtnIcon.textContent = '✉️';
+      sendBtnLabel.textContent = 'Send NDA Email';
+
+      if (res.ok && res.data.ok) {
+        resultIcon.textContent  = '✅';
+        resultTitle.textContent = 'NDA email sent!';
+        resultDetail.innerHTML  =
+          'Sent to <strong>' + esc(res.data.clientName) + '</strong>' +
+          ' (' + esc(res.data.clientEmail) + ')<br>' +
+          'Estimate #' + esc(String(res.data.docNumber)) +
+          ' — Total: <strong>$' + Number(res.data.total).toFixed(2) + '</strong>';
+        resultCard.className = 'result-card show ok';
+        estInput.value = '';
+        if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = '✓ Sent'; rowBtn.classList.add('sent'); }
+        showToast('✓ NDA email sent to ' + res.data.clientName, 'ok');
+      } else {
+        var errMsg = (res.data && res.data.error) || 'Unknown error';
+        resultIcon.textContent  = '❌';
+        resultTitle.textContent = 'Could not send';
+        resultDetail.textContent = errMsg;
+        resultCard.className = 'result-card show err';
+        if (rowBtn) { rowBtn.disabled = false; rowBtn.textContent = 'Send NDA'; }
+        showToast('Error: ' + errMsg, 'err');
+      }
+    }).catch(function (err) {
+      sendBtn.disabled = false;
+      sendBtnIcon.textContent = '✉️';
+      sendBtnLabel.textContent = 'Send NDA Email';
+      resultIcon.textContent   = '❌';
+      resultTitle.textContent  = 'Network error';
+      resultDetail.textContent = err.message;
+      resultCard.className = 'result-card show err';
+      if (rowBtn) { rowBtn.disabled = false; rowBtn.textContent = 'Send NDA'; }
+    });
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+})();
+</script>
+</body>
+</html>

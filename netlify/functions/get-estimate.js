@@ -18,8 +18,24 @@ exports.handler = async function (event) {
   }
 
   const params = event.queryStringParameters || {};
-  const id   = params.id;   // DocNumber — used by estimate.html client link
-  const qbid = params.qbid; // QB internal ID — used by send-estimate webhook
+  const id     = params.id;   // DocNumber — used by estimate.html client link
+  const qbid   = params.qbid; // QB internal ID — used by send-estimate webhook
+  const list   = params.list; // 'recent' — used by admin/estimates.html
+
+  // ── List recent estimates ─────────────────────────────────────────────────
+  if (list === 'recent') {
+    try {
+      const estimates = await listRecentEstimates();
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify(estimates),
+      };
+    } catch (err) {
+      console.error('list-estimates error:', err.message);
+      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
+    }
+  }
 
   if (!id && !qbid) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing estimate id' }) };
@@ -168,6 +184,42 @@ async function getQBCustomer(token, realmId, customerId) {
   } catch {
     return null;
   }
+}
+
+// ── QB API: list recent estimates (used by admin panel) ───────────────────────
+async function listRecentEstimates() {
+  let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
+  const realmId = process.env.QUICKBOOKS_REALM_ID;
+
+  const query = encodeURIComponent(
+    "SELECT * FROM Estimate ORDERBY MetaData.LastUpdatedTime DESC MAXRESULTS 20"
+  );
+  let res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+  });
+  if (res.status === 401) {
+    token = await refreshAccessToken();
+    res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+    });
+  }
+  if (!res.ok) throw new Error(`QB API ${res.status}: ${await res.text()}`);
+
+  const data = await res.json();
+  const estimates = data.QueryResponse?.Estimate || [];
+
+  // Return a lightweight summary (no extra customer API calls for speed)
+  return estimates.map(e => ({
+    id:        e.Id,
+    docNumber: e.DocNumber,
+    date:      e.TxnDate || '',
+    status:    e.TxnStatus || 'Pending',
+    total:     e.TotalAmt || 0,
+    client: {
+      name:  e.CustomerRef?.name || '',
+      email: e.BillEmail?.Address || '',
+    },
+  }));
 }
 
 // ── Normalize QB Estimate → our format ───────────────────────────────────────
