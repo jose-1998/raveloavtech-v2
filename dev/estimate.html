@@ -719,6 +719,8 @@ body {
 // ── LOAD ESTIMATE FROM API ──
 const fmt = n => '$' + Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+let currentEstimate = null; // saved for NDA logging
+
 async function loadEstimate() {
   const id = new URLSearchParams(window.location.search).get('id') || '1042';
   document.getElementById('header-badge').textContent = 'Estimate #' + id;
@@ -727,6 +729,7 @@ async function loadEstimate() {
     const res = await fetch('/.netlify/functions/get-estimate?id=' + id);
     if (!res.ok) throw new Error('Not found');
     const e = await res.json();
+    currentEstimate = e;
     renderEstimate(e);
   } catch {
     document.getElementById('est-body').innerHTML =
@@ -969,6 +972,21 @@ function unlockEstimate() {
   document.getElementById('btn-sign').textContent = '✓ NDA Signed';
   document.getElementById('full-name').disabled = true;
   document.getElementById('agree-check').disabled = true;
+
+  // Log NDA signer to Google Sheets (fire & forget — never blocks the client)
+  const signerName = document.getElementById('full-name').value.trim();
+  const id = new URLSearchParams(window.location.search).get('id') || '';
+  fetch('/.netlify/functions/log-nda', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      estimateNumber: currentEstimate ? currentEstimate.docNumber : id,
+      signerName,
+      clientEmail: currentEstimate?.client?.email || '',
+      clientName:  currentEstimate?.client?.name  || '',
+      total:       currentEstimate?.total          || '',
+    }),
+  }).catch(() => {}); // silent fail — never interrupt the user
 
   setTimeout(() => {
     document.getElementById('locked-overlay').classList.add('hidden');
