@@ -68,7 +68,7 @@ exports.handler = async function (event) {
     // ── Notify business ────────────────────────────────────────────────────
     await sendEmail({
       from: FROM,
-      to:   ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'],
+      to:   ['support@raveloavtech.com'],
       subject: `NDA sent: Estimate #${estimate.docNumber} → ${estimate.client.name}`,
       html: `<p style="font-family:Arial,sans-serif;font-size:14px;color:#222;">
         NDA email manually sent for estimate <strong>#${estimate.docNumber}</strong>.<br>
