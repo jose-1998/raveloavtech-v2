@@ -448,8 +448,8 @@
     return user.jwt();
   }
 
-  // Only this email can access estimates
-  var ALLOWED_EMAIL = 'support@raveloavtech.com';
+  // Emails allowed to access estimates
+  var ALLOWED_EMAILS = ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'];
 
   function showLogin() { loginScreen.style.display = 'flex'; mainScreen.style.display = 'none'; }
   function showMain()  { loginScreen.style.display = 'none'; mainScreen.style.display = 'block'; }
@@ -457,7 +457,7 @@
   function checkAccessAndShow() {
     var user = netlifyIdentity.currentUser();
     if (!user) { showLogin(); return; }
-    if (user.email !== ALLOWED_EMAIL) {
+    if (ALLOWED_EMAILS.indexOf(user.email) === -1) {
       // Wrong account — log them out and show a clear message
       netlifyIdentity.logout();
       loginScreen.style.display = 'flex';
