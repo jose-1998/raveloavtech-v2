@@ -120,12 +120,16 @@ function buildEmailHTML(estimate, link) {
         Click the button below to review the details and sign a short confidentiality agreement before viewing the full pricing.
       </p>
 
-      <!-- CTA BUTTON -->
-      <div style="text-align:center;margin:0 0 36px;">
-        <a href="${link}" style="background:#072b3e;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:3px;display:inline-block;">
-          View My Estimate →
-        </a>
-      </div>
+      <!-- CTA BUTTON — table structure for Gmail compatibility -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 auto 36px;">
+        <tr>
+          <td style="border-radius:3px;background:#072b3e;">
+            <a href="${link}" target="_blank" style="background:#072b3e;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:3px;display:inline-block;">
+              View My Estimate
+            </a>
+          </td>
+        </tr>
+      </table>
 
       <!-- SUMMARY BOX -->
       <div style="background:#f7f9fc;border-radius:4px;padding:20px 24px;margin-bottom:32px;border-left:3px solid #82A0CC;">
