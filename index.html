@@ -2,6 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- Netlify Identity: redirect invite/recovery tokens to the admin panel -->
+  <script>
+    (function () {
+      var hash = window.location.hash;
+      if (hash && (hash.indexOf('invite_token=') !== -1 || hash.indexOf('recovery_token=') !== -1)) {
+        window.location.replace('/admin/estimates.html' + hash);
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Licensed AV specialists serving Nashville Metro Area. Home theater, smart home automation, security systems, networking and low voltage installation. 15+ years experience." />
   <meta property="og:title" content="Ravelo AV Tech — Nashville AV &amp; Smart Home Specialists" />
