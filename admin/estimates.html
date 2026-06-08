@@ -448,20 +448,43 @@
     return user.jwt();
   }
 
+  // Only this email can access estimates
+  var ALLOWED_EMAIL = 'support@raveloavtech.com';
+
   function showLogin() { loginScreen.style.display = 'flex'; mainScreen.style.display = 'none'; }
   function showMain()  { loginScreen.style.display = 'none'; mainScreen.style.display = 'block'; }
+
+  function checkAccessAndShow() {
+    var user = netlifyIdentity.currentUser();
+    if (!user) { showLogin(); return; }
+    if (user.email !== ALLOWED_EMAIL) {
+      // Wrong account — log them out and show a clear message
+      netlifyIdentity.logout();
+      loginScreen.style.display = 'flex';
+      mainScreen.style.display = 'none';
+      var card = document.querySelector('.login-card');
+      card.innerHTML =
+        '<img src="/uploads/logo.png" alt="Ravelo AV Tech" />' +
+        '<h1 style="color:#e07070;">Access Denied</h1>' +
+        '<p style="margin-bottom:20px;">This panel is restricted.<br>Sign in with the authorized account.</p>' +
+        '<button class="login-btn" id="loginBtn2">Sign in with correct account</button>';
+      document.getElementById('loginBtn2').addEventListener('click', function () { netlifyIdentity.open(); });
+      return;
+    }
+    showMain();
+    loadEstimates();
+  }
 
   loginBtn.addEventListener('click', function () { netlifyIdentity.open(); });
   logoutBtn.addEventListener('click', function () { netlifyIdentity.logout(); });
 
   netlifyIdentity.on('login', function () {
     netlifyIdentity.close();
-    showMain();
-    loadEstimates();
+    checkAccessAndShow();
   });
   netlifyIdentity.on('logout', showLogin);
   netlifyIdentity.on('init', function (user) {
-    if (user) { showMain(); loadEstimates(); }
+    if (user) checkAccessAndShow();
     else showLogin();
   });
 
