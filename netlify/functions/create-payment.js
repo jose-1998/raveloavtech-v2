@@ -2,6 +2,8 @@
 // Creates a 50% deposit invoice in QB and returns the QB Payments link.
 // Called by estimate.html when client clicks "Pay Deposit".
 
+const { requireEnvVars } = require('./_env-check');
+
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type' };
 const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 const IS_PRODUCTION = process.env.QUICKBOOKS_ENV === 'production';
@@ -22,6 +24,14 @@ exports.handler = async function (event) {
   }
 
   try {
+    requireEnvVars(
+      'QUICKBOOKS_ACCESS_TOKEN',
+      'QUICKBOOKS_REALM_ID',
+      'QUICKBOOKS_CLIENT_ID',
+      'QUICKBOOKS_CLIENT_SECRET',
+      'QUICKBOOKS_REFRESH_TOKEN'
+    );
+
     let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
     const realmId = process.env.QUICKBOOKS_REALM_ID;
 
@@ -103,6 +113,10 @@ exports.handler = async function (event) {
     };
 
   } catch (err) {
+    if (err.isMissingEnv) {
+      console.error('create-payment config error:', err.message);
+      return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: 'Service temporarily unavailable — contact support.' }) };
+    }
     console.error('create-payment error:', err.message);
     return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
   }

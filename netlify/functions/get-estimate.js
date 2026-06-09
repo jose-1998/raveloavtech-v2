@@ -1,5 +1,7 @@
 // get-estimate.js — Phase 2: pulls real data from QuickBooks API
 
+const { requireEnvVars } = require('./_env-check');
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type',
@@ -21,6 +23,19 @@ exports.handler = async function (event) {
   const id     = params.id;   // DocNumber — used by estimate.html client link
   const qbid   = params.qbid; // QB internal ID — used by send-estimate webhook
   const list   = params.list; // 'recent' — used by admin/estimates.html
+
+  try {
+    requireEnvVars(
+      'QUICKBOOKS_ACCESS_TOKEN',
+      'QUICKBOOKS_REALM_ID',
+      'QUICKBOOKS_CLIENT_ID',
+      'QUICKBOOKS_CLIENT_SECRET',
+      'QUICKBOOKS_REFRESH_TOKEN'
+    );
+  } catch (err) {
+    console.error('get-estimate config error:', err.message);
+    return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: 'Service temporarily unavailable — contact support.' }) };
+  }
 
   // ── List recent estimates ─────────────────────────────────────────────────
   if (list === 'recent') {
