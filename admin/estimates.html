@@ -297,6 +297,27 @@
       color: #4cd964;
     }
 
+    /* ── Opened badge ── */
+    .est-opened {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #4cd964;
+      background: rgba(52,199,89,0.12);
+      border: 1px solid rgba(52,199,89,0.3);
+      border-radius: 4px;
+      padding: 2px 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .est-opened-count {
+      color: rgba(76,217,100,0.6);
+      font-weight: 400;
+    }
+
     .list-loading {
       text-align: center;
       padding: 32px;
@@ -511,9 +532,34 @@
         }
         estimatesContainer.innerHTML = '';
         list.forEach(function (est) {
-          var row = buildEstimateRow(est);
+          var row = buildEstimateRow(est, null);
           estimatesContainer.appendChild(row);
         });
+
+        // Fetch open status and decorate rows
+        var ids = list.map(function (e) { return e.docNumber || e.id; }).filter(Boolean);
+        getToken().then(function (token) {
+          return fetch('/.netlify/functions/get-opens?ids=' + ids.join(','), {
+            headers: { 'Authorization': 'Bearer ' + token },
+          });
+        }).then(function (r) { return r.json(); }).then(function (opens) {
+          list.forEach(function (est) {
+            var id = String(est.docNumber || est.id || '');
+            if (opens[id]) {
+              var badge = document.querySelector('[data-opens-id="' + id + '"]');
+              if (badge) {
+                var o = opens[id];
+                var count = o.openCount || 1;
+                var date  = o.lastOpenedAt ? new Date(o.lastOpenedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+                badge.innerHTML =
+                  '👀 Opened' +
+                  (count > 1 ? ' <span class="est-opened-count">×' + count + '</span>' : '') +
+                  (date ? ' · ' + date : '');
+                badge.style.display = 'inline-flex';
+              }
+            }
+          });
+        }).catch(function () { /* opens fetch failed silently */ });
       })
       .catch(function (err) {
         estimatesContainer.innerHTML = '<div class="list-loading" style="color:var(--red);">Could not load estimates.<br><small>' + err.message + '</small></div>';
@@ -521,26 +567,27 @@
   }
 
   function buildEstimateRow(est) {
+    var docNum = esc(String(est.docNumber || est.id || ''));
     var row = document.createElement('div');
     row.className = 'est-row';
     row.innerHTML =
-      '<div class="est-num">#' + esc(String(est.docNumber || est.id || '')) + '</div>' +
+      '<div class="est-num">#' + docNum + '</div>' +
       '<div class="est-info">' +
         '<div class="est-name">' + esc(est.client && est.client.name ? est.client.name : (est.name || '—')) + '</div>' +
         '<div class="est-meta">' + esc(est.date || '') + (est.client && est.client.email ? ' · ' + esc(est.client.email) : '') + '</div>' +
       '</div>' +
+      '<span class="est-opened" data-opens-id="' + docNum + '" style="display:none;">👀</span>' +
       '<div class="est-amount">$' + Number(est.total || 0).toFixed(2) + '</div>' +
-      '<button class="est-send-btn" data-doc="' + esc(String(est.docNumber || '')) + '">Send NDA</button>';
+      '<button class="est-send-btn" data-doc="' + docNum + '">Send NDA</button>';
 
     var btn = row.querySelector('.est-send-btn');
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
-      var docNum = btn.getAttribute('data-doc');
-      estInput.value = docNum;
-      sendNDA(docNum, btn);
+      var d = btn.getAttribute('data-doc');
+      estInput.value = d;
+      sendNDA(d, btn);
     });
 
-    // Clicking the row fills the input
     row.addEventListener('click', function () {
       estInput.value = est.docNumber || '';
       estInput.focus();

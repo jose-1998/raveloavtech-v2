@@ -1,6 +1,8 @@
 // track-open.js
 // Called when a client opens the NDA email (tracking pixel).
-// Returns a 1x1 transparent GIF and sends a notification to the business.
+// Returns a 1x1 transparent GIF, sends a notification, and records the open.
+
+const { getStore } = require('@netlify/blobs');
 
 const TRANSPARENT_GIF = Buffer.from(
   'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
@@ -19,6 +21,9 @@ exports.handler = async function (event) {
   sendSMS(id, name).catch(err =>
     console.error('track-open SMS failed:', err.message)
   );
+  recordOpen(id, name, email).catch(err =>
+    console.error('track-open blob save failed:', err.message)
+  );
 
   return {
     statusCode: 200,
@@ -32,6 +37,22 @@ exports.handler = async function (event) {
     isBase64Encoded: true,
   };
 };
+
+async function recordOpen(id, name, email) {
+  if (!id) return;
+  const store = getStore({ name: 'estimate-opens', consistency: 'strong' });
+  const key = `estimate-${id}`;
+  let existing = null;
+  try { existing = await store.get(key, { type: 'json' }); } catch { /* first open */ }
+  await store.setJSON(key, {
+    id,
+    name,
+    email,
+    firstOpenedAt: existing?.firstOpenedAt || new Date().toISOString(),
+    lastOpenedAt:  new Date().toISOString(),
+    openCount:     (existing?.openCount || 0) + 1,
+  });
+}
 
 async function sendSMS(id, name) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
