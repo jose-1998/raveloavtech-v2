@@ -1,6 +1,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions."qb-reminder"]
+  schedule = "0 9 1 */3 *"  # runs at 9 AM on the 1st of every 3 months
+
 [build]
   ignore_secrets = ["QUICKBOOKS_ENV"]
 
