@@ -205,6 +205,8 @@ function buildEmailHTML(estimate, link) {
     </div>
 
   </div>
+  <!-- open tracking pixel -->
+  <img src="https://raveloavtech.com/.netlify/functions/track-open?id=${estimate.docNumber}&name=${encodeURIComponent(estimate.client.name)}&email=${encodeURIComponent(estimate.client.email)}" width="1" height="1" style="display:block;border:0;" alt="" />
 </body>
 </html>`;
 }
