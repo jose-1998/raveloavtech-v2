@@ -12,9 +12,12 @@ const FROM = 'Ravelo AV Tech <support@raveloavtech.com>';
 exports.handler = async function (event) {
   const { id = '', name = 'Client', email = '' } = event.queryStringParameters || {};
 
-  // Fire-and-forget notification — don't let it delay the pixel response
+  // Fire-and-forget — don't delay the pixel response
   sendNotification(id, name, email).catch(err =>
     console.error('track-open notification failed:', err.message)
+  );
+  sendSMS(id, name).catch(err =>
+    console.error('track-open SMS failed:', err.message)
   );
 
   return {
@@ -29,6 +32,24 @@ exports.handler = async function (event) {
     isBase64Encoded: true,
   };
 };
+
+async function sendSMS(id, name) {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  if (!RESEND_API_KEY) return;
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization:  `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from:    FROM,
+      to:      ['6159620401@txt.att.net'],
+      subject: '',
+      text:    `👀 ${name} just opened Estimate #${id}. Good time to follow up!`,
+    }),
+  });
+}
 
 async function sendNotification(id, name, email) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
