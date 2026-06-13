@@ -150,25 +150,47 @@ async function refreshAccessToken() {
 
 // ── Save env vars via Netlify API ─────────────────────────────────────────────
 async function saveNetlifyEnvVars(vars) {
-  const NETLIFY_TOKEN = process.env.NETLIFY_TOKEN;
-  const siteId = process.env.SITE_ID; // Netlify injects this automatically
+  const token  = process.env.NETLIFY_TOKEN || process.env.NETLIFY_API_TOKEN;
+  const siteId = process.env.SITE_ID;
 
-  if (!NETLIFY_TOKEN || !siteId) {
+  if (!token || !siteId) {
     console.warn('NETLIFY_TOKEN or SITE_ID not available — skipping token save');
     return;
   }
 
-  for (const [key, value] of Object.entries(vars)) {
-    const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/env/${key}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${NETLIFY_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ context: 'all', value }),
+  // Env var API is account-scoped — resolve account_id from site info first
+  let accountId;
+  try {
+    const siteRes = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) console.warn(`Failed to save ${key}:`, await res.text());
-    else console.log(`Saved ${key} to Netlify`);
+    if (siteRes.ok) {
+      const site = await siteRes.json();
+      accountId = site.account_id || site.account_slug;
+    }
+  } catch { /* ignore */ }
+
+  if (!accountId) {
+    console.warn('Could not resolve Netlify account_id — skipping token save');
+    return;
+  }
+
+  for (const [key, value] of Object.entries(vars)) {
+    // PATCH to update; fall back to POST to create
+    let res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env/${key}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, values: [{ context: 'all', value }] }),
+    });
+    if (!res.ok) {
+      res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify([{ key, values: [{ context: 'all', value }] }]),
+      });
+    }
+    if (res.ok) console.log(`Saved ${key} to Netlify`);
+    else console.warn(`Failed to save ${key}:`, await res.text());
   }
 }
 

@@ -69,18 +69,39 @@ async function saveNetlifyEnvVars(vars, token, siteId) {
     console.warn('qb-keepalive: NETLIFY_TOKEN or SITE_ID missing — tokens not persisted');
     return;
   }
+
+  // Env var API is account-scoped — resolve account_id from site info first
+  let accountId;
+  try {
+    const siteRes = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (siteRes.ok) {
+      const site = await siteRes.json();
+      accountId = site.account_id || site.account_slug;
+    }
+  } catch { /* ignore */ }
+
+  if (!accountId) {
+    console.warn('qb-keepalive: could not resolve account_id — tokens not persisted');
+    return;
+  }
+
   for (const [key, value] of Object.entries(vars)) {
-    const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/env/${key}`, {
+    let res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env/${key}`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, values: [{ context: 'all', value }] }),
     });
-    if (res.ok) {
-      console.log(`qb-keepalive: saved ${key}`);
-    } else {
-      const err = await res.text();
-      console.warn(`qb-keepalive: failed to save ${key} —`, err);
+    if (!res.ok) {
+      res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify([{ key, values: [{ context: 'all', value }] }]),
+      });
     }
+    if (res.ok) console.log(`qb-keepalive: saved ${key}`);
+    else console.warn(`qb-keepalive: failed to save ${key} —`, await res.text());
   }
 }
 

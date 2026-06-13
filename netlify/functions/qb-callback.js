@@ -126,7 +126,6 @@ function html(body) {
 // ── Save env vars via Netlify API so tokens persist automatically ─────────────
 // Returns array of { key, ok, error? } — one entry per variable.
 async function saveNetlifyEnvVars(vars) {
-  // Accept NETLIFY_TOKEN (custom) or NETLIFY_API_TOKEN (auto-injected by some Netlify plans)
   const token  = process.env.NETLIFY_TOKEN || process.env.NETLIFY_API_TOKEN;
   const siteId = process.env.SITE_ID; // Auto-injected by Netlify
 
@@ -135,16 +134,30 @@ async function saveNetlifyEnvVars(vars) {
     return Object.keys(vars).map(key => ({ key, ok: false, error: 'no_token' }));
   }
 
+  // Get account_id from site info (env var API is account-scoped, not site-scoped)
+  let accountId;
+  try {
+    const siteRes = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (siteRes.ok) {
+      const site = await siteRes.json();
+      accountId = site.account_id || site.account_slug;
+    }
+  } catch { /* fall through */ }
+
+  if (!accountId) {
+    console.warn('Could not resolve Netlify account_id');
+    return Object.keys(vars).map(key => ({ key, ok: false, error: 'no_account_id' }));
+  }
+
   const results = [];
   for (const [key, value] of Object.entries(vars)) {
     try {
-      // PATCH updates an existing env var (correct method for Netlify API v1)
-      const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/env/${key}`, {
+      // PATCH updates an existing env var
+      const res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env/${key}`, {
         method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, values: [{ context: 'all', value }] }),
       });
 
@@ -158,12 +171,9 @@ async function saveNetlifyEnvVars(vars) {
       console.warn(`PATCH failed for ${key} (${res.status}): ${patchErr} — trying POST`);
 
       // Fallback: POST creates the var if it doesn't exist yet
-      const res2 = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/env`, {
+      const res2 = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify([{ key, values: [{ context: 'all', value }] }]),
       });
 
