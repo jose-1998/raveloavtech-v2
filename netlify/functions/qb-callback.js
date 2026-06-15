@@ -1,7 +1,8 @@
 // qb-callback.js
 // Step 2 of OAuth2 — QB redirects here with a code, we exchange it for tokens.
-// The refresh_token is displayed on screen so you can save it to Netlify env vars.
-// This only needs to be run ONCE (or when the token expires after 100 days).
+// Tokens are saved to Netlify Blobs (free plan compatible, no redeploy needed).
+
+const { getStore } = require('@netlify/blobs');
 
 exports.handler = async function (event) {
   const { code, realmId, error } = event.queryStringParameters || {};
@@ -43,47 +44,43 @@ exports.handler = async function (event) {
 
     const tokens = await res.json();
 
-    // Auto-save tokens to Netlify env vars
-    const saveResults = await saveNetlifyEnvVars({
-      QUICKBOOKS_REALM_ID: realmId,
-      QUICKBOOKS_ACCESS_TOKEN: tokens.access_token,
-      QUICKBOOKS_REFRESH_TOKEN: tokens.refresh_token,
-    });
+    // Save tokens to Netlify Blobs (free plan, no redeploy needed)
+    let blobSaved = false;
+    let blobError = '';
+    try {
+      const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+      await store.setJSON('tokens', {
+        accessToken:  tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        realmId,
+        updatedAt: new Date().toISOString(),
+      });
+      blobSaved = true;
+      console.log('QB tokens saved to Netlify Blobs');
+    } catch (e) {
+      blobError = e.message;
+      console.error('Blob save failed:', e.message);
+    }
 
-    const allSaved    = saveResults.every(r => r.ok);
-    const noToken     = saveResults[0]?.error === 'no_token';
-
-    const statusBanner = noToken
-      ? `<p style="font-family:sans-serif;background:#fef3c7;border-left:4px solid #d97706;padding:12px 16px;border-radius:4px;color:#92400e;font-weight:600">
-           ⚠️ NETLIFY_TOKEN not configured — auto-save skipped.<br>
-           <span style="font-weight:400">Copy the tokens below into Netlify → Site configuration → Environment variables.</span>
-         </p>`
-      : allSaved
-        ? `<p style="font-family:sans-serif;color:#28a745;font-weight:600">🎉 All tokens saved automatically to Netlify!</p>`
-        : `<div style="font-family:sans-serif;background:#fff0f0;border-left:4px solid #dc3545;padding:16px;border-radius:4px;margin-bottom:16px">
-             <p style="margin:0 0 10px;font-weight:700;color:#dc3545;font-size:16px">❌ Auto-save failed — ACTION REQUIRED</p>
-             <p style="margin:0;color:#555">The NETLIFY_TOKEN may be invalid or lack write permissions.<br>
-             Go to <strong>Netlify → Site configuration → Environment variables</strong> and paste the values from the table below.</p>
-           </div>`;
-
-    const saveStatusRows = noToken ? '' : saveResults.map(r =>
-      `<tr>
-         <td style="padding:6px 12px">${r.ok ? '✅' : '❌'}</td>
-         <td style="padding:6px 12px;font-family:monospace;font-size:13px">${r.key}</td>
-         <td style="padding:6px 12px;font-size:13px;color:${r.ok ? '#28a745' : '#dc3545'}">${r.ok ? 'saved' : r.error}</td>
-       </tr>`
-    ).join('');
+    const statusBanner = blobSaved
+      ? `<div style="font-family:sans-serif;background:#d1fae5;border-left:4px solid #10b981;padding:16px 20px;border-radius:4px;margin-bottom:20px;">
+           <p style="margin:0;font-weight:700;color:#065f46;font-size:16px;">🎉 QuickBooks connected! Tokens saved automatically.</p>
+           <p style="margin:6px 0 0;color:#065f46;font-size:13px;">The system will auto-refresh tokens from now on. You can close this page.</p>
+         </div>`
+      : `<div style="font-family:sans-serif;background:#fff0f0;border-left:4px solid #dc3545;padding:16px 20px;border-radius:4px;margin-bottom:20px;">
+           <p style="margin:0 0 8px;font-weight:700;color:#dc3545;font-size:16px;">❌ Auto-save failed — ACTION REQUIRED</p>
+           <p style="margin:0;color:#555;font-size:13px;">
+             Go to <strong>Netlify → Site configuration → Environment variables</strong> and paste the values from the table below.<br>
+             Then trigger a new deploy.<br><small style="color:#999;">Error: ${blobError}</small>
+           </p>
+         </div>`;
 
     return html(`
-      <h1 style="color:#072b3e;font-family:sans-serif">✅ QuickBooks Connected!</h1>
+      <h1 style="color:#072b3e;font-family:sans-serif;margin:0 0 20px;">✅ QuickBooks Connected!</h1>
       ${statusBanner}
-
-      ${saveStatusRows ? `<table style="border-collapse:collapse;margin:12px 0 24px">${saveStatusRows}</table>` : ''}
-
-      <p style="font-family:sans-serif;color:#555;font-weight:600;margin-top:24px">
-        ${allSaved && !noToken ? 'Values saved (keep as backup):' : '⬇️ Copy these into Netlify environment variables:'}
-      </p>
-      <table style="font-family:monospace;border-collapse:collapse;margin:12px 0;width:100%;max-width:700px">
+      ${!blobSaved ? `
+      <p style="font-family:sans-serif;font-weight:600;color:#555;margin:0 0 10px;">⬇️ Copy these into Netlify environment variables:</p>
+      <table style="font-family:monospace;border-collapse:collapse;margin:0 0 12px;width:100%;max-width:700px">
         <tr style="background:#072b3e;color:#fff">
           <th style="padding:10px 16px;text-align:left">Variable</th>
           <th style="padding:10px 16px;text-align:left">Value</th>
@@ -101,11 +98,8 @@ exports.handler = async function (event) {
           <td style="padding:10px 16px;word-break:break-all">${tokens.refresh_token}</td>
         </tr>
       </table>
-
-      <p style="font-family:sans-serif;color:#888;font-size:13px">
-        ⚠️ The access_token expires in 1 hour. The refresh_token lasts 100 days.<br>
-        Once saved in Netlify, the system will auto-refresh the access_token as needed.
-      </p>
+      <p style="font-family:sans-serif;color:#888;font-size:12px;">⚠️ The access_token expires in 1 hour. The refresh_token lasts 100 days.</p>
+      ` : ''}
     `);
 
   } catch (err) {
@@ -118,77 +112,7 @@ function html(body) {
     statusCode: 200,
     headers: { 'Content-Type': 'text/html' },
     body: `<!DOCTYPE html><html><head><meta charset="UTF-8">
-      <style>body{margin:40px;background:#f0f4f8}pre{background:#fff;padding:16px;border-radius:4px}</style>
+      <style>body{margin:40px;background:#f0f4f8}pre{background:#fff;padding:16px;border-radius:4px}h1,h2{font-family:sans-serif}</style>
     </head><body>${body}</body></html>`,
   };
-}
-
-// ── Save env vars via Netlify API so tokens persist automatically ─────────────
-// Returns array of { key, ok, error? } — one entry per variable.
-async function saveNetlifyEnvVars(vars) {
-  const token  = process.env.NETLIFY_TOKEN || process.env.NETLIFY_API_TOKEN;
-  const siteId = process.env.SITE_ID; // Auto-injected by Netlify
-
-  if (!token || !siteId) {
-    console.warn('NETLIFY_TOKEN / NETLIFY_API_TOKEN or SITE_ID not set — skipping auto-save');
-    return Object.keys(vars).map(key => ({ key, ok: false, error: 'no_token' }));
-  }
-
-  // Get account_id from site info (env var API is account-scoped, not site-scoped)
-  let accountId;
-  try {
-    const siteRes = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (siteRes.ok) {
-      const site = await siteRes.json();
-      accountId = site.account_id || site.account_slug;
-    }
-  } catch { /* fall through */ }
-
-  if (!accountId) {
-    console.warn('Could not resolve Netlify account_id');
-    return Object.keys(vars).map(key => ({ key, ok: false, error: 'no_account_id' }));
-  }
-
-  const results = [];
-  for (const [key, value] of Object.entries(vars)) {
-    try {
-      // PATCH updates an existing env var
-      const res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env/${key}`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, values: [{ context: 'all', value }] }),
-      });
-
-      if (res.ok) {
-        console.log(`Saved ${key} to Netlify (PATCH)`);
-        results.push({ key, ok: true });
-        continue;
-      }
-
-      const patchErr = await res.text();
-      console.warn(`PATCH failed for ${key} (${res.status}): ${patchErr} — trying POST`);
-
-      // Fallback: POST creates the var if it doesn't exist yet
-      const res2 = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify([{ key, values: [{ context: 'all', value }] }]),
-      });
-
-      if (res2.ok) {
-        console.log(`Saved ${key} to Netlify (POST fallback)`);
-        results.push({ key, ok: true });
-      } else {
-        const postErr = await res2.text();
-        console.warn(`POST also failed for ${key} (${res2.status}): ${postErr}`);
-        results.push({ key, ok: false, error: `HTTP ${res.status}: ${patchErr.slice(0, 120)}` });
-      }
-    } catch (e) {
-      console.error(`Exception saving ${key}:`, e.message);
-      results.push({ key, ok: false, error: e.message.slice(0, 120) });
-    }
-  }
-  return results;
 }

@@ -1,5 +1,7 @@
 // get-estimate.js — Phase 2: pulls real data from QuickBooks API
 
+const { getStore } = require('@netlify/blobs');
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type',
@@ -60,16 +62,33 @@ exports.handler = async function (event) {
   }
 };
 
+// ── Load QB tokens: Blobs first, env vars as fallback ────────────────────────
+async function getQBTokens() {
+  try {
+    const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+    const data = await store.get('tokens', { type: 'json' });
+    if (data?.accessToken && data?.refreshToken) {
+      return { token: data.accessToken, refreshToken: data.refreshToken, realmId: data.realmId || process.env.QUICKBOOKS_REALM_ID };
+    }
+  } catch (e) {
+    console.warn('getQBTokens blob read failed:', e.message);
+  }
+  return {
+    token:        process.env.QUICKBOOKS_ACCESS_TOKEN,
+    refreshToken: process.env.QUICKBOOKS_REFRESH_TOKEN,
+    realmId:      process.env.QUICKBOOKS_REALM_ID,
+  };
+}
+
 // ── QB API: fetch estimate with auto token refresh ────────────────────────────
 async function getQBEstimate(docNumber) {
-  let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
-  const realmId = process.env.QUICKBOOKS_REALM_ID;
+  let { token, refreshToken, realmId } = await getQBTokens();
 
   // Query by DocNumber (the number shown in QB, e.g. 1169)
   let res = await qbQuery(token, realmId, docNumber);
   if (res.status === 401) {
     console.log('Access token expired — refreshing...');
-    token = await refreshAccessToken();
+    token = await refreshAccessToken(refreshToken, realmId);
     res = await qbQuery(token, realmId, docNumber);
   }
 
@@ -90,14 +109,13 @@ async function getQBEstimate(docNumber) {
 
 // ── QB API: fetch estimate by QB internal ID (used by webhook) ────────────────
 async function getQBEstimateByInternalId(qbId) {
-  let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
-  const realmId = process.env.QUICKBOOKS_REALM_ID;
+  let { token, refreshToken, realmId } = await getQBTokens();
 
   let res = await fetch(`${QB_BASE}/${realmId}/estimate/${qbId}?minorversion=65`, {
     headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
   });
   if (res.status === 401) {
-    token = await refreshAccessToken();
+    token = await refreshAccessToken(refreshToken, realmId);
     res = await fetch(`${QB_BASE}/${realmId}/estimate/${qbId}?minorversion=65`, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     });
@@ -121,9 +139,12 @@ function qbQuery(token, realmId, docNumber) {
   });
 }
 
-// ── Refresh token and save new tokens to Netlify env vars ─────────────────────
-async function refreshAccessToken() {
-  const { QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET, QUICKBOOKS_REFRESH_TOKEN } = process.env;
+// ── Refresh token and save to Netlify Blobs ────────────────────────────────────
+async function refreshAccessToken(refreshToken, realmId) {
+  const { QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET } = process.env;
+  const rt = refreshToken || process.env.QUICKBOOKS_REFRESH_TOKEN;
+  const rm = realmId     || process.env.QUICKBOOKS_REALM_ID;
+
   const credentials = Buffer.from(`${QUICKBOOKS_CLIENT_ID}:${QUICKBOOKS_CLIENT_SECRET}`).toString('base64');
 
   const res = await fetch(TOKEN_URL, {
@@ -133,65 +154,27 @@ async function refreshAccessToken() {
       'Content-Type': 'application/x-www-form-urlencoded',
       Accept: 'application/json',
     },
-    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: QUICKBOOKS_REFRESH_TOKEN }).toString(),
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: rt }).toString(),
   });
 
   if (!res.ok) throw new Error(`Token refresh failed: ${await res.text()}`);
   const tokens = await res.json();
 
-  // Save new tokens to Netlify so they persist for next invocation
-  await saveNetlifyEnvVars({
-    QUICKBOOKS_ACCESS_TOKEN: tokens.access_token,
-    QUICKBOOKS_REFRESH_TOKEN: tokens.refresh_token,
-  });
+  // Save rotated tokens to Blobs so next invocation uses fresh tokens
+  try {
+    const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+    await store.setJSON('tokens', {
+      accessToken:  tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      realmId:      rm,
+      updatedAt:    new Date().toISOString(),
+    });
+    console.log('QB tokens saved to Blobs after refresh');
+  } catch (e) {
+    console.error('Failed to save tokens to Blobs:', e.message);
+  }
 
   return tokens.access_token;
-}
-
-// ── Save env vars via Netlify API ─────────────────────────────────────────────
-async function saveNetlifyEnvVars(vars) {
-  const token  = process.env.NETLIFY_TOKEN || process.env.NETLIFY_API_TOKEN;
-  const siteId = process.env.SITE_ID;
-
-  if (!token || !siteId) {
-    console.warn('NETLIFY_TOKEN or SITE_ID not available — skipping token save');
-    return;
-  }
-
-  // Env var API is account-scoped — resolve account_id from site info first
-  let accountId;
-  try {
-    const siteRes = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (siteRes.ok) {
-      const site = await siteRes.json();
-      accountId = site.account_id || site.account_slug;
-    }
-  } catch { /* ignore */ }
-
-  if (!accountId) {
-    console.warn('Could not resolve Netlify account_id — skipping token save');
-    return;
-  }
-
-  for (const [key, value] of Object.entries(vars)) {
-    // PATCH to update; fall back to POST to create
-    let res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env/${key}`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, values: [{ context: 'all', value }] }),
-    });
-    if (!res.ok) {
-      res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify([{ key, values: [{ context: 'all', value }] }]),
-      });
-    }
-    if (res.ok) console.log(`Saved ${key} to Netlify`);
-    else console.warn(`Failed to save ${key}:`, await res.text());
-  }
 }
 
 // ── Fetch QB customer details ─────────────────────────────────────────────────
@@ -210,8 +193,7 @@ async function getQBCustomer(token, realmId, customerId) {
 
 // ── QB API: list recent estimates (used by admin panel) ───────────────────────
 async function listRecentEstimates() {
-  let token = process.env.QUICKBOOKS_ACCESS_TOKEN;
-  const realmId = process.env.QUICKBOOKS_REALM_ID;
+  let { token, refreshToken, realmId } = await getQBTokens();
 
   const query = encodeURIComponent(
     "SELECT * FROM Estimate ORDERBY MetaData.LastUpdatedTime DESC MAXRESULTS 20"
@@ -220,7 +202,7 @@ async function listRecentEstimates() {
     headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
   });
   if (res.status === 401) {
-    token = await refreshAccessToken();
+    token = await refreshAccessToken(refreshToken, realmId);
     res = await fetch(`${QB_BASE}/${realmId}/query?query=${query}&minorversion=65`, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     });

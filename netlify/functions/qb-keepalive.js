@@ -5,20 +5,41 @@
 // indefinitely without any manual re-auth.
 // Schedule is defined in netlify.toml.
 
+const { getStore } = require('@netlify/blobs');
+
 const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 
 exports.handler = async function () {
-  const {
-    QUICKBOOKS_CLIENT_ID,
-    QUICKBOOKS_CLIENT_SECRET,
-    QUICKBOOKS_REFRESH_TOKEN,
-    NETLIFY_TOKEN,
-    SITE_ID,
-  } = process.env;
+  const { QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET } = process.env;
 
-  if (!QUICKBOOKS_REFRESH_TOKEN || !QUICKBOOKS_CLIENT_ID || !QUICKBOOKS_CLIENT_SECRET) {
+  if (!QUICKBOOKS_CLIENT_ID || !QUICKBOOKS_CLIENT_SECRET) {
     console.error('qb-keepalive: missing QB credentials — skipping');
     return { statusCode: 200, body: 'skipped: missing credentials' };
+  }
+
+  // Load tokens from Blobs first, fall back to env vars
+  let refreshToken, realmId;
+  try {
+    const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+    const data = await store.get('tokens', { type: 'json' });
+    if (data?.refreshToken) {
+      refreshToken = data.refreshToken;
+      realmId      = data.realmId;
+      console.log('qb-keepalive: loaded tokens from Blobs');
+    }
+  } catch (e) {
+    console.warn('qb-keepalive: blob read failed:', e.message);
+  }
+
+  if (!refreshToken) {
+    refreshToken = process.env.QUICKBOOKS_REFRESH_TOKEN;
+    realmId      = process.env.QUICKBOOKS_REALM_ID;
+    console.log('qb-keepalive: falling back to env var tokens');
+  }
+
+  if (!refreshToken) {
+    console.error('qb-keepalive: no refresh token found anywhere — skipping');
+    return { statusCode: 200, body: 'skipped: no refresh token' };
   }
 
   try {
@@ -33,28 +54,29 @@ exports.handler = async function () {
       },
       body: new URLSearchParams({
         grant_type:    'refresh_token',
-        refresh_token: QUICKBOOKS_REFRESH_TOKEN,
+        refresh_token: refreshToken,
       }).toString(),
     });
 
     if (!res.ok) {
       const err = await res.text();
       console.error('qb-keepalive: token refresh failed —', err);
-      // Send alert email so you know to re-auth manually
       await sendAlert(err);
       return { statusCode: 500, body: 'refresh failed' };
     }
 
     const tokens = await res.json();
 
-    // Save both tokens back to Netlify env vars
-    await saveNetlifyEnvVars(
-      { QUICKBOOKS_ACCESS_TOKEN: tokens.access_token, QUICKBOOKS_REFRESH_TOKEN: tokens.refresh_token },
-      NETLIFY_TOKEN,
-      SITE_ID
-    );
+    // Save rotated tokens to Blobs
+    const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+    await store.setJSON('tokens', {
+      accessToken:  tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      realmId:      realmId || process.env.QUICKBOOKS_REALM_ID,
+      updatedAt:    new Date().toISOString(),
+    });
 
-    console.log('qb-keepalive: tokens refreshed and saved successfully');
+    console.log('qb-keepalive: tokens refreshed and saved to Blobs successfully');
     return { statusCode: 200, body: 'ok' };
 
   } catch (err) {
@@ -63,47 +85,6 @@ exports.handler = async function () {
     return { statusCode: 500, body: err.message };
   }
 };
-
-async function saveNetlifyEnvVars(vars, token, siteId) {
-  if (!token || !siteId) {
-    console.warn('qb-keepalive: NETLIFY_TOKEN or SITE_ID missing — tokens not persisted');
-    return;
-  }
-
-  // Env var API is account-scoped — resolve account_id from site info first
-  let accountId;
-  try {
-    const siteRes = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (siteRes.ok) {
-      const site = await siteRes.json();
-      accountId = site.account_id || site.account_slug;
-    }
-  } catch { /* ignore */ }
-
-  if (!accountId) {
-    console.warn('qb-keepalive: could not resolve account_id — tokens not persisted');
-    return;
-  }
-
-  for (const [key, value] of Object.entries(vars)) {
-    let res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env/${key}`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, values: [{ context: 'all', value }] }),
-    });
-    if (!res.ok) {
-      res = await fetch(`https://api.netlify.com/api/v1/accounts/${accountId}/env`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify([{ key, values: [{ context: 'all', value }] }]),
-      });
-    }
-    if (res.ok) console.log(`qb-keepalive: saved ${key}`);
-    else console.warn(`qb-keepalive: failed to save ${key} —`, await res.text());
-  }
-}
 
 async function sendAlert(errMsg) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
