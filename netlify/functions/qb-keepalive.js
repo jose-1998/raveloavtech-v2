@@ -20,7 +20,7 @@ exports.handler = async function () {
   // Load tokens from Blobs first, fall back to env vars
   let refreshToken, realmId;
   try {
-    const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+    const store = getStore({ name: 'qb-tokens', consistency: 'strong', siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_API_TOKEN });
     const data = await store.get('tokens', { type: 'json' });
     if (data?.refreshToken) {
       refreshToken = data.refreshToken;
@@ -68,7 +68,7 @@ exports.handler = async function () {
     const tokens = await res.json();
 
     // Save rotated tokens to Blobs
-    const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+    const store = getStore({ name: 'qb-tokens', consistency: 'strong', siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_API_TOKEN });
     await store.setJSON('tokens', {
       accessToken:  tokens.access_token,
       refreshToken: tokens.refresh_token,
