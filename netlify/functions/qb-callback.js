@@ -11,7 +11,7 @@ exports.handler = async function (event) {
     return html(`<h2>❌ QB Authorization Error</h2><p>${error}</p>`);
   }
 
-  if (!code || !realmId) {
+  if (!code || !realmId) {h
     return html(`<h2>❌ Missing code or realmId</h2><p>Make sure you started the flow from <a href="/.netlify/functions/qb-auth">qb-auth</a>.</p>`);
   }
 
@@ -48,7 +48,7 @@ exports.handler = async function (event) {
     let blobSaved = false;
     let blobError = '';
     try {
-      const store = getStore({ name: 'qb-tokens', consistency: 'strong' });
+      const store = getStore({ name: 'qb-tokens', consistency: 'strong', siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_API_TOKEN });
       await store.setJSON('tokens', {
         accessToken:  tokens.access_token,
         refreshToken: tokens.refresh_token,
