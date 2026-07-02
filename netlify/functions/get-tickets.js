@@ -1,4 +1,7 @@
-exports.handler = async function (event) {
+// Emails allowed to read tickets (must match Netlify Identity accounts)
+const ALLOWED_EMAILS = ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'];
+
+exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -7,9 +10,9 @@ exports.handler = async function (event) {
     };
   }
 
-  // Only allow authenticated admins (Netlify Identity JWT required)
-  const auth = (event.headers.authorization || '').replace('Bearer ', '').trim();
-  if (!auth) {
+  // Only allow authenticated admins (validated Netlify Identity JWT)
+  const user = context.clientContext && context.clientContext.user;
+  if (!user || ALLOWED_EMAILS.indexOf(user.email) === -1) {
     return { statusCode: 401, headers: { 'Access-Control-Allow-Origin': '*' }, body: 'Unauthorized' };
   }
 

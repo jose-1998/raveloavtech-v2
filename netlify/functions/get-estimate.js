@@ -14,9 +14,12 @@ const QB_BASE = IS_PRODUCTION
   : 'https://sandbox-quickbooks.api.intuit.com/v3/company';
 const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 
-exports.handler = async function (event) {
+// Emails allowed to list all estimates (must match Netlify Identity accounts)
+const ALLOWED_EMAILS = ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'];
+
+exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: { ...CORS, 'Access-Control-Allow-Headers': 'Content-Type, Authorization' }, body: '' };
   }
 
   const params = event.queryStringParameters || {};
@@ -24,8 +27,12 @@ exports.handler = async function (event) {
   const qbid   = params.qbid; // QB internal ID — used by send-estimate webhook
   const list   = params.list; // 'recent' — used by admin/estimates.html
 
-  // ── List recent estimates ─────────────────────────────────────────────────
+  // ── List recent estimates — admin only (validated Netlify Identity JWT) ──
   if (list === 'recent') {
+    const user = context.clientContext && context.clientContext.user;
+    if (!user || ALLOWED_EMAILS.indexOf(user.email) === -1) {
+      return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
+    }
     try {
       const estimates = await listRecentEstimates();
       return {

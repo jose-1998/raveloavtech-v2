@@ -522,7 +522,11 @@
   function loadEstimates() {
     estimatesContainer.innerHTML = '<div class="list-loading"><div class="spinner"></div>Loading estimates from QuickBooks…</div>';
 
-    fetch('/.netlify/functions/get-estimate?list=recent')
+    getToken().then(function (token) {
+      return fetch('/.netlify/functions/get-estimate?list=recent', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+    })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var list = Array.isArray(data) ? data : (data.estimates || []);
