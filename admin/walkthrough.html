@@ -297,17 +297,33 @@
       display: flex; gap: 10px;
       z-index: 800;
     }
-    .print-btn {
+    .save-btn {
       flex: 1; padding: 13px;
-      background: rgba(130,160,204,0.1);
-      border: 1px solid rgba(130,160,204,0.25);
-      color: var(--blue);
-      border-radius: 8px; font-size: 14px; font-weight: 700;
+      background: var(--blue-btn);
+      border: none;
+      color: #fff;
+      border-radius: 8px; font-size: 15px; font-weight: 700;
       font-family: inherit; cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 7px;
-      transition: background 0.15s;
+      transition: background 0.15s, opacity 0.15s;
     }
-    .print-btn:hover { background: rgba(130,160,204,0.18); }
+    .save-btn:hover:not(:disabled) { background: #4a7de0; }
+    .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .save-btn.saved { background: #28a745; }
+
+    .save-feedback {
+      position: fixed; bottom: 72px; left: 50%;
+      transform: translateX(-50%);
+      background: #0c2d3a; border: 1px solid rgba(130,160,204,0.25);
+      border-radius: 8px; padding: 10px 18px;
+      font-size: 13px; font-weight: 600; white-space: nowrap;
+      opacity: 0; transition: opacity 0.25s, transform 0.25s;
+      transform: translateX(-50%) translateY(6px);
+      pointer-events: none; z-index: 999;
+    }
+    .save-feedback.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .save-feedback.ok  { color: #6ee7b7; border-color: rgba(110,231,183,0.3); }
+    .save-feedback.err { color: var(--red); border-color: rgba(224,112,112,0.3); }
 
     /* ── Print styles ── */
     @media print {
@@ -400,8 +416,9 @@
 </div>
 
 <!-- Bottom bar -->
+<div class="save-feedback" id="saveFeedback"></div>
 <div class="bottom-bar" id="bottomBar" style="display:none;">
-  <button class="print-btn" id="printBtn">🖨 Print Checklist</button>
+  <button class="save-btn" id="saveBtn">💾 Save &amp; Send</button>
 </div>
 
 <script>
@@ -758,12 +775,73 @@
       buildPanels();
       switchType(currentType);
     });
+
     document.getElementById('jobNotes').addEventListener('input', function () {
       state.notes = document.getElementById('jobNotes').value;
       save();
     });
-    document.getElementById('printBtn').addEventListener('click', function () {
-      window.print();
+
+    var saveBtn    = document.getElementById('saveBtn');
+    var feedbackEl = document.getElementById('saveFeedback');
+    var feedbackTimer;
+
+    function showFeedback(msg, type) {
+      clearTimeout(feedbackTimer);
+      feedbackEl.textContent = msg;
+      feedbackEl.className = 'save-feedback show ' + (type || 'ok');
+      feedbackTimer = setTimeout(function () { feedbackEl.className = 'save-feedback'; }, 4000);
+    }
+
+    saveBtn.addEventListener('click', function () {
+      if (saveBtn.disabled) return;
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Saving…';
+
+      var user = netlifyIdentity.currentUser();
+      if (!user) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save & Send';
+        showFeedback('Not signed in', 'err');
+        return;
+      }
+
+      user.jwt().then(function (token) {
+        return fetch('/.netlify/functions/save-walkthrough', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+          },
+          body: JSON.stringify({
+            clientName: state.clientName || '',
+            jobAddress: state.jobAddress || '',
+            type:       state.type || currentType,
+            checks:     state.checks || {},
+            fields:     state.fields || {},
+            notes:      state.notes  || '',
+          }),
+        });
+      }).then(function (r) {
+        return r.json().then(function (d) { return { ok: r.ok, data: d }; });
+      }).then(function (res) {
+        saveBtn.disabled = false;
+        if (res.ok && res.data.ok) {
+          saveBtn.textContent = '✅ Saved';
+          saveBtn.classList.add('saved');
+          showFeedback('✅ Saved — summary sent to the team', 'ok');
+          setTimeout(function () {
+            saveBtn.textContent = '💾 Save & Send';
+            saveBtn.classList.remove('saved');
+          }, 3000);
+        } else {
+          saveBtn.textContent = '💾 Save & Send';
+          showFeedback('❌ Error: ' + ((res.data && res.data.error) || 'try again'), 'err');
+        }
+      }).catch(function (err) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save & Send';
+        showFeedback('❌ ' + err.message, 'err');
+      });
     });
   }
 
