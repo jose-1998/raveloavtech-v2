@@ -289,6 +289,66 @@
     .notes-input::placeholder { color: var(--text-dim); }
     .notes-input:focus { border-color: rgba(130,160,204,0.45); background: rgba(255,255,255,0.08); }
 
+    /* ── Photos section ── */
+    .photos-wrap {
+      padding: 0 16px 4px;
+      max-width: 640px; margin: 0 auto;
+    }
+    .photos-head {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .photos-head::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(130,160,204,0.12); margin-left: 10px;
+    }
+    .photos-count {
+      font-size: 10px; color: var(--text-dim);
+      font-weight: 500; text-transform: none; letter-spacing: 0;
+    }
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .photo-thumb {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+    }
+    .photo-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+    .photo-delete {
+      position: absolute; top: 4px; right: 4px;
+      width: 22px; height: 22px;
+      background: rgba(0,0,0,0.65);
+      border: none; border-radius: 50%;
+      color: #fff; font-size: 12px;
+      cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .photo-add-btn {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1.5px dashed rgba(130,160,204,0.3);
+      background: rgba(130,160,204,0.05);
+      color: var(--blue); font-size: 26px;
+      cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .photo-add-btn:hover { background: rgba(130,160,204,0.1); border-color: rgba(130,160,204,0.5); }
+
     /* ── Bottom actions ── */
     .bottom-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
@@ -406,6 +466,9 @@
 
   <!-- Checklists (one panel per type) -->
   <div id="panels"></div>
+
+  <!-- Hidden file input for camera capture -->
+  <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;" multiple />
 
   <!-- Notes -->
   <div class="notes-wrap">
@@ -619,6 +682,78 @@
     switchType(currentType);
   }
 
+  /* ── Photo capture & compression ────────────────────────────────────────── */
+  var photoInput    = document.getElementById('photoInput');
+  var activePhotoType = null;
+
+  photoInput.addEventListener('change', function () {
+    var files = Array.from(photoInput.files);
+    photoInput.value = '';
+    if (!files.length || !activePhotoType) return;
+    files.forEach(function (file) {
+      compressPhoto(file, function (dataUrl) {
+        if (!state.photos) state.photos = {};
+        if (!state.photos[activePhotoType]) state.photos[activePhotoType] = [];
+        state.photos[activePhotoType].push({ data: dataUrl, ts: Date.now() });
+        save();
+        renderPhotos(activePhotoType);
+      });
+    });
+  });
+
+  function compressPhoto(file, cb) {
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function () {
+      var maxW = 1200, maxH = 1200;
+      var w = img.width, h = img.height;
+      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+      if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', 0.78));
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }
+
+  function renderPhotos(type) {
+    var wrap = document.querySelector('.photos-wrap[data-type="' + type + '"]');
+    if (!wrap) return;
+    var grid    = wrap.querySelector('.photos-grid');
+    var countEl = wrap.querySelector('.photos-count');
+    var photos  = (state.photos && state.photos[type]) || [];
+    countEl.textContent = photos.length ? photos.length + ' photo' + (photos.length > 1 ? 's' : '') : '';
+
+    grid.innerHTML = '';
+    photos.forEach(function (p, idx) {
+      var thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      thumb.innerHTML =
+        '<img src="' + p.data + '" alt="Photo ' + (idx+1) + '" />' +
+        '<button class="photo-delete" data-idx="' + idx + '" title="Remove">✕</button>';
+      thumb.querySelector('.photo-delete').addEventListener('click', function (e) {
+        e.stopPropagation();
+        state.photos[type].splice(idx, 1);
+        save();
+        renderPhotos(type);
+      });
+      grid.appendChild(thumb);
+    });
+
+    // Add button
+    var addBtn = document.createElement('button');
+    addBtn.className = 'photo-add-btn';
+    addBtn.innerHTML = '📷';
+    addBtn.title = 'Take or add photo';
+    addBtn.addEventListener('click', function () {
+      activePhotoType = type;
+      photoInput.click();
+    });
+    grid.appendChild(addBtn);
+  }
+
   function buildPanels() {
     var container = document.getElementById('panels');
     container.innerHTML = '';
@@ -679,6 +814,15 @@
         panel.appendChild(secEl);
       });
 
+      // Photos section at bottom of each panel
+      var photoWrap = document.createElement('div');
+      photoWrap.className = 'photos-wrap';
+      photoWrap.dataset.type = type;
+      photoWrap.innerHTML =
+        '<div class="photos-head">Photos <span class="photos-count"></span></div>' +
+        '<div class="photos-grid"></div>';
+      panel.appendChild(photoWrap);
+
       container.appendChild(panel);
     });
   }
@@ -717,6 +861,7 @@
     document.getElementById('progressLabel').textContent = CHECKLISTS[type].label;
     updateProgress(type);
     Object.keys(CHECKLISTS).forEach(updateTabCount);
+    renderPhotos(type);
   }
 
   function updateProgress(type) {
@@ -819,6 +964,7 @@
             checks:     state.checks || {},
             fields:     state.fields || {},
             notes:      state.notes  || '',
+            photos:     (state.photos && state.photos[state.type || currentType]) || [],
           }),
         });
       }).then(function (r) {

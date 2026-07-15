@@ -127,7 +127,7 @@ exports.handler = async function (event) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const { clientName, jobAddress, type, checks, fields, notes } = body;
+  const { clientName, jobAddress, type, checks, fields, notes, photos = [] } = body;
   const typeLabel = TYPE_LABELS[type] || type;
   const typeIcon  = TYPE_ICONS[type]  || '🔧';
   const savedAt   = new Date().toLocaleString('en-US', {
@@ -138,21 +138,30 @@ exports.handler = async function (event) {
   try {
     const store = getStore({ name: 'walkthroughs', consistency: 'strong' });
     const key   = `walkthrough-${Date.now()}`;
-    await store.setJSON(key, { clientName, jobAddress, type, checks, fields, notes, savedAt });
+    await store.setJSON(key, { clientName, jobAddress, type, checks, fields, notes, photoCount: photos.length, savedAt });
   } catch (e) {
     console.warn('Blob save failed:', e.message);
   }
 
-  // Build email HTML
+  // Build email with photos as attachments
   const RESEND_KEY = process.env.RESEND_API_KEY;
   if (RESEND_KEY) {
-    const html = buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt });
+    const html    = buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photoCount: photos.length });
     const subject = `${typeIcon} Walkthrough — ${clientName || 'Unknown client'}${jobAddress ? ' · ' + jobAddress : ''}`;
+
+    // Convert base64 data URLs to Resend attachment format
+    const attachments = photos.map(function (p, i) {
+      const base64 = p.data.replace(/^data:image\/\w+;base64,/, '');
+      return { filename: `photo-${i + 1}.jpg`, content: base64 };
+    });
+
+    const payload = { from: FROM, to: TO, subject, html };
+    if (attachments.length) payload.attachments = attachments;
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: FROM, to: TO, subject, html }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) console.error('Resend error:', await res.text());
   }
@@ -164,7 +173,7 @@ exports.handler = async function (event) {
   };
 };
 
-function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt }) {
+function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photoCount }) {
   const cl = CHECKLISTS[type];
   if (!cl) return '<p>Unknown job type</p>';
 
@@ -226,6 +235,13 @@ function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, che
     <div style="margin-top:24px;padding:16px 18px;background:#f7f9fc;border-left:3px solid #82A0CC;border-radius:3px;">
       <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#82A0CC;">Field Notes</p>
       <p style="margin:0;font-size:14px;color:#444;white-space:pre-wrap;line-height:1.6;">${notes}</p>
+    </div>` : ''}
+
+    ${photoCount ? `
+    <div style="margin-top:20px;padding:14px 18px;background:#f0f9f4;border-left:3px solid #34c759;border-radius:3px;">
+      <p style="margin:0;font-size:13px;color:#1a7a3a;font-weight:600;">
+        📷 ${photoCount} photo${photoCount > 1 ? 's' : ''} attached to this email
+      </p>
     </div>` : ''}
   </div>
 
