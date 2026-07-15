@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Site Walkthrough — Ravelo AV Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="/uploads/favicon.png" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0c2d3a;
+      --navy-dark: #0d1b2a;
+      --navy-mid:  #0a2030;
+      --blue:      #82A0CC;
+      --blue-btn:  #5b8dee;
+      --green:     #34c759;
+      --red:       #e07070;
+      --amber:     #f59e0b;
+      --text:      rgba(255,255,255,0.88);
+      --text-dim:  rgba(255,255,255,0.45);
+      --border:    rgba(130,160,204,0.13);
+      --card:      #0c2d3a;
+      --check-bg:  rgba(130,160,204,0.08);
+      --check-done-bg: rgba(52,199,89,0.08);
+      --check-done-border: rgba(52,199,89,0.25);
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--navy-dark);
+      font-family: 'Figtree', -apple-system, sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      height: 58px;
+      background: var(--navy);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 16px; gap: 12px;
+    }
+    .topbar-logo img { height: 34px; width: auto; display: block; }
+    .topbar-divider  { width: 1px; height: 20px; background: rgba(130,160,204,0.2); flex-shrink: 0; }
+    .topbar-label    { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); flex: 1; }
+    .topbar-nav { display: flex; gap: 6px; align-items: center; }
+    .topbar-link {
+      font-size: 11px; font-weight: 600; color: var(--text-dim);
+      text-decoration: none; padding: 5px 10px; border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .topbar-link:hover { color: var(--text); border-color: var(--border); }
+    .topbar-link.active { color: var(--blue); border-color: rgba(130,160,204,0.25); background: rgba(130,160,204,0.07); }
+    .topbar-logout {
+      background: none; border: 1px solid rgba(224,112,112,0.35); color: var(--red);
+      font-size: 11px; font-family: inherit; padding: 5px 10px;
+      border-radius: 5px; cursor: pointer; white-space: nowrap;
+    }
+    .topbar-logout:hover { background: rgba(224,112,112,0.1); }
+
+    /* ── Login ── */
+    #loginScreen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    .login-card {
+      background: var(--navy); border: 1px solid var(--border);
+      border-radius: 14px; padding: 36px 28px;
+      width: 100%; max-width: 340px; text-align: center;
+    }
+    .login-card img { height: 40px; width: auto; margin-bottom: 24px; }
+    .login-card h1  { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .login-card p   { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; }
+    .login-btn {
+      width: 100%; padding: 13px; background: var(--blue-btn); color: #fff;
+      border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+
+    /* ── Main ── */
+    #mainScreen { display: none; padding: 70px 0 80px; }
+
+    /* ── Job info header ── */
+    .job-header {
+      padding: 16px 16px 0;
+      max-width: 640px; margin: 0 auto;
+    }
+    .job-fields { display: flex; gap: 10px; margin-bottom: 14px; }
+    .job-input {
+      flex: 1; padding: 11px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text); font-family: inherit; font-size: 14px;
+      outline: none; transition: border-color 0.15s, background 0.15s;
+      -webkit-appearance: none;
+    }
+    .job-input::placeholder { color: var(--text-dim); }
+    .job-input:focus { border-color: rgba(130,160,204,0.45); background: rgba(255,255,255,0.08); }
+    .clear-btn {
+      padding: 11px 14px; background: rgba(224,112,112,0.1);
+      border: 1px solid rgba(224,112,112,0.25);
+      color: var(--red); border-radius: 8px;
+      font-size: 13px; font-weight: 600; font-family: inherit;
+      cursor: pointer; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .clear-btn:hover { background: rgba(224,112,112,0.18); }
+
+    /* ── Job type tabs ── */
+    .type-tabs {
+      display: flex; gap: 8px;
+      padding: 0 16px;
+      max-width: 640px; margin: 0 auto 18px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .type-tabs::-webkit-scrollbar { display: none; }
+    .type-tab {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-dim); font-size: 13px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .type-tab:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .type-tab.active {
+      background: rgba(91,141,238,0.12);
+      border-color: rgba(91,141,238,0.4);
+      color: var(--blue-btn);
+    }
+    .type-tab .tab-icon { font-size: 16px; line-height: 1; }
+    .type-tab .tab-count {
+      font-size: 10px; font-weight: 700;
+      background: rgba(91,141,238,0.25);
+      color: var(--blue-btn);
+      border-radius: 10px; padding: 1px 6px;
+      min-width: 18px; text-align: center;
+      display: none;
+    }
+    .type-tab.active .tab-count { display: inline-block; }
+    .type-tab.has-progress .tab-count { display: inline-block; }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      padding: 0 16px 14px;
+      max-width: 640px; margin: 0 auto;
+    }
+    .progress-meta {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 7px;
+    }
+    .progress-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); }
+    .progress-pct   { font-size: 13px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+    .progress-bar   { height: 5px; background: rgba(130,160,204,0.15); border-radius: 99px; overflow: hidden; }
+    .progress-fill  {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--blue-btn), var(--green));
+      transition: width 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      width: 0%;
+    }
+    .progress-fill.complete { background: var(--green); }
+
+    /* ── Sections ── */
+    .sections { padding: 0 16px; max-width: 640px; margin: 0 auto; }
+    .section  { margin-bottom: 12px; }
+    .section-head {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-head::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(130,160,204,0.12);
+    }
+
+    /* ── Check items ── */
+    .check-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 13px 14px;
+      background: var(--check-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .check-item:hover  { background: rgba(130,160,204,0.12); }
+    .check-item:active { background: rgba(130,160,204,0.18); }
+    .check-item.done   {
+      background: var(--check-done-bg);
+      border-color: var(--check-done-border);
+    }
+
+    .checkbox {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(130,160,204,0.35);
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+      margin-top: 1px;
+    }
+    .check-item.done .checkbox {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .checkbox svg { display: none; }
+    .check-item.done .checkbox svg { display: block; }
+
+    .check-text { flex: 1; }
+    .check-label {
+      font-size: 14px; font-weight: 500; color: var(--text);
+      line-height: 1.4;
+      transition: color 0.15s;
+    }
+    .check-item.done .check-label {
+      color: var(--text-dim);
+      text-decoration: line-through;
+      text-decoration-color: rgba(255,255,255,0.2);
+    }
+    .check-sub {
+      font-size: 11px; color: var(--text-dim);
+      margin-top: 2px; line-height: 1.4;
+    }
+
+    /* ── Notes area ── */
+    .notes-wrap { padding: 0 16px 16px; max-width: 640px; margin: 0 auto; }
+    .notes-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 8px;
+      display: block;
+    }
+    .notes-input {
+      width: 100%; min-height: 96px;
+      padding: 13px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text); font-family: inherit; font-size: 14px;
+      line-height: 1.5; resize: vertical; outline: none;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-appearance: none;
+    }
+    .notes-input::placeholder { color: var(--text-dim); }
+    .notes-input:focus { border-color: rgba(130,160,204,0.45); background: rgba(255,255,255,0.08); }
+
+    /* ── Bottom actions ── */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 12px 16px; background: var(--navy);
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px;
+      z-index: 800;
+    }
+    .print-btn {
+      flex: 1; padding: 13px;
+      background: rgba(130,160,204,0.1);
+      border: 1px solid rgba(130,160,204,0.25);
+      color: var(--blue);
+      border-radius: 8px; font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: background 0.15s;
+    }
+    .print-btn:hover { background: rgba(130,160,204,0.18); }
+
+    /* ── Print styles ── */
+    @media print {
+      .topbar, .bottom-bar, .type-tabs, .job-fields .clear-btn { display: none !important; }
+      #mainScreen { padding-top: 10px !important; }
+      body { background: #fff !important; color: #000 !important; }
+      .check-item { border: 1px solid #ccc !important; background: #fff !important; page-break-inside: avoid; }
+      .check-item.done .check-label { color: #888 !important; }
+      .section-panel:not(.active-panel) { display: block !important; }
+    }
+
+    @media (max-width: 480px) {
+      .topbar-label { display: none; }
+      .topbar-link  { font-size: 10px; padding: 4px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login screen -->
+<div id="loginScreen">
+  <div class="login-card">
+    <img src="/uploads/logo.png" alt="Ravelo AV Tech" />
+    <h1>Site Walkthrough</h1>
+    <p>Sign in to access job checklists.</p>
+    <button class="login-btn" id="loginBtn">Sign In</button>
+  </div>
+</div>
+
+<!-- Main screen -->
+<div id="mainScreen">
+
+  <div class="topbar">
+    <a class="topbar-logo" href="/" target="_blank">
+      <img src="/uploads/logo.png" alt="Ravelo AV Tech" width="110" height="34" />
+    </a>
+    <div class="topbar-divider"></div>
+    <span class="topbar-label">Site Walkthrough</span>
+    <nav class="topbar-nav">
+      <a class="topbar-link" href="/admin/">Gallery</a>
+      <a class="topbar-link" href="/admin/estimates.html">Estimates</a>
+      <a class="topbar-link active" href="/admin/walkthrough.html">Walkthrough</a>
+    </nav>
+    <button class="topbar-logout" id="logoutBtn">Sign Out</button>
+  </div>
+
+  <!-- Job info -->
+  <div class="job-header">
+    <div class="job-fields">
+      <input class="job-input" id="clientName" type="text" placeholder="Client name" autocomplete="off" />
+      <input class="job-input" id="jobAddress" type="text" placeholder="Address / location" autocomplete="off" />
+      <button class="clear-btn" id="clearBtn">Reset</button>
+    </div>
+  </div>
+
+  <!-- Job type tabs -->
+  <div class="type-tabs">
+    <button class="type-tab active" data-type="cameras">
+      <span class="tab-icon">📷</span> Security Cameras
+      <span class="tab-count" id="count-cameras">0</span>
+    </button>
+    <button class="type-tab" data-type="network">
+      <span class="tab-icon">🌐</span> Network
+      <span class="tab-count" id="count-network">0</span>
+    </button>
+    <button class="type-tab" data-type="av">
+      <span class="tab-icon">📺</span> Audio / Visual
+      <span class="tab-count" id="count-av">0</span>
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span class="progress-label" id="progressLabel">Survey</span>
+      <span class="progress-pct" id="progressPct">0 / 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- Checklists (one panel per type) -->
+  <div id="panels"></div>
+
+  <!-- Notes -->
+  <div class="notes-wrap">
+    <label class="notes-label" for="jobNotes">Field Notes</label>
+    <textarea class="notes-input" id="jobNotes" placeholder="Measurements, obstacles, client requests, photos needed…"></textarea>
+  </div>
+
+</div>
+
+<!-- Bottom bar -->
+<div class="bottom-bar" id="bottomBar" style="display:none;">
+  <button class="print-btn" id="printBtn">🖨 Print Checklist</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Checklist data ──────────────────────────────────────────────────── */
+  var CHECKLISTS = {
+    cameras: {
+      label: 'Camera Survey',
+      sections: [
+        {
+          title: 'Camera Locations',
+          items: [
+            { id: 'cam-count',    label: 'Total number of cameras confirmed with client' },
+            { id: 'cam-indoor',   label: 'Indoor camera positions marked', hint: 'Corners, hallways, entry points' },
+            { id: 'cam-outdoor',  label: 'Outdoor camera positions marked', hint: 'Driveways, doors, perimeter' },
+            { id: 'cam-fov',      label: 'Field of view verified at each location' },
+            { id: 'cam-lighting', label: 'Lighting conditions assessed', hint: 'Night vision needed? Backlight issues?' },
+          ]
+        },
+        {
+          title: 'Mounting & Cabling',
+          items: [
+            { id: 'cam-surface',  label: 'Mounting surface identified at each point', hint: 'Drywall / wood / brick / soffit / ceiling' },
+            { id: 'cam-power',    label: 'Power outlet accessible near each camera (PoE or plug-in)' },
+            { id: 'cam-routing',  label: 'Cable routing path mapped from camera to NVR' },
+            { id: 'cam-existing', label: 'Existing cable runs checked and labeled' },
+            { id: 'cam-distance', label: 'Max cable run distance measured', hint: '300 ft max for Cat6 PoE' },
+          ]
+        },
+        {
+          title: 'Recorder (NVR / DVR)',
+          items: [
+            { id: 'nvr-location', label: 'NVR/DVR location confirmed' },
+            { id: 'nvr-power',    label: 'Power outlet at NVR location' },
+            { id: 'nvr-network',  label: 'Network / internet access at NVR' },
+            { id: 'nvr-monitor',  label: 'Monitor or TV for local view decided' },
+            { id: 'nvr-storage',  label: 'Storage size / retention days confirmed', hint: 'e.g. 30-day loop on 2TB' },
+          ]
+        },
+        {
+          title: 'Client Requirements',
+          items: [
+            { id: 'cam-app',      label: 'Mobile app access needed' },
+            { id: 'cam-alerts',   label: 'Motion zone alerts configured' },
+            { id: 'cam-existing2',label: 'Client has existing system to integrate or replace' },
+            { id: 'cam-photos',   label: 'Photos taken of all camera locations' },
+          ]
+        }
+      ]
+    },
+
+    network: {
+      label: 'Network Survey',
+      sections: [
+        {
+          title: 'ISP & Core',
+          items: [
+            { id: 'net-isp',      label: 'ISP modem / ONT location marked' },
+            { id: 'net-speed',    label: 'Internet speed confirmed with client', hint: 'Run speedtest if possible' },
+            { id: 'net-router',   label: 'Main router location decided' },
+            { id: 'net-panel',    label: 'Structured media center or closet identified' },
+            { id: 'net-coax',     label: 'Existing coax or Ethernet runs noted' },
+          ]
+        },
+        {
+          title: 'Wired Drops',
+          items: [
+            { id: 'net-drops',    label: 'Rooms needing Ethernet drops listed' },
+            { id: 'net-routing',  label: 'Cable routing path planned per room', hint: 'Attic / crawl space / walls' },
+            { id: 'net-switch',   label: 'Switch location and rack space confirmed' },
+            { id: 'net-poe',      label: 'PoE switch needed (for cameras, APs, VoIP)' },
+          ]
+        },
+        {
+          title: 'Wireless Coverage',
+          items: [
+            { id: 'net-dead',     label: 'Dead zones identified and walked', hint: 'Garage, backyard, basement' },
+            { id: 'net-aps',      label: 'Number of access points determined' },
+            { id: 'net-apmount',  label: 'AP mounting locations confirmed', hint: 'Ceiling mount preferred' },
+            { id: 'net-backhaul', label: 'Wired backhaul to each AP possible' },
+          ]
+        },
+        {
+          title: 'Protection & Finish',
+          items: [
+            { id: 'net-ups',      label: 'UPS / battery backup for router + modem' },
+            { id: 'net-surge',    label: 'Surge protection at main panel location' },
+            { id: 'net-label',    label: 'Labeling plan for all drops and ports' },
+            { id: 'net-photos',   label: 'Photos taken of key infrastructure locations' },
+          ]
+        }
+      ]
+    },
+
+    av: {
+      label: 'AV Survey',
+      sections: [
+        {
+          title: 'Displays & Mounting',
+          items: [
+            { id: 'av-tvloc',     label: 'TV / display locations confirmed' },
+            { id: 'av-tvsize',    label: 'TV sizes agreed — wall space measured' },
+            { id: 'av-walltype',  label: 'Wall type at each mount', hint: 'Drywall / concrete / brick / tile / fireplace' },
+            { id: 'av-studs',     label: 'Stud locations found — blocking needed?' },
+            { id: 'av-height',    label: 'Viewing height and angle confirmed with client' },
+            { id: 'av-outlet',    label: 'Power outlet behind or near each TV' },
+          ]
+        },
+        {
+          title: 'Audio',
+          items: [
+            { id: 'av-soundbar',  label: 'Soundbar location and clearance confirmed' },
+            { id: 'av-speakers',  label: 'In-ceiling / in-wall speaker positions marked' },
+            { id: 'av-amp',       label: 'Receiver / amplifier location decided' },
+            { id: 'av-subwoofer', label: 'Subwoofer placement confirmed' },
+            { id: 'av-zones',     label: 'Multi-zone audio areas noted', hint: 'Patio, kitchen, bedroom' },
+          ]
+        },
+        {
+          title: 'Sources & Cabling',
+          items: [
+            { id: 'av-sources',   label: 'HDMI sources listed', hint: 'Cable box, Apple TV, gaming console, PC' },
+            { id: 'av-inwall',    label: 'In-wall cable routing possible', hint: 'HDMI, power, speaker wire' },
+            { id: 'av-raceway',   label: 'Surface raceway acceptable where in-wall not possible' },
+            { id: 'av-hdmirun',   label: 'HDMI run length noted', hint: 'Over 25 ft may need active cable or extender' },
+          ]
+        },
+        {
+          title: 'Control & Finish',
+          items: [
+            { id: 'av-rack',      label: 'Equipment rack / closet location confirmed' },
+            { id: 'av-remote',    label: 'Universal remote or smart home control decided' },
+            { id: 'av-existing',  label: 'Existing equipment inventoried', hint: 'What stays, what gets replaced' },
+            { id: 'av-photos',    label: 'Photos taken of all TV walls and equipment areas' },
+          ]
+        }
+      ]
+    }
+  };
+
+  /* ── State ───────────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'rav_walkthrough_v1';
+  var state = load();
+  var currentType = state.type || 'cameras';
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+  }
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  /* ── Auth ────────────────────────────────────────────────────────────── */
+  var loginScreen = document.getElementById('loginScreen');
+  var mainScreen  = document.getElementById('mainScreen');
+  var bottomBar   = document.getElementById('bottomBar');
+  var ALLOWED     = ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'];
+
+  function showMain() {
+    loginScreen.style.display = 'none';
+    mainScreen.style.display = 'block';
+    bottomBar.style.display = 'flex';
+    init();
+  }
+  function showLogin() {
+    loginScreen.style.display = 'flex';
+    mainScreen.style.display = 'none';
+    bottomBar.style.display = 'none';
+  }
+  function checkAccess() {
+    var user = netlifyIdentity.currentUser();
+    if (!user) { showLogin(); return; }
+    if (ALLOWED.indexOf(user.email) === -1) {
+      netlifyIdentity.logout();
+      showLogin();
+      return;
+    }
+    showMain();
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', function () { netlifyIdentity.open(); });
+  document.getElementById('logoutBtn').addEventListener('click', function () { netlifyIdentity.logout(); });
+  netlifyIdentity.on('login', function () { netlifyIdentity.close(); checkAccess(); });
+  netlifyIdentity.on('logout', showLogin);
+  netlifyIdentity.on('init', function (u) { if (u) checkAccess(); else showLogin(); });
+
+  /* ── Build UI ────────────────────────────────────────────────────────── */
+  function init() {
+    buildPanels();
+    bindTabs();
+    bindJobFields();
+    bindActions();
+    restoreJobFields();
+    switchType(currentType);
+  }
+
+  function buildPanels() {
+    var container = document.getElementById('panels');
+    container.innerHTML = '';
+    Object.keys(CHECKLISTS).forEach(function (type) {
+      var cl = CHECKLISTS[type];
+      var panel = document.createElement('div');
+      panel.className = 'section-panel';
+      panel.dataset.type = type;
+      panel.style.display = 'none';
+
+      cl.sections.forEach(function (sec) {
+        var secEl = document.createElement('div');
+        secEl.className = 'sections';
+        var headEl = document.createElement('div');
+        headEl.className = 'section';
+        headEl.innerHTML = '<div class="section-head">' + sec.title + '</div>';
+
+        sec.items.forEach(function (item) {
+          var done = !!(state.checks && state.checks[item.id]);
+          var div = document.createElement('div');
+          div.className = 'check-item' + (done ? ' done' : '');
+          div.dataset.id = item.id;
+          div.innerHTML =
+            '<div class="checkbox">' +
+              '<svg width="12" height="9" viewBox="0 0 12 9" fill="none">' +
+                '<path d="M1 4L4.5 7.5L11 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+              '</svg>' +
+            '</div>' +
+            '<div class="check-text">' +
+              '<div class="check-label">' + item.label + '</div>' +
+              (item.hint ? '<div class="check-sub">' + item.hint + '</div>' : '') +
+            '</div>';
+          div.addEventListener('click', function () { toggle(type, item.id, div); });
+          headEl.appendChild(div);
+        });
+
+        secEl.appendChild(headEl);
+        panel.appendChild(secEl);
+      });
+
+      container.appendChild(panel);
+    });
+  }
+
+  function toggle(type, id, el) {
+    if (!state.checks) state.checks = {};
+    var isDone = !!state.checks[id];
+    state.checks[id] = !isDone;
+    el.classList.toggle('done', !isDone);
+    save();
+    updateProgress(type);
+    updateTabCount(type);
+  }
+
+  /* ── Tabs ────────────────────────────────────────────────────────────── */
+  function bindTabs() {
+    document.querySelectorAll('.type-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        switchType(btn.dataset.type);
+      });
+    });
+  }
+
+  function switchType(type) {
+    currentType = type;
+    state.type = type;
+    save();
+
+    document.querySelectorAll('.type-tab').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.type === type);
+    });
+    document.querySelectorAll('.section-panel').forEach(function (p) {
+      p.style.display = p.dataset.type === type ? 'block' : 'none';
+    });
+
+    document.getElementById('progressLabel').textContent = CHECKLISTS[type].label;
+    updateProgress(type);
+    Object.keys(CHECKLISTS).forEach(updateTabCount);
+  }
+
+  function updateProgress(type) {
+    var cl = CHECKLISTS[type];
+    var total = 0, done = 0;
+    cl.sections.forEach(function (s) {
+      s.items.forEach(function (item) {
+        total++;
+        if (state.checks && state.checks[item.id]) done++;
+      });
+    });
+    var pct = total ? Math.round(done / total * 100) : 0;
+    document.getElementById('progressPct').textContent = done + ' / ' + total;
+    var fill = document.getElementById('progressFill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('complete', pct === 100);
+  }
+
+  function updateTabCount(type) {
+    var cl = CHECKLISTS[type];
+    var done = 0, total = 0;
+    cl.sections.forEach(function (s) {
+      s.items.forEach(function (item) {
+        total++;
+        if (state.checks && state.checks[item.id]) done++;
+      });
+    });
+    var countEl = document.getElementById('count-' + type);
+    countEl.textContent = done + '/' + total;
+    var tab = document.querySelector('.type-tab[data-type="' + type + '"]');
+    tab.classList.toggle('has-progress', done > 0);
+  }
+
+  /* ── Job fields ──────────────────────────────────────────────────────── */
+  function bindJobFields() {
+    var cn = document.getElementById('clientName');
+    var ja = document.getElementById('jobAddress');
+    cn.addEventListener('input', function () { state.clientName = cn.value; save(); });
+    ja.addEventListener('input', function () { state.jobAddress = ja.value; save(); });
+  }
+  function restoreJobFields() {
+    if (state.clientName) document.getElementById('clientName').value = state.clientName;
+    if (state.jobAddress) document.getElementById('jobAddress').value = state.jobAddress;
+    if (state.notes) document.getElementById('jobNotes').value = state.notes;
+  }
+
+  /* ── Actions ─────────────────────────────────────────────────────────── */
+  function bindActions() {
+    document.getElementById('clearBtn').addEventListener('click', function () {
+      if (!confirm('Clear all checkboxes and reset? This cannot be undone.')) return;
+      state = { type: currentType };
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById('clientName').value = '';
+      document.getElementById('jobAddress').value = '';
+      document.getElementById('jobNotes').value = '';
+      buildPanels();
+      switchType(currentType);
+    });
+    document.getElementById('jobNotes').addEventListener('input', function () {
+      state.notes = document.getElementById('jobNotes').value;
+      save();
+    });
+    document.getElementById('printBtn').addEventListener('click', function () {
+      window.print();
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
