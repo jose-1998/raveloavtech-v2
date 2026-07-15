@@ -365,6 +365,45 @@
     .save-feedback.ok  { color: #6ee7b7; border-color: rgba(110,231,183,0.3); }
     .save-feedback.err { color: var(--red); border-color: rgba(224,112,112,0.3); }
 
+    /* ── History view ── */
+    #historyPanel { display: none; padding: 0 16px 20px; max-width: 640px; margin: 0 auto; }
+    .hist-empty { text-align: center; color: var(--text-dim); font-size: 14px; padding: 60px 0; }
+    .hist-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hist-card:hover { border-color: rgba(130,160,204,0.35); background: rgba(130,160,204,0.05); }
+    .hist-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .hist-type-icon { font-size: 18px; flex-shrink: 0; }
+    .hist-client { font-size: 15px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-date { font-size: 11px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
+    .hist-address { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; padding-left: 28px; }
+    .hist-meta { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 28px; }
+    .hist-tag {
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      background: rgba(130,160,204,0.1); border-radius: 20px; color: var(--blue);
+    }
+    .hist-tag.green { background: rgba(52,199,89,0.1); color: var(--green); }
+    .hist-expand { font-size: 11px; color: var(--text-dim); margin-top: 8px; padding-left: 28px; }
+    .hist-detail { display: none; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .hist-detail.open { display: block; }
+    .hist-sec-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--blue); margin: 10px 0 4px;
+    }
+    .hist-check { font-size: 13px; color: rgba(255,255,255,0.75); padding: 2px 0; }
+    .hist-notes { font-size: 13px; color: var(--text-dim); white-space: pre-wrap; line-height: 1.5; }
+    .hist-btn {
+      background: none; border: 1px solid transparent; color: var(--text-dim);
+      font-size: 12px; font-family: inherit; padding: 5px 10px;
+      border-radius: 5px; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .hist-btn:hover { color: var(--text); border-color: var(--border); }
+    .hist-btn.active { color: var(--blue); border-color: rgba(130,160,204,0.25); background: rgba(130,160,204,0.07); }
+
     /* ── Print styles ── */
     @media print {
       .topbar, .bottom-bar, .type-tabs, .job-fields .clear-btn { display: none !important; }
@@ -407,9 +446,11 @@
       <a class="topbar-link" href="/admin/estimates.html">Estimates</a>
       <a class="topbar-link active" href="/admin/walkthrough.html">Walkthrough</a>
     </nav>
+    <button class="hist-btn" id="historyBtn">📋 History</button>
     <button class="topbar-logout" id="logoutBtn">Sign Out</button>
   </div>
 
+  <div id="checklistView">
   <!-- Job info -->
   <div class="job-header">
     <div class="job-fields">
@@ -455,6 +496,11 @@
     <label class="notes-label" for="jobNotes">Field Notes</label>
     <textarea class="notes-input" id="jobNotes" placeholder="Measurements, obstacles, client requests, photos needed…"></textarea>
   </div>
+
+  </div><!-- /#checklistView -->
+
+  <!-- History panel -->
+  <div id="historyPanel"></div>
 
 </div>
 
@@ -976,6 +1022,115 @@
         showFeedback('❌ ' + err.message, 'err');
       });
     });
+  }
+
+  /* ── History ─────────────────────────────────────────────────────────── */
+  var historyBtn   = document.getElementById('historyBtn');
+  var historyPanel = document.getElementById('historyPanel');
+  var checklistView = document.getElementById('checklistView');
+
+  var TYPE_ICONS_H  = { cameras: '📷', network: '🌐', av: '📺' };
+  var TYPE_LABELS_H = { cameras: 'Security Cameras', network: 'Network', av: 'Audio / Visual' };
+
+  function showHistoryView() {
+    historyBtn.classList.add('active');
+    checklistView.style.display = 'none';
+    document.getElementById('bottomBar').style.display = 'none';
+    historyPanel.style.display = 'block';
+    loadHistory();
+  }
+
+  function showChecklistView() {
+    historyBtn.classList.remove('active');
+    checklistView.style.display = '';
+    document.getElementById('bottomBar').style.display = 'flex';
+    historyPanel.style.display = 'none';
+  }
+
+  historyBtn.addEventListener('click', function () {
+    if (historyPanel.style.display === 'block') {
+      showChecklistView();
+    } else {
+      showHistoryView();
+    }
+  });
+
+  function loadHistory() {
+    historyPanel.innerHTML = '<p class="hist-empty">Loading…</p>';
+    var user = netlifyIdentity.currentUser();
+    if (!user) { historyPanel.innerHTML = '<p class="hist-empty">Not signed in.</p>'; return; }
+    user.jwt().then(function (token) {
+      return fetch('/.netlify/functions/get-walkthroughs', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+    }).then(function (r) { return r.json(); })
+    .then(function (records) {
+      if (!records.length) {
+        historyPanel.innerHTML = '<p class="hist-empty">No walkthroughs saved yet.</p>';
+        return;
+      }
+      historyPanel.innerHTML = records.map(buildHistCard).join('');
+      historyPanel.querySelectorAll('.hist-card').forEach(function (card) {
+        card.addEventListener('click', function () {
+          var det = card.querySelector('.hist-detail');
+          if (det) det.classList.toggle('open');
+        });
+      });
+    }).catch(function (err) {
+      historyPanel.innerHTML = '<p class="hist-empty" style="color:var(--red)">Error: ' + err.message + '</p>';
+    });
+  }
+
+  function buildHistCard(r) {
+    var icon      = TYPE_ICONS_H[r.type]  || '🔧';
+    var typeLabel = TYPE_LABELS_H[r.type] || r.type || 'Unknown';
+    var client    = r.clientName || 'Unknown client';
+    var addr      = r.jobAddress || '';
+    var checked   = Object.values(r.checks || {}).filter(Boolean).length;
+    var photos    = r.photoCount || 0;
+
+    // Friendly date from savedAt or key timestamp
+    var date = r.savedAt || '';
+    if (!date && r.key) {
+      var ts = parseInt(r.key.replace('walkthrough-', ''), 10);
+      if (!isNaN(ts)) date = new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+    }
+
+    // Build checked-items detail
+    var cl = CHECKLISTS[r.type];
+    var detailHtml = '';
+    if (cl) {
+      cl.sections.forEach(function (sec) {
+        var fieldRows = sec.items.filter(function (i) { return i.type === 'field' && r.fields && r.fields[i.id]; });
+        var checkRows = sec.items.filter(function (i) { return i.type !== 'field' && r.checks && r.checks[i.id]; });
+        if (!fieldRows.length && !checkRows.length) return;
+        detailHtml += '<div class="hist-sec-title">' + sec.title + '</div>';
+        fieldRows.forEach(function (i) {
+          detailHtml += '<div class="hist-check">📝 ' + i.label + ': <strong>' + r.fields[i.id] + '</strong></div>';
+        });
+        checkRows.forEach(function (i) {
+          detailHtml += '<div class="hist-check">✅ ' + i.label + '</div>';
+        });
+      });
+    }
+    if (r.notes) {
+      detailHtml += '<div class="hist-sec-title">Field Notes</div><div class="hist-notes">' + r.notes + '</div>';
+    }
+
+    return '<div class="hist-card">' +
+      '<div class="hist-card-top">' +
+        '<span class="hist-type-icon">' + icon + '</span>' +
+        '<span class="hist-client">' + client + '</span>' +
+        '<span class="hist-date">' + date + '</span>' +
+      '</div>' +
+      (addr ? '<div class="hist-address">📍 ' + addr + '</div>' : '') +
+      '<div class="hist-meta">' +
+        '<span class="hist-tag">' + typeLabel + '</span>' +
+        (checked ? '<span class="hist-tag green">✅ ' + checked + ' checked</span>' : '') +
+        (photos  ? '<span class="hist-tag">📷 ' + photos + ' photos</span>' : '') +
+      '</div>' +
+      (detailHtml ? '<div class="hist-expand">Tap to expand</div><div class="hist-detail">' + detailHtml + '</div>' : '') +
+    '</div>';
   }
 
 })();
