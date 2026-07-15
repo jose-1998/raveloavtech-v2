@@ -187,6 +187,34 @@
       background: rgba(130,160,204,0.12);
     }
 
+    /* ── Field item (number/text input inside checklist) ── */
+    .field-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px;
+      background: var(--check-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+    .field-item-label {
+      font-size: 14px; font-weight: 500; color: var(--text); flex: 1;
+    }
+    .field-item-input {
+      width: 72px; padding: 7px 10px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(130,160,204,0.3);
+      border-radius: 7px;
+      color: var(--text); font-family: inherit;
+      font-size: 15px; font-weight: 700; text-align: center;
+      outline: none; -webkit-appearance: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .field-item-input:focus {
+      border-color: rgba(91,141,238,0.6);
+      background: rgba(255,255,255,0.12);
+    }
+    .field-item-input::placeholder { color: var(--text-dim); font-weight: 400; font-size: 13px; }
+
     /* ── Check items ── */
     .check-item {
       display: flex; align-items: flex-start; gap: 12px;
@@ -388,7 +416,7 @@
         {
           title: 'Camera Locations',
           items: [
-            { id: 'cam-count',    label: 'Total number of cameras confirmed with client' },
+            { id: 'cam-num',      type: 'field', label: 'Number of cameras', placeholder: '0', inputType: 'number' },
             { id: 'cam-indoor',   label: 'Indoor camera positions marked', hint: 'Corners, hallways, entry points' },
             { id: 'cam-outdoor',  label: 'Outdoor camera positions marked', hint: 'Driveways, doors, perimeter' },
             { id: 'cam-fov',      label: 'Field of view verified at each location' },
@@ -398,6 +426,8 @@
         {
           title: 'Mounting & Cabling',
           items: [
+            { id: 'cam-attic',    label: 'Attic access available', hint: 'Can route cable through ceiling / top of walls' },
+            { id: 'cam-crawl',    label: 'Crawl space accessible', hint: 'Can route cable under floor / bottom of walls' },
             { id: 'cam-surface',  label: 'Mounting surface identified at each point', hint: 'Drywall / wood / brick / soffit / ceiling' },
             { id: 'cam-power',    label: 'Power outlet accessible near each camera (PoE or plug-in)' },
             { id: 'cam-routing',  label: 'Cable routing path mapped from camera to NVR' },
@@ -590,6 +620,26 @@
         headEl.innerHTML = '<div class="section-head">' + sec.title + '</div>';
 
         sec.items.forEach(function (item) {
+          if (item.type === 'field') {
+            var fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-item';
+            var savedVal = (state.fields && state.fields[item.id]) || '';
+            fieldDiv.innerHTML =
+              '<div class="field-item-label">' + item.label + '</div>' +
+              '<input class="field-item-input" type="' + (item.inputType || 'text') + '" ' +
+                'placeholder="' + (item.placeholder || '') + '" ' +
+                'value="' + savedVal + '" min="0" />';
+            var inp = fieldDiv.querySelector('input');
+            inp.addEventListener('input', function () {
+              if (!state.fields) state.fields = {};
+              state.fields[item.id] = inp.value;
+              save();
+            });
+            inp.addEventListener('click', function (e) { e.stopPropagation(); });
+            headEl.appendChild(fieldDiv);
+            return;
+          }
+
           var done = !!(state.checks && state.checks[item.id]);
           var div = document.createElement('div');
           div.className = 'check-item' + (done ? ' done' : '');
