@@ -146,13 +146,17 @@ exports.handler = async function (event) {
   // Build email with photos as attachments
   const RESEND_KEY = process.env.RESEND_API_KEY;
   if (RESEND_KEY) {
-    const html    = buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photoCount: photos.length });
+    const html    = buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photos });
     const subject = `${typeIcon} Walkthrough — ${clientName || 'Unknown client'}${jobAddress ? ' · ' + jobAddress : ''}`;
 
     // Convert base64 data URLs to Resend attachment format
-    const attachments = photos.map(function (p, i) {
-      const base64 = p.data.replace(/^data:image\/\w+;base64,/, '');
-      return { filename: `photo-${i + 1}.jpg`, content: base64 };
+    // photos is [{data, section}, ...] keyed by section
+    const sectionCounters = {};
+    const attachments = photos.map(function (p) {
+      const sec = (p.section || 'photo').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+      sectionCounters[sec] = (sectionCounters[sec] || 0) + 1;
+      const base64 = (p.data || p).replace(/^data:image\/\w+;base64,/, '');
+      return { filename: `${sec}-${sectionCounters[sec]}.jpg`, content: base64 };
     });
 
     const payload = { from: FROM, to: TO, subject, html };
@@ -173,7 +177,11 @@ exports.handler = async function (event) {
   };
 };
 
-function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photoCount }) {
+function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photos = [] }) {
+  const photoCount = photos.length;
+  // Build section → count map for display
+  const photosBySec = {};
+  photos.forEach(function (p) { const s = p.section || 'General'; photosBySec[s] = (photosBySec[s] || 0) + 1; });
   const cl = CHECKLISTS[type];
   if (!cl) return '<p>Unknown job type</p>';
 
@@ -239,9 +247,10 @@ function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, che
 
     ${photoCount ? `
     <div style="margin-top:20px;padding:14px 18px;background:#f0f9f4;border-left:3px solid #34c759;border-radius:3px;">
-      <p style="margin:0;font-size:13px;color:#1a7a3a;font-weight:600;">
-        📷 ${photoCount} photo${photoCount > 1 ? 's' : ''} attached to this email
+      <p style="margin:0 0 6px;font-size:13px;color:#1a7a3a;font-weight:700;">
+        📷 ${photoCount} photo${photoCount > 1 ? 's' : ''} attached
       </p>
+      ${Object.keys(photosBySec).map(s => `<p style="margin:2px 0;font-size:12px;color:#2a6a3a;">· ${s} — ${photosBySec[s]}</p>`).join('')}
     </div>` : ''}
   </div>
 

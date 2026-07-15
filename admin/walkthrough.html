@@ -289,65 +289,45 @@
     .notes-input::placeholder { color: var(--text-dim); }
     .notes-input:focus { border-color: rgba(130,160,204,0.45); background: rgba(255,255,255,0.08); }
 
-    /* ── Photos section ── */
-    .photos-wrap {
-      padding: 0 16px 4px;
-      max-width: 640px; margin: 0 auto;
+    /* ── Section photos (inline, compact row) ── */
+    .sec-photos {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 0 4px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
-    .photos-head {
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--blue); margin-bottom: 10px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .photos-head::after {
-      content: ''; flex: 1; height: 1px;
-      background: rgba(130,160,204,0.12); margin-left: 10px;
-    }
-    .photos-count {
-      font-size: 10px; color: var(--text-dim);
-      font-weight: 500; text-transform: none; letter-spacing: 0;
-    }
-    .photos-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .photo-thumb {
-      position: relative;
-      aspect-ratio: 1;
-      border-radius: 8px;
-      overflow: hidden;
-      background: rgba(255,255,255,0.05);
+    .sec-photos::-webkit-scrollbar { display: none; }
+    .sec-photo-thumb {
+      flex-shrink: 0; position: relative;
+      width: 62px; height: 62px;
+      border-radius: 8px; overflow: hidden;
       border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
     }
-    .photo-thumb img {
-      width: 100%; height: 100%;
-      object-fit: cover; display: block;
+    .sec-photo-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
     }
-    .photo-delete {
-      position: absolute; top: 4px; right: 4px;
-      width: 22px; height: 22px;
-      background: rgba(0,0,0,0.65);
-      border: none; border-radius: 50%;
-      color: #fff; font-size: 12px;
-      cursor: pointer; display: flex;
-      align-items: center; justify-content: center;
-      line-height: 1;
+    .sec-photo-del {
+      position: absolute; top: 3px; right: 3px;
+      width: 18px; height: 18px;
+      background: rgba(0,0,0,0.7); border: none; border-radius: 50%;
+      color: #fff; font-size: 10px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1; padding: 0;
     }
-    .photo-add-btn {
-      aspect-ratio: 1;
+    .sec-photo-add {
+      flex-shrink: 0;
+      width: 62px; height: 62px;
       border-radius: 8px;
       border: 1.5px dashed rgba(130,160,204,0.3);
       background: rgba(130,160,204,0.05);
-      color: var(--blue); font-size: 26px;
+      color: var(--blue); font-size: 22px;
       cursor: pointer; display: flex;
       align-items: center; justify-content: center;
       transition: background 0.15s, border-color 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .photo-add-btn:hover { background: rgba(130,160,204,0.1); border-color: rgba(130,160,204,0.5); }
+    .sec-photo-add:hover { background: rgba(130,160,204,0.12); border-color: rgba(130,160,204,0.5); }
 
     /* ── Bottom actions ── */
     .bottom-bar {
@@ -690,13 +670,14 @@
     var files = Array.from(photoInput.files);
     photoInput.value = '';
     if (!files.length || !activePhotoType) return;
+    var secKey = activePhotoType;
     files.forEach(function (file) {
       compressPhoto(file, function (dataUrl) {
         if (!state.photos) state.photos = {};
-        if (!state.photos[activePhotoType]) state.photos[activePhotoType] = [];
-        state.photos[activePhotoType].push({ data: dataUrl, ts: Date.now() });
+        if (!state.photos[secKey]) state.photos[secKey] = [];
+        state.photos[secKey].push({ data: dataUrl, ts: Date.now() });
         save();
-        renderPhotos(activePhotoType);
+        renderPhotos(secKey);
       });
     });
   });
@@ -718,40 +699,36 @@
     img.src = url;
   }
 
-  function renderPhotos(type) {
-    var wrap = document.querySelector('.photos-wrap[data-type="' + type + '"]');
-    if (!wrap) return;
-    var grid    = wrap.querySelector('.photos-grid');
-    var countEl = wrap.querySelector('.photos-count');
-    var photos  = (state.photos && state.photos[type]) || [];
-    countEl.textContent = photos.length ? photos.length + ' photo' + (photos.length > 1 ? 's' : '') : '';
+  function renderPhotos(secKey) {
+    var row    = document.querySelector('.sec-photos[data-seckey="' + secKey + '"]');
+    if (!row) return;
+    var photos = (state.photos && state.photos[secKey]) || [];
 
-    grid.innerHTML = '';
+    row.innerHTML = '';
     photos.forEach(function (p, idx) {
       var thumb = document.createElement('div');
-      thumb.className = 'photo-thumb';
+      thumb.className = 'sec-photo-thumb';
       thumb.innerHTML =
-        '<img src="' + p.data + '" alt="Photo ' + (idx+1) + '" />' +
-        '<button class="photo-delete" data-idx="' + idx + '" title="Remove">✕</button>';
-      thumb.querySelector('.photo-delete').addEventListener('click', function (e) {
+        '<img src="' + p.data + '" alt="Photo ' + (idx + 1) + '" />' +
+        '<button class="sec-photo-del" title="Remove">✕</button>';
+      thumb.querySelector('.sec-photo-del').addEventListener('click', function (e) {
         e.stopPropagation();
-        state.photos[type].splice(idx, 1);
+        state.photos[secKey].splice(idx, 1);
         save();
-        renderPhotos(type);
+        renderPhotos(secKey);
       });
-      grid.appendChild(thumb);
+      row.appendChild(thumb);
     });
 
-    // Add button
     var addBtn = document.createElement('button');
-    addBtn.className = 'photo-add-btn';
+    addBtn.className = 'sec-photo-add';
     addBtn.innerHTML = '📷';
-    addBtn.title = 'Take or add photo';
+    addBtn.title = 'Add photo';
     addBtn.addEventListener('click', function () {
-      activePhotoType = type;
+      activePhotoType = secKey;
       photoInput.click();
     });
-    grid.appendChild(addBtn);
+    row.appendChild(addBtn);
   }
 
   function buildPanels() {
@@ -810,18 +787,18 @@
           headEl.appendChild(div);
         });
 
+        // Photo row at bottom of each section
+        var secKey  = type + '-' + sec.title.replace(/\s+/g, '_');
+        var photoRow = document.createElement('div');
+        photoRow.className = 'sec-photos';
+        photoRow.dataset.seckey = secKey;
+        headEl.appendChild(photoRow);
+        // render after DOM insertion so querySelector works
+        setTimeout(function (k) { return function () { renderPhotos(k); }; }(secKey), 0);
+
         secEl.appendChild(headEl);
         panel.appendChild(secEl);
       });
-
-      // Photos section at bottom of each panel
-      var photoWrap = document.createElement('div');
-      photoWrap.className = 'photos-wrap';
-      photoWrap.dataset.type = type;
-      photoWrap.innerHTML =
-        '<div class="photos-head">Photos <span class="photos-count"></span></div>' +
-        '<div class="photos-grid"></div>';
-      panel.appendChild(photoWrap);
 
       container.appendChild(panel);
     });
@@ -861,7 +838,6 @@
     document.getElementById('progressLabel').textContent = CHECKLISTS[type].label;
     updateProgress(type);
     Object.keys(CHECKLISTS).forEach(updateTabCount);
-    renderPhotos(type);
   }
 
   function updateProgress(type) {
@@ -964,7 +940,18 @@
             checks:     state.checks || {},
             fields:     state.fields || {},
             notes:      state.notes  || '',
-            photos:     (state.photos && state.photos[state.type || currentType]) || [],
+            photos:     (function () {
+              var t = state.type || currentType;
+              var cl = CHECKLISTS[t];
+              if (!cl || !state.photos) return [];
+              var all = [];
+              cl.sections.forEach(function (sec) {
+                var k = t + '-' + sec.title.replace(/\s+/g, '_');
+                var arr = state.photos[k] || [];
+                arr.forEach(function (p) { all.push({ data: p.data, section: sec.title }); });
+              });
+              return all;
+            }()),
           }),
         });
       }).then(function (r) {
