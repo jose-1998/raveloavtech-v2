@@ -22,7 +22,7 @@ exports.handler = async function (event, context) {
   }
 
   try {
-    const store = getStore({ name: 'walkthroughs', consistency: 'strong' });
+    const store = getStore({ name: 'walkthroughs', consistency: 'strong', siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_API_TOKEN });
     const { blobs } = await store.list();
 
     const records = await Promise.all(

@@ -142,7 +142,7 @@ exports.handler = async function (event) {
 
   // Save to Blobs as a record
   try {
-    const store = getStore({ name: 'walkthroughs', consistency: 'strong' });
+    const store = getStore({ name: 'walkthroughs', consistency: 'strong', siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_API_TOKEN });
     const key   = `walkthrough-${Date.now()}`;
     await store.setJSON(key, { clientName, jobAddress, type, checks, fields, item_notes, notes, photoCount: photos.length, savedAt });
   } catch (e) {
