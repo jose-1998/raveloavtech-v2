@@ -10,7 +10,7 @@ const CORS = {
 };
 
 const FROM = 'Ravelo AV Tech <support@raveloavtech.com>';
-const TO   = ['jose.rojas@raveloavtech.com', 'support@raveloavtech.com'];
+const TO   = ['jose.rojas@raveloavtech.com']; // 'support@raveloavtech.com' — add back when ready
 
 const TYPE_LABELS = { cameras: 'Security Cameras', network: 'Network', av: 'Audio / Visual' };
 const TYPE_ICONS  = { cameras: '📷', network: '🌐', av: '📺' };
