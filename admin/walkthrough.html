@@ -1014,6 +1014,14 @@
           saveBtn.textContent = '✅ Saved';
           saveBtn.classList.add('saved');
           showFeedback('✅ Saved — summary sent to the team', 'ok');
+          // Clear all fields after successful save
+          state = { type: currentType };
+          localStorage.removeItem(STORAGE_KEY);
+          document.getElementById('clientName').value = '';
+          document.getElementById('jobAddress').value = '';
+          document.getElementById('jobNotes').value = '';
+          buildPanels();
+          switchType(currentType);
           setTimeout(function () {
             saveBtn.textContent = '💾 Save & Send';
             saveBtn.classList.remove('saved');
