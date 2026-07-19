@@ -92,6 +92,10 @@ const CHECKLISTS = {
       { title: 'Audio', items: [
         { id: 'av-soundbar',  label: 'Soundbar location and clearance confirmed' },
         { id: 'av-speakers',  label: 'In-ceiling / in-wall speaker positions marked' },
+        { id: 'av-ceiling',   label: 'Ceiling type confirmed at each speaker location' },
+        { id: 'av-attic',     label: 'Attic access available for speaker wire routing' },
+        { id: 'av-spksurf',   label: 'Mounting surface confirmed at each speaker' },
+        { id: 'av-spksize',   type: 'field', label: 'Speaker size' },
         { id: 'av-amp',       label: 'Receiver / amplifier location decided' },
         { id: 'av-subwoofer', label: 'Subwoofer placement confirmed' },
         { id: 'av-zones',     label: 'Multi-zone audio areas noted' },
@@ -103,10 +107,12 @@ const CHECKLISTS = {
         { id: 'av-hdmirun',  label: 'HDMI run length noted' },
       ]},
       { title: 'Control & Finish', items: [
-        { id: 'av-rack',     label: 'Equipment rack / closet location confirmed' },
-        { id: 'av-remote',   label: 'Universal remote or smart home control decided' },
-        { id: 'av-existing', label: 'Existing equipment inventoried' },
-        { id: 'av-photos',   label: 'Photos taken of all TV walls and equipment areas' },
+        { id: 'av-rackloc',   type: 'field', label: 'Rack / closet location' },
+        { id: 'av-rackpower', label: 'Power available at rack / closet location' },
+        { id: 'av-rack',      label: 'Rack size and ventilation confirmed' },
+        { id: 'av-remote',    label: 'Universal remote or smart home control decided' },
+        { id: 'av-existing',  label: 'Existing equipment inventoried' },
+        { id: 'av-photos',    label: 'Photos taken of all TV walls and equipment areas' },
       ]},
     ]
   }

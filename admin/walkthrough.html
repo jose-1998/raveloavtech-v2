@@ -625,6 +625,10 @@
           items: [
             { id: 'av-soundbar',  label: 'Soundbar location and clearance confirmed' },
             { id: 'av-speakers',  label: 'In-ceiling / in-wall speaker positions marked' },
+            { id: 'av-ceiling',   label: 'Ceiling type confirmed at each speaker location', hint: 'Drywall / plaster / coffered / vaulted / drop ceiling' },
+            { id: 'av-attic',     label: 'Attic access available for speaker wire routing', hint: 'Can run wire above ceiling to amp / receiver' },
+            { id: 'av-spksurf',   label: 'Mounting surface confirmed at each speaker', hint: 'Drywall / wood backing / plaster — blocking needed?' },
+            { id: 'av-spksize',   type: 'field', label: 'Speaker size', placeholder: 'e.g. 6.5"', inputType: 'text' },
             { id: 'av-amp',       label: 'Receiver / amplifier location decided' },
             { id: 'av-subwoofer', label: 'Subwoofer placement confirmed' },
             { id: 'av-zones',     label: 'Multi-zone audio areas noted', hint: 'Patio, kitchen, bedroom' },
@@ -642,7 +646,9 @@
         {
           title: 'Control & Finish',
           items: [
-            { id: 'av-rack',      label: 'Equipment rack / closet location confirmed' },
+            { id: 'av-rackloc',   type: 'field', label: 'Rack / closet location', placeholder: 'e.g. Living room closet', inputType: 'text' },
+            { id: 'av-rackpower', label: 'Power available at rack / closet location' },
+            { id: 'av-rack',      label: 'Rack size and ventilation confirmed' },
             { id: 'av-remote',    label: 'Universal remote or smart home control decided' },
             { id: 'av-existing',  label: 'Existing equipment inventoried', hint: 'What stays, what gets replaced' },
             { id: 'av-photos',    label: 'Photos taken of all TV walls and equipment areas' },
