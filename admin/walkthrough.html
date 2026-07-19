@@ -267,6 +267,20 @@
       font-size: 11px; color: var(--text-dim);
       margin-top: 2px; line-height: 1.4;
     }
+    .item-note {
+      display: block; width: 100%; margin-top: 7px;
+      padding: 5px 8px;
+      background: transparent;
+      border: 1px dashed rgba(130,160,204,0.18);
+      border-radius: 6px;
+      color: var(--text); font-family: inherit; font-size: 12px;
+      outline: none; resize: none; overflow: hidden;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-appearance: none;
+    }
+    .item-note::placeholder { color: rgba(255,255,255,0.18); }
+    .item-note:focus { border-color: rgba(130,160,204,0.45); background: rgba(255,255,255,0.05); }
+    .item-note:not(:placeholder-shown) { border-color: rgba(130,160,204,0.3); }
 
     /* ── Notes area ── */
     .notes-wrap { padding: 0 16px 16px; max-width: 640px; margin: 0 auto; }
@@ -834,7 +848,20 @@
             '<div class="check-text">' +
               '<div class="check-label">' + item.label + '</div>' +
               (item.hint ? '<div class="check-sub">' + item.hint + '</div>' : '') +
+              '<textarea class="item-note" rows="1" placeholder="add a note…"></textarea>' +
             '</div>';
+          var noteEl = div.querySelector('.item-note');
+          // Restore saved note
+          if (state.item_notes && state.item_notes[item.id]) noteEl.value = state.item_notes[item.id];
+          // Auto-grow
+          noteEl.addEventListener('input', function () {
+            noteEl.style.height = 'auto';
+            noteEl.style.height = noteEl.scrollHeight + 'px';
+            if (!state.item_notes) state.item_notes = {};
+            state.item_notes[item.id] = noteEl.value;
+            save();
+          });
+          noteEl.addEventListener('click', function (e) { e.stopPropagation(); });
           div.addEventListener('click', function () { toggle(type, item.id, div); });
           headEl.appendChild(div);
         });
@@ -991,6 +1018,7 @@
             type:       state.type || currentType,
             checks:     state.checks || {},
             fields:     state.fields || {},
+            item_notes: state.item_notes || {},
             notes:      state.notes  || '',
             photos:     (function () {
               var t = state.type || currentType;

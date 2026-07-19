@@ -133,7 +133,7 @@ exports.handler = async function (event) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const { clientName, jobAddress, type, checks, fields, notes, photos = [] } = body;
+  const { clientName, jobAddress, type, checks, fields, item_notes = {}, notes, photos = [] } = body;
   const typeLabel = TYPE_LABELS[type] || type;
   const typeIcon  = TYPE_ICONS[type]  || '🔧';
   const savedAt   = new Date().toLocaleString('en-US', {
@@ -144,7 +144,7 @@ exports.handler = async function (event) {
   try {
     const store = getStore({ name: 'walkthroughs', consistency: 'strong' });
     const key   = `walkthrough-${Date.now()}`;
-    await store.setJSON(key, { clientName, jobAddress, type, checks, fields, notes, photoCount: photos.length, savedAt });
+    await store.setJSON(key, { clientName, jobAddress, type, checks, fields, item_notes, notes, photoCount: photos.length, savedAt });
   } catch (e) {
     console.warn('Blob save failed:', e.message);
   }
@@ -152,7 +152,7 @@ exports.handler = async function (event) {
   // Build email with photos as attachments
   const RESEND_KEY = process.env.RESEND_API_KEY;
   if (RESEND_KEY) {
-    const html    = buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photos });
+    const html    = buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, item_notes, notes, savedAt, photos });
     const subject = `${typeIcon} Walkthrough — ${clientName || 'Unknown client'}${jobAddress ? ' · ' + jobAddress : ''}`;
 
     // Convert base64 data URLs to Resend attachment format
@@ -183,7 +183,7 @@ exports.handler = async function (event) {
   };
 };
 
-function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, notes, savedAt, photos = [] }) {
+function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, checks, fields, item_notes = {}, notes, savedAt, photos = [] }) {
   const photoCount = photos.length;
   // Build section → count map for display
   const photosBySec = {};
@@ -202,9 +202,13 @@ function buildEmailHTML({ clientName, jobAddress, type, typeLabel, typeIcon, che
       }
       const done = checks && checks[item.id];
       if (!done) return '';
+      const itemNote = item_notes && item_notes[item.id] ? item_notes[item.id].trim() : '';
       return `<tr>
-        <td style="padding:5px 0;font-size:13px;padding-right:12px;">✅</td>
-        <td style="padding:5px 0;font-size:14px;color:#222;">${item.label}</td>
+        <td style="padding:5px 0;font-size:13px;padding-right:12px;vertical-align:top;">✅</td>
+        <td style="padding:5px 0;font-size:14px;color:#222;">
+          ${item.label}
+          ${itemNote ? `<div style="font-size:12px;color:#666;margin-top:2px;font-style:italic;">${itemNote}</div>` : ''}
+        </td>
       </tr>`;
     }).join('');
 
