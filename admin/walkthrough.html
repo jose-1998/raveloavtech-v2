@@ -1105,9 +1105,15 @@
       return fetch('/.netlify/functions/get-walkthroughs', {
         headers: { Authorization: 'Bearer ' + token }
       });
-    }).then(function (r) { return r.json(); })
-    .then(function (records) {
-      if (!records.length) {
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, data: d }; });
+    }).then(function (res) {
+      if (!res.ok) {
+        historyPanel.innerHTML = '<p class="hist-empty" style="color:var(--red)">Error ' + (res.data.error || 'loading history') + '</p>';
+        return;
+      }
+      var records = res.data;
+      if (!Array.isArray(records) || !records.length) {
         historyPanel.innerHTML = '<p class="hist-empty">No walkthroughs saved yet.</p>';
         return;
       }

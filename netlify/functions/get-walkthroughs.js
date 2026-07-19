@@ -9,14 +9,15 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-const ALLOWED = ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'];
+const SITE_URL = process.env.URL || 'https://raveloavtech.com';
 
 exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
   if (event.httpMethod !== 'GET')  return { statusCode: 405, headers: CORS, body: 'Method not allowed' };
 
-  const user = context.clientContext && context.clientContext.user;
-  if (!user || ALLOWED.indexOf(user.email) === -1) {
+  const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
+  const authed = await validateJWT(authHeader, SITE_URL);
+  if (!authed) {
     return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
@@ -48,3 +49,11 @@ exports.handler = async function (event, context) {
     return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
   }
 };
+
+async function validateJWT(authHeader, siteUrl) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
+  try {
+    const res = await fetch(`${siteUrl}/.netlify/identity/user`, { headers: { Authorization: authHeader } });
+    return res.ok;
+  } catch { return false; }
+}
