@@ -645,7 +645,7 @@
     <div class="topbar-divider"></div>
     <span class="topbar-label">Content Manager</span>
     <div class="topbar-badge">Admin</div>
-    <button class="topbar-publish" id="publishBtn" disabled>Publicar</button>
+    <button class="topbar-publish" id="publishBtn" disabled>Publish</button>
     <button class="topbar-logout" id="logoutBtn">Salir</button>
   </div>
 
@@ -676,7 +676,7 @@
 <div class="tip-bar" id="tipBar">
   <span>⚠️</span>
   <span>
-    <strong>✕</strong> elimina · <strong>⇄</strong> cambia categoría · <em>+ Agregar foto</em> sube una nueva imagen.
+    <strong>✕</strong> removes · <strong>⇄</strong> changes category · <em>+ Add photo</em> uploads a new image.
   </span>
   <button class="tip-close" id="tipClose" aria-label="Cerrar aviso">✕</button>
 </div>
@@ -687,14 +687,14 @@
 <!-- Loading overlay -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <span id="loadingMsg">Guardando…</span>
+  <span id="loadingMsg">Saving…</span>
 </div>
 
 <!-- Category picker sheet -->
 <div class="cat-overlay" id="catOverlay"></div>
 <div class="cat-sheet" id="catSheet">
   <div class="cat-sheet-handle"></div>
-  <div class="cat-sheet-title">Mover a categoría</div>
+  <div class="cat-sheet-title">Move to category</div>
   <div id="catOptions"></div>
 </div>
 
@@ -839,7 +839,7 @@
 
   // ── Load gallery ──────────────────────────────────────────────────────────
   function loadGallery() {
-    setLoading('Cargando galería…');
+    setLoading('Loading gallery…');
     gitGet('/contents/images.json').then(function (data) {
       var content = JSON.parse(decodeURIComponent(
         escape(atob(data.content.replace(/\n/g, '')))
@@ -849,7 +849,7 @@
       renderFolders();
     }).catch(function (err) {
       setLoading(null);
-      showToast('Error cargando galería', 'err');
+      showToast('Error loading gallery', 'err');
       console.error(err);
     });
   }
@@ -861,7 +861,7 @@
   };
 
   function saveGallery() {
-    setLoading('Guardando…');
+    setLoading('Saving…');
 
     // Step 1 — Save images.json (critical)
     return gitGet('/contents/images.json').then(function (data) {
@@ -914,10 +914,10 @@
 
     }).then(function () {
       setLoading(null);
-      showToast('✓ Publicado — el sitio se está actualizando', 'ok');
+      showToast('✓ Published — site is updating', 'ok');
     }).catch(function (err) {
       setLoading(null);
-      showToast('Error al publicar', 'err');
+      showToast('Error publishing', 'err');
       console.error(err);
       throw err;
     });
@@ -938,13 +938,13 @@
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
         canvas.toBlob(function (blob) {
-          if (!blob) { reject(new Error('No se pudo convertir la imagen')); return; }
+          if (!blob) { reject(new Error('Could not convert image')); return; }
           resolve(blob);
         }, 'image/jpeg', 0.85);
       };
       img.onerror = function () {
         URL.revokeObjectURL(url);
-        reject(new Error('No se pudo leer la imagen'));
+        reject(new Error('Could not read image'));
       };
       img.src = url;
     });
@@ -987,7 +987,7 @@
     // Validate all files first
     for (var i = 0; i < files.length; i++) {
       if (!files[i].type.startsWith('image/')) {
-        showToast('"' + files[i].name + '" no es una imagen válida', 'err');
+        showToast('"' + files[i].name + '" is not a valid image', 'err');
         return;
       }
       if (files[i].size > 30 * 1024 * 1024) {
@@ -1005,9 +1005,9 @@
         setLoading(null);
         renderFolders();
         markDirty();
-        var msg = (total - failed) + ' foto' + (total - failed !== 1 ? 's' : '') + ' agregada' + (total - failed !== 1 ? 's' : '');
-        if (failed > 0) msg += ' (' + failed + ' fallaron)';
-        showToast('✓ ' + msg + ' — toca Publicar para guardar', failed ? 'err' : 'ok');
+        var msg = (total - failed) + ' photo' + (total - failed !== 1 ? 's' : '') + ' added';
+        if (failed > 0) msg += ' (' + failed + ' failed)';
+        showToast('✓ ' + msg + ' — tap Publish to save', failed ? 'err' : 'ok');
         return;
       }
       setLoading('Subiendo ' + (idx + 1) + ' de ' + total + '…');
@@ -1071,7 +1071,7 @@
 
   // ── Delete photo ──────────────────────────────────────────────────────────
   function deletePhoto(url, category) {
-    if (!confirm('¿Eliminar esta foto?')) return;
+    if (!confirm('Delete this photo?')) return;
     gallery = gallery.filter(function (p) {
       return !(p.url === url && p.category === category);
     });
@@ -1138,7 +1138,7 @@
             img.style.display = 'none';
             var ph = document.createElement('div');
             ph.style.cssText = 'position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(224,112,112,0.7);font-size:11px;text-align:center;padding:8px;pointer-events:none;';
-            ph.innerHTML = '<span style="font-size:22px;">⚠️</span><span>Imagen no encontrada</span>';
+            ph.innerHTML = '<span style="font-size:22px;">⚠️</span><span>Image not found</span>';
             card.appendChild(ph);
           };
           card.appendChild(img);
@@ -1146,7 +1146,7 @@
           var move = document.createElement('button');
           move.className = 'photo-move';
           move.textContent = '⇄';
-          move.setAttribute('aria-label', 'Cambiar categoría');
+          move.setAttribute('aria-label', 'Change category');
           move.addEventListener('click', function (e) {
             e.stopPropagation();
             openCatSheet(photo.url, photo.category);
@@ -1156,7 +1156,7 @@
           var del = document.createElement('button');
           del.className = 'photo-delete';
           del.textContent = '✕';
-          del.setAttribute('aria-label', 'Eliminar foto');
+          del.setAttribute('aria-label', 'Delete photo');
           del.addEventListener('click', function (e) {
             e.stopPropagation();
             deletePhoto(photo.url, photo.category);
@@ -1173,7 +1173,7 @@
       addRow.className = 'add-row';
       var addBtn = document.createElement('button');
       addBtn.className = 'add-btn';
-      addBtn.textContent = '+ Agregar foto';
+      addBtn.textContent = '+ Add photo';
       addBtn.addEventListener('click', function () {
         pendingCategory = cat.key;
         fileInput.click();
