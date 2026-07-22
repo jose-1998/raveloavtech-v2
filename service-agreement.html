@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Service Agreement — Ravelo AV Tech</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:rgb(7,43,62);--blue:rgb(130,160,204);--green:#2a7a4b;--red:#c0392b;--bg:#f0f4f8;--font-body:Figtree,sans-serif;--font-head:Oswald,sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:62.5%}
+body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:3rem 1.5rem 6rem}
+
+/* Loading / error screen */
+#loading-screen,#error-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:1.5rem;text-align:center}
+#error-screen{display:none}
+.loading-spinner{width:4rem;height:4rem;border:3px solid rgba(7,43,62,.15);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:1.4rem;color:rgba(7,43,62,.5)}
+.error-icon{font-size:4rem}
+.error-title{font-family:var(--font-head);font-size:2.4rem;color:var(--navy);text-transform:uppercase}
+.error-msg{font-size:1.4rem;color:rgba(7,43,62,.55);max-width:34rem;line-height:1.6}
+
+#main-content{display:none}
+
+.top-bar{max-width:780px;margin:0 auto 2.5rem;display:flex;align-items:center;justify-content:space-between}
+.logo-text{font-family:var(--font-head);font-size:1.8rem;color:var(--navy);text-transform:uppercase;letter-spacing:.08em}
+.doc-badge{background:var(--navy);color:#fff;font-family:var(--font-head);font-size:1.2rem;padding:.5rem 1.4rem;letter-spacing:.1em;text-transform:uppercase}
+
+.card{max-width:780px;margin:0 auto;background:#fff;box-shadow:0 4px 40px rgba(7,43,62,.12);border-radius:4px;overflow:hidden}
+
+.progress-bar{display:flex;border-bottom:2px solid rgba(7,43,62,.08)}
+.progress-step{flex:1;padding:1.4rem .5rem;text-align:center;font-family:var(--font-head);font-size:1.1rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(7,43,62,.3);border-bottom:3px solid transparent;transition:all .3s}
+.progress-step.active{color:var(--navy);border-bottom-color:var(--navy)}
+.progress-step.done{color:var(--green);border-bottom-color:var(--green)}
+
+.section{display:none;padding:3.5rem 4rem}
+.section.active{display:block}
+.section-tag{font-family:var(--font-head);font-size:1.1rem;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);margin-bottom:.6rem}
+.section-title{font-family:var(--font-head);font-size:2.8rem;font-weight:500;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem;line-height:1.1}
+.section-sub{font-size:1.4rem;color:rgba(7,43,62,.5);margin-bottom:3rem}
+
+/* STEP 1 */
+.wo-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:2rem;border-bottom:2px solid var(--navy);margin-bottom:2.5rem}
+.wo-header h2{font-family:var(--font-head);font-size:2.6rem;color:var(--navy);text-transform:uppercase}
+.wo-header p{font-size:1.3rem;color:rgba(7,43,62,.5);margin-top:.3rem}
+.wo-num{text-align:right}
+.wo-num span{display:block;font-size:1.2rem;color:rgba(7,43,62,.45);text-transform:uppercase;letter-spacing:.08em}
+.wo-num strong{font-family:var(--font-head);font-size:2rem;color:var(--navy)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem;margin-bottom:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid rgba(7,43,62,.08)}
+.info-item label{display:block;font-size:1.1rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(7,43,62,.4);margin-bottom:.3rem}
+.info-item p{font-size:1.4rem;color:var(--navy);font-weight:600}
+.scope-title{font-family:var(--font-head);font-size:1.4rem;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2rem}
+.scope-list{list-style:none;margin-bottom:2.5rem}
+.scope-list li{display:flex;align-items:flex-start;gap:1rem;padding:1rem 0;border-bottom:1px solid rgba(7,43,62,.06);font-size:1.4rem;color:var(--navy)}
+.scope-list li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:.1rem}
+
+/* ALERTS */
+.alert{display:flex;gap:1.2rem;padding:1.5rem 1.8rem;border-radius:0 4px 4px 0;margin-bottom:1.5rem}
+.alert-warning{background:rgba(201,168,76,.1);border-left:3px solid #c9a84c}
+.alert-danger{background:rgba(192,57,43,.07);border-left:3px solid var(--red)}
+.alert-blue{background:rgba(130,160,204,.12);border-left:3px solid var(--blue)}
+.alert-icon{font-size:1.8rem;flex-shrink:0}
+.alert p{font-size:1.3rem;line-height:1.6;color:var(--navy)}
+.alert strong{font-weight:700}
+
+/* STEP 2 PHOTOS */
+.condition-cards{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2.5rem}
+.cond-card{border:1.5px solid rgba(7,43,62,.15);border-radius:6px;overflow:hidden;transition:border-color .2s}
+.cond-card.has-photo{border-color:var(--green)}
+.cond-card-header{background:var(--navy);padding:1rem 1.4rem;display:flex;align-items:center;gap:.8rem}
+.cond-card-header span{font-size:1.5rem}
+.cond-card-header h4{font-family:var(--font-head);font-size:1.3rem;color:#fff;text-transform:uppercase;letter-spacing:.06em}
+.cond-card-body{padding:1.4rem}
+.cond-card-body select{width:100%;border:1px solid rgba(7,43,62,.2);border-radius:3px;padding:.7rem 1rem;font-family:var(--font-body);font-size:1.3rem;color:var(--navy);background:#fff;margin-bottom:1.2rem;cursor:pointer}
+.photo-upload-area{border:2px dashed rgba(7,43,62,.2);border-radius:4px;padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:#fafbfc}
+.photo-upload-area:hover{border-color:var(--blue);background:rgba(130,160,204,.06)}
+.photo-upload-area.has-img{border-style:solid;border-color:var(--green);background:#fff;padding:.5rem}
+.photo-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-placeholder{pointer-events:none}
+.upload-placeholder .upload-icon{font-size:2.2rem;display:block;margin-bottom:.5rem}
+.upload-placeholder p{font-size:1.2rem;color:rgba(7,43,62,.5);line-height:1.4}
+.upload-placeholder strong{color:var(--navy);font-size:1.3rem}
+.photo-preview{width:100%;border-radius:3px;display:none;max-height:14rem;object-fit:cover}
+.photo-preview.show{display:block}
+.photo-status{font-size:1.1rem;margin-top:.6rem;font-weight:600;display:none}
+.photo-status.show{display:block}
+.photo-status.ok{color:var(--green)}
+.remove-photo{display:none;background:none;border:none;font-size:1.1rem;color:var(--red);cursor:pointer;margin-top:.4rem;font-family:var(--font-body)}
+.remove-photo.show{display:block}
+
+/* STEP 3 */
+.terms-box{background:rgba(7,43,62,.03);border:1px solid rgba(7,43,62,.08);border-radius:4px;padding:2rem 2.2rem;max-height:22rem;overflow-y:auto;margin-bottom:2rem;scrollbar-width:thin}
+.terms-box h4{font-family:var(--font-head);font-size:1.2rem;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;margin-top:1.5rem}
+.terms-box h4:first-child{margin-top:0}
+.terms-box p{font-size:1.3rem;line-height:1.7;color:rgba(7,43,62,.7)}
+.check-list{list-style:none;margin-bottom:2.5rem}
+.check-list li{display:flex;align-items:flex-start;gap:1rem;padding:.9rem 0;border-bottom:1px solid rgba(7,43,62,.06)}
+.check-list li:last-child{border-bottom:none}
+.check-list input[type=checkbox]{width:1.8rem;height:1.8rem;flex-shrink:0;margin-top:.1rem;accent-color:var(--navy);cursor:pointer}
+.check-list label{font-size:1.35rem;line-height:1.6;color:var(--navy);cursor:pointer}
+.sig-label{display:block;font-size:1.3rem;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.sig-input{width:100%;border:1.5px solid rgba(7,43,62,.2);border-radius:3px;padding:1.1rem 1.4rem;font-family:var(--font-body);font-size:1.5rem;color:var(--navy);outline:none;margin-bottom:1.8rem;transition:border-color .2s}
+.sig-input:focus{border-color:var(--blue)}
+.canvas-wrapper{border:1.5px solid rgba(7,43,62,.2);border-radius:3px;background:#fafbfc;position:relative;cursor:crosshair;margin-bottom:.5rem}
+.canvas-wrapper canvas{display:block;width:100%;height:13rem;touch-action:none}
+.canvas-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.3rem;color:rgba(7,43,62,.25);pointer-events:none;transition:opacity .2s;text-align:center}
+.canvas-clear{position:absolute;bottom:.8rem;right:1rem;font-size:1.2rem;color:rgba(7,43,62,.4);cursor:pointer;background:none;border:none;font-family:var(--font-body);transition:color .2s}
+.canvas-clear:hover{color:var(--navy)}
+.canvas-note{font-size:1.2rem;color:rgba(7,43,62,.4);margin-bottom:2rem}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:1rem;margin-top:1rem}
+.btn{flex:1;padding:1.5rem;font-family:var(--font-head);font-size:1.5rem;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:3px;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover:not(:disabled){background:rgba(7,43,62,.85);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--navy);flex:0 0 auto;padding:1.5rem 2.5rem}
+.btn-outline:hover{background:rgba(7,43,62,.06)}
+
+/* STEP 4 */
+.success-page{text-align:center;padding:5rem 4rem}
+.success-icon{font-size:5rem;margin-bottom:1.5rem}
+.success-page h2{font-family:var(--font-head);font-size:3rem;color:var(--navy);text-transform:uppercase;margin-bottom:1rem}
+.success-page p{font-size:1.5rem;color:rgba(7,43,62,.6);line-height:1.7;max-width:46rem;margin:0 auto 3rem}
+.summary-box{background:rgba(7,43,62,.04);border:1px solid rgba(7,43,62,.1);border-radius:4px;padding:2rem 2.5rem;text-align:left;margin-bottom:2.5rem}
+.summary-box h4{font-family:var(--font-head);font-size:1.3rem;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2rem}
+.summary-row{display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid rgba(7,43,62,.06);font-size:1.3rem}
+.summary-row:last-child{border-bottom:none}
+.summary-row span:first-child{color:rgba(7,43,62,.5)}
+.summary-row span:last-child{font-weight:600;color:var(--navy)}
+.photo-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1.5rem}
+.photo-summary-item{position:relative}
+.photo-summary-item img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:4px;display:block}
+.photo-summary-item .photo-label{position:absolute;bottom:0;left:0;right:0;background:rgba(7,43,62,.75);color:#fff;font-size:1.1rem;padding:.5rem .8rem;font-family:var(--font-head);text-transform:uppercase;letter-spacing:.05em}
+.photo-summary-item .photo-cond{position:absolute;top:.5rem;right:.5rem;background:var(--green);color:#fff;font-size:1rem;padding:.2rem .6rem;border-radius:2px;font-weight:600}
+.signed-sig{display:inline-block;font-family:'Brush Script MT',cursive;font-size:2.8rem;color:var(--navy);border-bottom:2px solid var(--navy);padding:0 1rem .5rem;margin-top:.5rem}
+
+@media(max-width:600px){
+  .section{padding:2.5rem 1.8rem}
+  .info-grid{grid-template-columns:1fr}
+  .wo-header{flex-direction:column;gap:1rem}
+  .condition-cards{grid-template-columns:1fr}
+  .btn-row{flex-direction:column}
+  .progress-step{font-size:.95rem;padding:1rem .3rem}
+  .photo-summary-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading-screen">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Loading your work order…</p>
+</div>
+
+<!-- Error -->
+<div id="error-screen">
+  <div class="error-icon">⚠️</div>
+  <h2 class="error-title">Work Order Not Found</h2>
+  <p class="error-msg" id="error-detail">We couldn't find this work order. Please contact Ravelo AV Tech for assistance.<br><br><strong>(615) 962-0401</strong></p>
+</div>
+
+<!-- Main content -->
+<div id="main-content">
+
+<div class="top-bar">
+  <div class="logo-text">Ravelo AV Tech</div>
+  <div class="doc-badge" id="badge-wo">Work Order</div>
+</div>
+
+<div class="card">
+  <div class="progress-bar">
+    <div class="progress-step active" id="step-1">1. Review Work</div>
+    <div class="progress-step" id="step-2">2. Photo Check</div>
+    <div class="progress-step" id="step-3">3. Sign</div>
+    <div class="progress-step" id="step-4">4. Done ✓</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="section active" id="sec-1">
+    <div class="section-tag">Step 1 of 3</div>
+    <h2 class="section-title">Review Your<br>Work Order</h2>
+    <p class="section-sub">Confirm the work to be performed before we begin</p>
+    <div class="wo-header">
+      <div><h2>Service Agreement</h2><p>Ravelo AV Technologies LLC</p></div>
+      <div class="wo-num">
+        <span>Work Order</span>
+        <strong id="wo-number">—</strong>
+        <span style="margin-top:.4rem" id="wo-date">—</span>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><label>Client Name</label><p id="info-client">—</p></div>
+      <div class="info-item"><label>Phone</label><p id="info-phone">—</p></div>
+      <div class="info-item"><label>Service Address</label><p id="info-address">—</p></div>
+      <div class="info-item"><label>Scheduled Date</label><p id="info-date">—</p></div>
+    </div>
+    <div class="scope-title">Work to be performed:</div>
+    <ul class="scope-list" id="scope-list"></ul>
+    <div class="alert alert-warning">
+      <div class="alert-icon">⚠️</div>
+      <p><strong>Important:</strong> Please make sure the work area is clear before our arrival. Ravelo AV Tech is not responsible for moving furniture not listed in this work order.</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goStep(2)">Work looks correct — Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="section" id="sec-2">
+    <div class="section-tag">Step 2 of 3</div>
+    <h2 class="section-title">Pre-Work<br>Photo Check</h2>
+    <p class="section-sub">Take or upload a photo of each area to document current condition</p>
+    <div class="alert alert-danger">
+      <div class="alert-icon">🛡️</div>
+      <p><strong>This protects you and us.</strong> Upload a photo showing the current condition of each area. If something was already damaged before we arrived, this is your proof. Photos are timestamped and attached to your signed agreement.</p>
+    </div>
+    <div class="condition-cards">
+      <div class="cond-card" id="card-walls">
+        <div class="cond-card-header"><span>🧱</span><h4>Walls</h4></div>
+        <div class="cond-card-body">
+          <select id="sel-walls"><option value="Good — no damage">✅ Good — no damage</option><option value="Minor marks already present">⚠️ Minor marks already present</option><option value="Existing damage noted">🔴 Existing damage noted</option></select>
+          <div class="photo-upload-area" id="drop-walls">
+            <input type="file" accept="image/*" onchange="handlePhoto(this,'walls')"/>
+            <div class="upload-placeholder" id="ph-walls"><span class="upload-icon">📸</span><strong>Tap to take / upload photo</strong><p>Show current condition of walls</p></div>
+            <img class="photo-preview" id="prev-walls" src="" alt=""/>
+          </div>
+          <p class="photo-status ok" id="stat-walls">✓ Photo uploaded</p>
+          <button class="remove-photo" id="rm-walls" onclick="removePhoto('walls')">✕ Remove photo</button>
+        </div>
+      </div>
+      <div class="cond-card" id="card-tv">
+        <div class="cond-card-header"><span>📺</span><h4>TV / Equipment</h4></div>
+        <div class="cond-card-body">
+          <select id="sel-tv"><option value="Good — no damage">✅ Good — no damage</option><option value="Minor scratches already present">⚠️ Minor scratches already present</option><option value="Existing damage noted">🔴 Existing damage noted</option></select>
+          <div class="photo-upload-area" id="drop-tv">
+            <input type="file" accept="image/*" onchange="handlePhoto(this,'tv')"/>
+            <div class="upload-placeholder" id="ph-tv"><span class="upload-icon">📸</span><strong>Tap to take / upload photo</strong><p>Show current condition of TV &amp; gear</p></div>
+            <img class="photo-preview" id="prev-tv" src="" alt=""/>
+          </div>
+          <p class="photo-status ok" id="stat-tv">✓ Photo uploaded</p>
+          <button class="remove-photo" id="rm-tv" onclick="removePhoto('tv')">✕ Remove photo</button>
+        </div>
+      </div>
+      <div class="cond-card" id="card-floor">
+        <div class="cond-card-header"><span>🏠</span><h4>Floor / Carpet</h4></div>
+        <div class="cond-card-body">
+          <select id="sel-floor"><option value="Good — no damage">✅ Good — no damage</option><option value="Minor stains/wear already present">⚠️ Minor stains/wear already present</option><option value="Existing damage noted">🔴 Existing damage noted</option></select>
+          <div class="photo-upload-area" id="drop-floor">
+            <input type="file" accept="image/*" onchange="handlePhoto(this,'floor')"/>
+            <div class="upload-placeholder" id="ph-floor"><span class="upload-icon">📸</span><strong>Tap to take / upload photo</strong><p>Show current condition of floor</p></div>
+            <img class="photo-preview" id="prev-floor" src="" alt=""/>
+          </div>
+          <p class="photo-status ok" id="stat-floor">✓ Photo uploaded</p>
+          <button class="remove-photo" id="rm-floor" onclick="removePhoto('floor')">✕ Remove photo</button>
+        </div>
+      </div>
+      <div class="cond-card" id="card-paint">
+        <div class="cond-card-header"><span>🎨</span><h4>Paint / Finish</h4></div>
+        <div class="cond-card-body">
+          <select id="sel-paint"><option value="Good — no damage">✅ Good — no damage</option><option value="Minor chips/peeling already present">⚠️ Minor chips/peeling already present</option><option value="Significant wear already present">🔴 Significant wear already present</option></select>
+          <div class="photo-upload-area" id="drop-paint">
+            <input type="file" accept="image/*" onchange="handlePhoto(this,'paint')"/>
+            <div class="upload-placeholder" id="ph-paint"><span class="upload-icon">📸</span><strong>Tap to take / upload photo</strong><p>Show current condition of paint</p></div>
+            <img class="photo-preview" id="prev-paint" src="" alt=""/>
+          </div>
+          <p class="photo-status ok" id="stat-paint">✓ Photo uploaded</p>
+          <button class="remove-photo" id="rm-paint" onclick="removePhoto('paint')">✕ Remove photo</button>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-blue">
+      <div class="alert-icon">ℹ️</div>
+      <p>Photos are <strong>optional but strongly recommended</strong>. You can skip if the area is in perfect condition and you agree it's undamaged.</p>
+    </div>
+    <div id="photo-progress" style="text-align:center;font-size:1.3rem;color:rgba(7,43,62,.5);margin-bottom:2rem;font-weight:600"></div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Continue to Sign →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="section" id="sec-3">
+    <div class="section-tag">Step 3 of 3</div>
+    <h2 class="section-title">Service<br>Agreement</h2>
+    <p class="section-sub">Read, check all boxes, and sign to authorize work</p>
+    <div class="terms-box">
+      <h4>1. Authorization to Perform Work</h4>
+      <p>The client authorizes Ravelo AV Technologies LLC to perform the work described in this work order. Work will be performed by licensed and insured technicians.</p>
+      <h4>2. Pre-Existing Conditions &amp; Liability</h4>
+      <p>Ravelo AV Technologies LLC is NOT responsible for damage to walls, paint, flooring, equipment, or any property that was already in a damaged or weakened condition prior to work beginning. Pre-work photos uploaded by the client document the agreed condition of the work area. Any damage claims not documented in pre-work photos must be reported before technicians leave the premises.</p>
+      <h4>3. Wall Mounting &amp; Drilling</h4>
+      <p>Client acknowledges that TV mounting and cable management may require drilling into walls and/or ceilings. Ravelo AV Tech will take all reasonable precautions. Client is responsible for informing us of any known in-wall obstructions before work begins.</p>
+      <h4>4. Equipment Supplied by Client</h4>
+      <p>If any equipment is supplied by the client, Ravelo AV Tech is not responsible for defects, damage, or failure of that equipment. Installation labor is warranted; client-supplied equipment is not.</p>
+      <h4>5. Workmanship Warranty</h4>
+      <p>Ravelo AV Technologies LLC warrants all labor for 90 days from the date of service. Equipment warranties are handled by the respective manufacturers.</p>
+      <h4>6. Payment Terms</h4>
+      <p>Payment is due upon completion of work. Accepted: cash, check, Zelle, credit card. A 50% deposit may be required for jobs over $1,000.</p>
+      <h4>7. Cancellation</h4>
+      <p>Cancellations must be made at least 24 hours before the scheduled appointment. Late cancellations may incur a $75 trip fee.</p>
+      <h4>8. Governing Law</h4>
+      <p>This agreement is governed by the laws of the State of Tennessee. Disputes shall be resolved in Rutherford County, Tennessee.</p>
+    </div>
+    <ul class="check-list">
+      <li><input type="checkbox" id="c1" onchange="checkReady()"/><label for="c1">I have reviewed the <strong>work order</strong> and confirm the scope of work is correct.</label></li>
+      <li><input type="checkbox" id="c2" onchange="checkReady()"/><label for="c2">I confirm the <strong>pre-work condition</strong> of my property as documented with photos above. I understand Ravelo AV Tech is not liable for pre-existing damage.</label></li>
+      <li><input type="checkbox" id="c3" onchange="checkReady()"/><label for="c3">I understand that work may require <strong>drilling into walls</strong> and I authorize this at my property.</label></li>
+      <li><input type="checkbox" id="c4" onchange="checkReady()"/><label for="c4">I agree to the <strong>payment terms and workmanship warranty</strong> described above.</label></li>
+      <li><input type="checkbox" id="c5" onchange="checkReady()"/><label for="c5">I authorize Ravelo AV Tech to <strong>retain the pre-work photos</strong> as part of this legally binding agreement.</label></li>
+    </ul>
+    <label class="sig-label">Full Legal Name *</label>
+    <input type="text" class="sig-input" id="full-name" placeholder="Type your full name" oninput="checkReady()"/>
+    <label class="sig-label">Signature *</label>
+    <div class="canvas-wrapper">
+      <canvas id="sig-canvas"></canvas>
+      <div class="canvas-hint" id="canvas-hint">✍️ Draw your signature here</div>
+      <button class="canvas-clear" onclick="clearSig()">Clear</button>
+    </div>
+    <p class="canvas-note">By signing, you agree this is a legally binding electronic signature.</p>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-primary" id="btn-sign" disabled onclick="submitAgreement()">✓ Sign &amp; Authorize Work</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="section" id="sec-4">
+    <div class="success-page">
+      <div class="success-icon">✅</div>
+      <h2>Agreement Signed!</h2>
+      <p>Thank you <strong id="client-name-display"></strong>. Your service agreement has been signed and sent to Ravelo AV Technologies LLC.</p>
+      <div class="summary-box">
+        <h4>Agreement Summary</h4>
+        <div class="summary-row"><span>Work Order</span><span id="sum-wo">—</span></div>
+        <div class="summary-row"><span>Client</span><span id="sum-name">—</span></div>
+        <div class="summary-row"><span>Signed At</span><span id="sum-time">—</span></div>
+        <div class="summary-row"><span>Signature</span><span class="signed-sig" id="sum-sig">—</span></div>
+        <div id="photo-summary-section" style="margin-top:1.5rem;display:none">
+          <h4 style="margin-bottom:1rem">📸 Pre-Work Photos on File</h4>
+          <div class="photo-summary-grid" id="photo-summary-grid"></div>
+        </div>
+      </div>
+      <p style="font-size:1.3rem;color:rgba(7,43,62,.5)">Questions? Call or text <strong>(615) 962-0401</strong><br>support@raveloavtech.com</p>
+    </div>
+  </div>
+
+</div><!-- /card -->
+</div><!-- /main-content -->
+
+<script>
+(function () {
+  'use strict';
+
+  var wo = {}; // work order data from QB
+
+  // ── LOAD FROM QB ─────────────────────────────────────────────────────────
+  var params = new URLSearchParams(window.location.search);
+  var estimateId = params.get('id');
+
+  function showError(msg) {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('error-screen').style.display = 'flex';
+    if (msg) document.getElementById('error-detail').innerHTML = msg;
+  }
+
+  function showMain() {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  }
+
+  function populateFromData(data) {
+    wo = data;
+    var woNum = '#WO-' + (data.docNumber || data.id || '—');
+    document.getElementById('badge-wo').textContent = 'Work Order ' + woNum;
+    document.getElementById('wo-number').textContent = woNum;
+    document.getElementById('wo-date').textContent = 'Date: ' + (data.date || '—');
+    document.getElementById('info-client').textContent = data.client.name || '—';
+    document.getElementById('info-phone').textContent = data.client.phone || '—';
+    document.getElementById('info-address').textContent = (data.client.address || '—').replace(/\n/g, ', ');
+    document.getElementById('info-date').textContent = data.date || '—';
+
+    var scopeList = document.getElementById('scope-list');
+    scopeList.innerHTML = '';
+    (data.lines || []).forEach(function (line) {
+      var li = document.createElement('li');
+      li.textContent = (line.description || line.name || '');
+      scopeList.appendChild(li);
+    });
+    if (!scopeList.children.length) {
+      var li = document.createElement('li');
+      li.textContent = data.project && data.project.name ? data.project.name : 'See attached estimate for full scope of work.';
+      scopeList.appendChild(li);
+    }
+
+    showMain();
+  }
+
+  if (!estimateId) {
+    // No ID — show a blank demo version
+    populateFromData({
+      docNumber: '—', id: '—', date: '—',
+      client: { name: '—', phone: '—', address: '—' },
+      lines: [],
+      project: { name: 'No work order ID provided in URL.' }
+    });
+  } else {
+    fetch('/.netlify/functions/get-estimate?id=' + encodeURIComponent(estimateId))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) { showError('Work order #' + estimateId + ' not found.<br><br><strong>(615) 962-0401</strong>'); return; }
+        populateFromData(data);
+      })
+      .catch(function () {
+        showError('Could not load work order. Please check your connection or contact us.<br><br><strong>(615) 962-0401</strong>');
+      });
+  }
+
+  // ── STEP NAV ─────────────────────────────────────────────────────────────
+  window.goStep = function (n) {
+    for (var i = 1; i <= 4; i++) {
+      document.getElementById('sec-' + i).classList.toggle('active', i === n);
+      var s = document.getElementById('step-' + i);
+      s.classList.remove('active', 'done');
+      if (i < n) s.classList.add('done');
+      else if (i === n) s.classList.add('active');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // ── PHOTOS ───────────────────────────────────────────────────────────────
+  var photos = { walls: null, tv: null, floor: null, paint: null };
+  var photoLabels = { walls: 'Walls', tv: 'TV / Equipment', floor: 'Floor / Carpet', paint: 'Paint / Finish' };
+
+  window.handlePhoto = function (input, key) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      photos[key] = e.target.result;
+      document.getElementById('prev-' + key).src = e.target.result;
+      document.getElementById('prev-' + key).classList.add('show');
+      document.getElementById('ph-' + key).style.display = 'none';
+      document.getElementById('stat-' + key).classList.add('show');
+      document.getElementById('rm-' + key).classList.add('show');
+      document.getElementById('card-' + key).classList.add('has-photo');
+      updatePhotoProgress();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.removePhoto = function (key) {
+    photos[key] = null;
+    document.getElementById('prev-' + key).src = '';
+    document.getElementById('prev-' + key).classList.remove('show');
+    document.getElementById('ph-' + key).style.display = '';
+    document.getElementById('stat-' + key).classList.remove('show');
+    document.getElementById('rm-' + key).classList.remove('show');
+    document.getElementById('card-' + key).classList.remove('has-photo');
+    updatePhotoProgress();
+  };
+
+  function updatePhotoProgress() {
+    var count = Object.values(photos).filter(Boolean).length;
+    var el = document.getElementById('photo-progress');
+    if (count === 0) el.textContent = '';
+    else if (count === 4) el.innerHTML = '✅ All 4 photos uploaded — excellent documentation!';
+    else el.textContent = count + ' of 4 photos uploaded';
+  }
+
+  // ── SIGNATURE CANVAS ─────────────────────────────────────────────────────
+  var canvas = document.getElementById('sig-canvas');
+  var ctx = canvas.getContext('2d');
+  var drawing = false;
+  var hasSig = false;
+
+  function resizeCanvas() {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = 130;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function getPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - rect.left) * (canvas.width / rect.width), y: (src.clientY - rect.top) * (canvas.height / rect.height) };
+  }
+  ctx.strokeStyle = 'rgb(7,43,62)'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+  canvas.addEventListener('mousedown', function (e) { drawing = true; ctx.beginPath(); var p = getPos(e); ctx.moveTo(p.x, p.y); });
+  canvas.addEventListener('mousemove', function (e) {
+    if (!drawing) return;
+    var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+    hasSig = true; document.getElementById('canvas-hint').style.opacity = '0'; checkReady();
+  });
+  canvas.addEventListener('mouseup', function () { drawing = false; });
+  canvas.addEventListener('mouseleave', function () { drawing = false; });
+  canvas.addEventListener('touchstart', function (e) { e.preventDefault(); drawing = true; ctx.beginPath(); var p = getPos(e); ctx.moveTo(p.x, p.y); }, { passive: false });
+  canvas.addEventListener('touchmove', function (e) {
+    e.preventDefault(); if (!drawing) return;
+    var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+    hasSig = true; document.getElementById('canvas-hint').style.opacity = '0'; checkReady();
+  }, { passive: false });
+  canvas.addEventListener('touchend', function () { drawing = false; });
+
+  window.clearSig = function () {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSig = false; document.getElementById('canvas-hint').style.opacity = '1'; checkReady();
+  };
+
+  // ── VALIDATION ───────────────────────────────────────────────────────────
+  function checkReady() {
+    var allChecked = ['c1','c2','c3','c4','c5'].every(function (id) { return document.getElementById(id).checked; });
+    var name = document.getElementById('full-name').value.trim();
+    document.getElementById('btn-sign').disabled = !(allChecked && name.length > 2 && hasSig);
+  }
+  window.checkReady = checkReady;
+
+  // ── SUBMIT ───────────────────────────────────────────────────────────────
+  window.submitAgreement = function () {
+    var btn = document.getElementById('btn-sign');
+    btn.disabled = true;
+    btn.textContent = '⏳ Submitting…';
+
+    var name = document.getElementById('full-name').value.trim();
+    var now = new Date().toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
+    var signatureData = canvas.toDataURL('image/png');
+
+    var conditions = {};
+    ['walls','tv','floor','paint'].forEach(function (k) {
+      conditions[k] = document.getElementById('sel-' + k).value;
+    });
+
+    var photoPayload = Object.keys(photos).filter(function (k) { return photos[k]; }).map(function (k) {
+      return { data: photos[k], label: photoLabels[k] };
+    });
+
+    var scopeItems = Array.from(document.getElementById('scope-list').querySelectorAll('li')).map(function (li) { return li.textContent; });
+
+    fetch('/.netlify/functions/save-agreement', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        workOrderId: wo.docNumber ? '#WO-' + wo.docNumber : '—',
+        clientName:  wo.client ? wo.client.name : '—',
+        serviceAddress: wo.client ? (wo.client.address || '').replace(/\n/g, ', ') : '—',
+        serviceDate: wo.date || '—',
+        scopeItems,
+        fullName: name,
+        signedAt: now,
+        signatureData,
+        photos: photoPayload,
+        conditions,
+      }),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      // Show success
+      document.getElementById('client-name-display').textContent = name;
+      document.getElementById('sum-wo').textContent = wo.docNumber ? '#WO-' + wo.docNumber : '—';
+      document.getElementById('sum-name').textContent = name;
+      document.getElementById('sum-time').textContent = now;
+      document.getElementById('sum-sig').textContent = name;
+
+      var grid = document.getElementById('photo-summary-grid');
+      var section = document.getElementById('photo-summary-section');
+      var hasAny = Object.values(photos).some(Boolean);
+      if (hasAny) {
+        section.style.display = 'block';
+        grid.innerHTML = '';
+        Object.keys(photos).forEach(function (k) {
+          if (!photos[k]) return;
+          var cond = document.getElementById('sel-' + k).value;
+          var badge = cond.includes('Good') ? '✓ Good' : cond.includes('Minor') ? '⚠️ Minor' : '🔴 Damage';
+          var div = document.createElement('div');
+          div.className = 'photo-summary-item';
+          div.innerHTML = '<img src="' + photos[k] + '" alt=""/><div class="photo-label">' + photoLabels[k] + '</div><div class="photo-cond">' + badge + '</div>';
+          grid.appendChild(div);
+        });
+      }
+      goStep(4);
+    })
+    .catch(function () {
+      // Still show success locally even if network fails
+      goStep(4);
+    });
+  };
+
+})();
+</script>
+</body>
+</html>
