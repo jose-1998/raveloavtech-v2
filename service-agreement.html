@@ -50,6 +50,12 @@ body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem;margin-bottom:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid rgba(7,43,62,.08)}
 .info-item label{display:block;font-size:1.1rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(7,43,62,.4);margin-bottom:.3rem}
 .info-item p{font-size:1.4rem;color:var(--navy);font-weight:600}
+.info-input{width:100%;border:none;border-bottom:1.5px solid rgba(7,43,62,.2);padding:.6rem 0;font-family:var(--font-body);font-size:1.4rem;color:var(--navy);font-weight:600;background:transparent;outline:none;transition:border-color .2s}
+.info-input:focus{border-bottom-color:var(--blue)}
+.info-input::placeholder{color:rgba(7,43,62,.25);font-weight:400}
+.scope-textarea{width:100%;border:1.5px solid rgba(7,43,62,.15);border-radius:3px;padding:1.2rem 1.4rem;font-family:var(--font-body);font-size:1.4rem;color:var(--navy);background:#fafbfc;outline:none;resize:vertical;min-height:9rem;transition:border-color .2s;line-height:1.7}
+.scope-textarea:focus{border-color:var(--blue);background:#fff}
+.scope-textarea::placeholder{color:rgba(7,43,62,.3)}
 .scope-title{font-family:var(--font-head);font-size:1.4rem;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2rem}
 .scope-list{list-style:none;margin-bottom:2.5rem}
 .scope-list li{display:flex;align-items:flex-start;gap:1rem;padding:1rem 0;border-bottom:1px solid rgba(7,43,62,.06);font-size:1.4rem;color:var(--navy)}
@@ -149,21 +155,8 @@ body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:
 </head>
 <body>
 
-<!-- Loading -->
-<div id="loading-screen">
-  <div class="loading-spinner"></div>
-  <p class="loading-text">Loading your work order…</p>
-</div>
-
-<!-- Error -->
-<div id="error-screen">
-  <div class="error-icon">⚠️</div>
-  <h2 class="error-title">Work Order Not Found</h2>
-  <p class="error-msg" id="error-detail">We couldn't find this work order. Please contact Ravelo AV Tech for assistance.<br><br><strong>(615) 962-0401</strong></p>
-</div>
-
 <!-- Main content -->
-<div id="main-content">
+<div id="main-content" style="display:block">
 
 <div class="top-bar">
   <div class="logo-text">Ravelo AV Tech</div>
@@ -187,18 +180,17 @@ body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:
       <div><h2>Service Agreement</h2><p>Ravelo AV Technologies LLC</p></div>
       <div class="wo-num">
         <span>Work Order</span>
-        <strong id="wo-number">—</strong>
-        <span style="margin-top:.4rem" id="wo-date">—</span>
+        <strong><input class="info-input" id="wo-number" placeholder="e.g. #1169" style="font-family:var(--font-head);font-size:2rem;text-align:right;width:14rem"/></strong>
+        <input class="info-input" id="wo-date" placeholder="Date" style="font-size:1.2rem;text-align:right;color:rgba(7,43,62,.5)"/>
       </div>
     </div>
     <div class="info-grid">
-      <div class="info-item"><label>Client Name</label><p id="info-client">—</p></div>
-      <div class="info-item"><label>Phone</label><p id="info-phone">—</p></div>
-      <div class="info-item"><label>Service Address</label><p id="info-address">—</p></div>
-      <div class="info-item"><label>Scheduled Date</label><p id="info-date">—</p></div>
+      <div class="info-item"><label for="info-client">Client Name</label><input class="info-input" id="info-client" placeholder="Full name"/></div>
+      <div class="info-item"><label for="info-phone">Phone</label><input class="info-input" id="info-phone" placeholder="(xxx) xxx-xxxx"/></div>
+      <div class="info-item" style="grid-column:1/-1"><label for="info-address">Service Address</label><input class="info-input" id="info-address" placeholder="Street, City, State, ZIP"/></div>
     </div>
     <div class="scope-title">Work to be performed:</div>
-    <ul class="scope-list" id="scope-list"></ul>
+    <textarea class="scope-textarea" id="scope-textarea" placeholder="List the work to be done, one item per line&#10;e.g. TV wall mount in living room&#10;In-ceiling speakers (4) in master bedroom"></textarea>
     <div class="alert alert-warning">
       <div class="alert-icon">⚠️</div>
       <p><strong>Important:</strong> Please make sure the work area is clear before our arrival. Ravelo AV Tech is not responsible for moving furniture not listed in this work order.</p>
@@ -355,69 +347,7 @@ body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:
 (function () {
   'use strict';
 
-  var wo = {}; // work order data from QB
-
-  // ── LOAD FROM QB ─────────────────────────────────────────────────────────
-  var params = new URLSearchParams(window.location.search);
-  var estimateId = params.get('id');
-
-  function showError(msg) {
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('error-screen').style.display = 'flex';
-    if (msg) document.getElementById('error-detail').innerHTML = msg;
-  }
-
-  function showMain() {
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-  }
-
-  function populateFromData(data) {
-    wo = data;
-    var woNum = '#WO-' + (data.docNumber || data.id || '—');
-    document.getElementById('badge-wo').textContent = 'Work Order ' + woNum;
-    document.getElementById('wo-number').textContent = woNum;
-    document.getElementById('wo-date').textContent = 'Date: ' + (data.date || '—');
-    document.getElementById('info-client').textContent = data.client.name || '—';
-    document.getElementById('info-phone').textContent = data.client.phone || '—';
-    document.getElementById('info-address').textContent = (data.client.address || '—').replace(/\n/g, ', ');
-    document.getElementById('info-date').textContent = data.date || '—';
-
-    var scopeList = document.getElementById('scope-list');
-    scopeList.innerHTML = '';
-    (data.lines || []).forEach(function (line) {
-      var li = document.createElement('li');
-      li.textContent = (line.description || line.name || '');
-      scopeList.appendChild(li);
-    });
-    if (!scopeList.children.length) {
-      var li = document.createElement('li');
-      li.textContent = data.project && data.project.name ? data.project.name : 'See attached estimate for full scope of work.';
-      scopeList.appendChild(li);
-    }
-
-    showMain();
-  }
-
-  if (!estimateId) {
-    // No ID — show a blank demo version
-    populateFromData({
-      docNumber: '—', id: '—', date: '—',
-      client: { name: '—', phone: '—', address: '—' },
-      lines: [],
-      project: { name: 'No work order ID provided in URL.' }
-    });
-  } else {
-    fetch('/.netlify/functions/get-estimate?id=' + encodeURIComponent(estimateId))
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data.error) { showError('Work order #' + estimateId + ' not found.<br><br><strong>(615) 962-0401</strong>'); return; }
-        populateFromData(data);
-      })
-      .catch(function () {
-        showError('Could not load work order. Please check your connection or contact us.<br><br><strong>(615) 962-0401</strong>');
-      });
-  }
+  function getField(id) { return (document.getElementById(id).value || '').trim(); }
 
   // ── STEP NAV ─────────────────────────────────────────────────────────────
   window.goStep = function (n) {
@@ -531,6 +461,11 @@ body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:
     var now = new Date().toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
     var signatureData = canvas.toDataURL('image/png');
 
+    var workOrderId = getField('wo-number');
+    var clientName  = getField('info-client');
+    var serviceAddress = getField('info-address');
+    var serviceDate = getField('wo-date');
+
     var conditions = {};
     ['walls','tv','floor','paint'].forEach(function (k) {
       conditions[k] = document.getElementById('sel-' + k).value;
@@ -540,16 +475,16 @@ body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:
       return { data: photos[k], label: photoLabels[k] };
     });
 
-    var scopeItems = Array.from(document.getElementById('scope-list').querySelectorAll('li')).map(function (li) { return li.textContent; });
+    var scopeItems = getField('scope-textarea').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
 
     fetch('/.netlify/functions/save-agreement', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        workOrderId: wo.docNumber ? '#WO-' + wo.docNumber : '—',
-        clientName:  wo.client ? wo.client.name : '—',
-        serviceAddress: wo.client ? (wo.client.address || '').replace(/\n/g, ', ') : '—',
-        serviceDate: wo.date || '—',
+        workOrderId: workOrderId || '—',
+        clientName:  clientName  || '—',
+        serviceAddress: serviceAddress || '—',
+        serviceDate: serviceDate || '—',
         scopeItems,
         fullName: name,
         signedAt: now,
@@ -562,7 +497,7 @@ body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:
     .then(function () {
       // Show success
       document.getElementById('client-name-display').textContent = name;
-      document.getElementById('sum-wo').textContent = wo.docNumber ? '#WO-' + wo.docNumber : '—';
+      document.getElementById('sum-wo').textContent = workOrderId || '—';
       document.getElementById('sum-name').textContent = name;
       document.getElementById('sum-time').textContent = now;
       document.getElementById('sum-sig').textContent = name;
