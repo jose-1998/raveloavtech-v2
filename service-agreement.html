@@ -11,17 +11,7 @@
 html{font-size:62.5%}
 body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:3rem 1.5rem 6rem}
 
-/* Loading / error screen */
-#loading-screen,#error-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:1.5rem;text-align:center}
-#error-screen{display:none}
-.loading-spinner{width:4rem;height:4rem;border:3px solid rgba(7,43,62,.15);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:1.4rem;color:rgba(7,43,62,.5)}
-.error-icon{font-size:4rem}
-.error-title{font-family:var(--font-head);font-size:2.4rem;color:var(--navy);text-transform:uppercase}
-.error-msg{font-size:1.4rem;color:rgba(7,43,62,.55);max-width:34rem;line-height:1.6}
-
-#main-content{display:none}
+#main-content{display:block}
 
 .top-bar{max-width:780px;margin:0 auto 2.5rem;display:flex;align-items:center;justify-content:space-between}
 .logo-text{font-family:var(--font-head);font-size:1.8rem;color:var(--navy);text-transform:uppercase;letter-spacing:.08em}
