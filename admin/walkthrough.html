@@ -458,7 +458,7 @@
     <span class="topbar-label">Site Walkthrough</span>
     <nav class="topbar-nav">
       <a class="topbar-link" href="/admin/">Gallery</a>
-      <a class="topbar-link" href="/admin/estimates.html">Estimates</a>
+      <a class="topbar-link restricted-tab" href="/admin/estimates.html">Estimates</a>
       <a class="topbar-link active" href="/admin/walkthrough.html">Walkthrough</a>
     </nav>
     <button class="hist-btn" id="historyBtn">📋 History</button>
@@ -693,10 +693,16 @@
   // only require a valid Identity JWT, so a client-side email list adds no
   // real protection — manage access by inviting/removing users in Netlify.
 
+  var RESTRICTED_USERS = ['gaven.certeza@raveloavtech.com'];
+
   function showMain() {
     loginScreen.style.display = 'none';
     mainScreen.style.display = 'block';
     bottomBar.style.display = 'flex';
+    var user = netlifyIdentity.currentUser();
+    if (user && RESTRICTED_USERS.indexOf(user.email) !== -1) {
+      document.querySelectorAll('.restricted-tab').forEach(function (el) { el.style.display = 'none'; });
+    }
     init();
     if (new URLSearchParams(window.location.search).get('view') === 'history') {
       showHistoryView();
