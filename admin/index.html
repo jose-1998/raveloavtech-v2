@@ -652,8 +652,8 @@
   <!-- Tab bar -->
   <div class="tab-bar">
     <button class="tab-btn active" id="tabGallery">🖼 Gallery</button>
-    <button class="tab-btn" id="tabTickets">🎫 Tickets</button>
-    <a class="tab-btn" href="/admin/estimates.html">📋 Estimates</a>
+    <button class="tab-btn" id="tabTickets" class="restricted-tab">🎫 Tickets</button>
+    <a class="tab-btn restricted-tab" href="/admin/estimates.html">📋 Estimates</a>
     <a class="tab-btn" href="/admin/walkthrough.html">🏠 Walkthrough</a>
   </div>
 
@@ -792,8 +792,18 @@
     return user.jwt();
   }
 
+  var RESTRICTED_USERS = ['gaven.certeza@raveloavtech.com'];
+
   function showLogin()  { loginScreen.style.display = 'flex'; adminScreen.style.display = 'none'; }
-  function showAdmin()  { loginScreen.style.display = 'none'; adminScreen.style.display = 'block'; }
+  function showAdmin()  {
+    loginScreen.style.display = 'none';
+    adminScreen.style.display = 'block';
+    var user = netlifyIdentity.currentUser();
+    var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
+    document.querySelectorAll('.restricted-tab').forEach(function (el) {
+      el.style.display = isRestricted ? 'none' : '';
+    });
+  }
 
   loginBtn.addEventListener('click', function () { netlifyIdentity.open(); });
   logoutBtn.addEventListener('click', function () { netlifyIdentity.logout(); });
