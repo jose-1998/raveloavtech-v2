@@ -698,6 +698,9 @@
     mainScreen.style.display = 'block';
     bottomBar.style.display = 'flex';
     init();
+    if (new URLSearchParams(window.location.search).get('view') === 'history') {
+      showHistoryView();
+    }
   }
   function showLogin(errorMsg) {
     loginScreen.style.display = 'flex';
