@@ -442,6 +442,7 @@
     <img src="/uploads/logo.png" alt="Ravelo AV Tech" />
     <h1>Site Walkthrough</h1>
     <p>Sign in to access job checklists.</p>
+    <p id="loginError" style="display:none; color:#e5484d; font-size:13px; margin-bottom:16px;"></p>
     <button class="login-btn" id="loginBtn">Sign In</button>
   </div>
 </div>
@@ -696,26 +697,32 @@
     bottomBar.style.display = 'flex';
     init();
   }
-  function showLogin() {
+  function showLogin(errorMsg) {
     loginScreen.style.display = 'flex';
     mainScreen.style.display = 'none';
     bottomBar.style.display = 'none';
+    var errEl = document.getElementById('loginError');
+    if (errorMsg) { errEl.textContent = errorMsg; errEl.style.display = 'block'; }
+    else { errEl.style.display = 'none'; }
   }
   function checkAccess() {
     var user = netlifyIdentity.currentUser();
     if (!user) { showLogin(); return; }
-    if (ALLOWED.indexOf(user.email) === -1) {
+    var email = (user.email || '').trim().toLowerCase();
+    if (ALLOWED.indexOf(email) === -1) {
+      deniedMsg = 'This account (' + email + ') does not have walkthrough access.';
       netlifyIdentity.logout();
-      showLogin();
+      showLogin(deniedMsg);
       return;
     }
     showMain();
   }
+  var deniedMsg = '';
 
   document.getElementById('loginBtn').addEventListener('click', function () { netlifyIdentity.open(); });
   document.getElementById('logoutBtn').addEventListener('click', function () { netlifyIdentity.logout(); });
   netlifyIdentity.on('login', function () { netlifyIdentity.close(); checkAccess(); });
-  netlifyIdentity.on('logout', showLogin);
+  netlifyIdentity.on('logout', function () { showLogin(deniedMsg); deniedMsg = ''; });
   netlifyIdentity.on('init', function (u) { if (u) checkAccess(); else showLogin(); });
 
   /* ── Build UI ────────────────────────────────────────────────────────── */

@@ -479,7 +479,7 @@
   function checkAccessAndShow() {
     var user = netlifyIdentity.currentUser();
     if (!user) { showLogin(); return; }
-    if (ALLOWED_EMAILS.indexOf(user.email) === -1) {
+    if (ALLOWED_EMAILS.indexOf((user.email || '').trim().toLowerCase()) === -1) {
       // Wrong account — log them out and show a clear message
       netlifyIdentity.logout();
       loginScreen.style.display = 'flex';
