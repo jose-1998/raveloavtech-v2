@@ -689,7 +689,9 @@
   var loginScreen = document.getElementById('loginScreen');
   var mainScreen  = document.getElementById('mainScreen');
   var bottomBar   = document.getElementById('bottomBar');
-  var ALLOWED     = ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com', 'gaven.certeza@raveloavtech.com'];
+  // Access = any Netlify Identity account (invite-only). The server functions
+  // only require a valid Identity JWT, so a client-side email list adds no
+  // real protection — manage access by inviting/removing users in Netlify.
 
   function showMain() {
     loginScreen.style.display = 'none';
@@ -705,32 +707,15 @@
     if (errorMsg) { errEl.textContent = errorMsg; errEl.style.display = 'block'; }
     else { errEl.style.display = 'none'; }
   }
-  function normEmail(e) {
-    return (e || '')
-      .normalize('NFKC')
-      .replace(/[\u200B-\u200D\uFEFF\u2060\u00A0\s]/g, '')
-      .toLowerCase();
-  }
   function checkAccess() {
     var user = netlifyIdentity.currentUser();
-    if (!user) { showLogin(); return; }
-    var raw   = user.email || '';
-    var email = normEmail(raw);
-    if (ALLOWED.indexOf(email) === -1) {
-      deniedMsg = 'This account does not have walkthrough access. Signed in as: ' + raw +
-        (encodeURIComponent(raw) !== raw ? ' [' + encodeURIComponent(raw) + ']' : '');
-      netlifyIdentity.logout();
-      showLogin(deniedMsg);
-      return;
-    }
-    showMain();
+    if (user) showMain(); else showLogin();
   }
-  var deniedMsg = '';
 
   document.getElementById('loginBtn').addEventListener('click', function () { netlifyIdentity.open(); });
   document.getElementById('logoutBtn').addEventListener('click', function () { netlifyIdentity.logout(); });
   netlifyIdentity.on('login', function () { netlifyIdentity.close(); checkAccess(); });
-  netlifyIdentity.on('logout', function () { showLogin(deniedMsg); deniedMsg = ''; });
+  netlifyIdentity.on('logout', function () { showLogin(); });
   netlifyIdentity.on('init', function (u) { if (u) checkAccess(); else showLogin(); });
 
   /* ── Build UI ────────────────────────────────────────────────────────── */
