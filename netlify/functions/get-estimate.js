@@ -14,8 +14,7 @@ const QB_BASE = IS_PRODUCTION
   : 'https://sandbox-quickbooks.api.intuit.com/v3/company';
 const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 
-// Emails allowed to list all estimates (must match Netlify Identity accounts)
-const ALLOWED_EMAILS = ['support@raveloavtech.com', 'jose.rojas@raveloavtech.com'];
+const { sanitizeDoc, verifyKey, adminUser, verifyInternal } = require('./lib/estimate-link');
 
 exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') {
@@ -26,11 +25,13 @@ exports.handler = async function (event, context) {
   const id     = params.id;   // DocNumber — used by estimate.html client link
   const qbid   = params.qbid; // QB internal ID — used by send-estimate webhook
   const list   = params.list; // 'recent' — used by admin/estimates.html
+  const key    = params.k;    // HMAC link signature — proves the client owns this link
+
+  const admin = adminUser(context);
 
   // ── List recent estimates — admin only (validated Netlify Identity JWT) ──
   if (list === 'recent') {
-    const user = context.clientContext && context.clientContext.user;
-    if (!user || ALLOWED_EMAILS.indexOf(user.email) === -1) {
+    if (!admin) {
       return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
     try {
@@ -48,6 +49,27 @@ exports.handler = async function (event, context) {
 
   if (!id && !qbid) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing estimate id' }) };
+  }
+
+  // ── Access control for single-estimate reads ────────────────────────────────
+  // Public client path (id) must carry a valid signature UNLESS the caller is a
+  // logged-in admin. This blocks enumeration of sequential DocNumbers.
+  if (id && !admin && !verifyKey(id, key)) {
+    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'This estimate link is invalid or has expired. Please request an updated link.' }) };
+  }
+
+  // qbid path (QB internal id) is used only by our own webhook to render emails.
+  // Require admin OR a trusted internal server-to-server token — never public.
+  if (qbid && !admin && !verifyInternal(event.headers)) {
+    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
+  }
+
+  // Reject anything that isn't a plain DocNumber before it reaches a QB query.
+  if (id && !sanitizeDoc(id)) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid estimate id' }) };
+  }
+  if (qbid && !sanitizeDoc(qbid)) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid estimate id' }) };
   }
 
   try {

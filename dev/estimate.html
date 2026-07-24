@@ -722,11 +722,13 @@ const fmt = n => '$' + Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','
 let currentEstimate = null; // saved for NDA logging
 
 async function loadEstimate() {
-  const id = new URLSearchParams(window.location.search).get('id') || '1042';
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id') || '1042';
+  const k  = params.get('k') || '';
   document.getElementById('header-badge').textContent = 'Estimate #' + id;
 
   try {
-    const res = await fetch('/.netlify/functions/get-estimate?id=' + id);
+    const res = await fetch('/.netlify/functions/get-estimate?id=' + encodeURIComponent(id) + '&k=' + encodeURIComponent(k));
     if (!res.ok) throw new Error('Not found');
     const e = await res.json();
     currentEstimate = e;
@@ -948,12 +950,14 @@ function checkForm() {
 
 // ── PAY DEPOSIT ──
 async function payDeposit() {
-  const id  = new URLSearchParams(window.location.search).get('id');
+  const params = new URLSearchParams(window.location.search);
+  const id  = params.get('id');
+  const k   = params.get('k') || '';
   const btn = document.getElementById('btn-pay');
   btn.disabled = true;
   btn.textContent = 'Creating secure payment link…';
   try {
-    const res  = await fetch('/.netlify/functions/create-payment?id=' + id);
+    const res  = await fetch('/.netlify/functions/create-payment?id=' + encodeURIComponent(id) + '&k=' + encodeURIComponent(k), { method: 'POST' });
     const data = await res.json();
     if (!res.ok || !data.paymentUrl) throw new Error(data.error || 'No payment link returned');
     window.location.href = data.paymentUrl;
@@ -975,12 +979,15 @@ function unlockEstimate() {
 
   // Log NDA signer to Google Sheets (fire & forget — never blocks the client)
   const signerName = document.getElementById('full-name').value.trim();
-  const id = new URLSearchParams(window.location.search).get('id') || '';
+  const lnParams = new URLSearchParams(window.location.search);
+  const id = lnParams.get('id') || '';
+  const k  = lnParams.get('k') || '';
   fetch('/.netlify/functions/log-nda', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       estimateNumber: currentEstimate ? currentEstimate.docNumber : id,
+      k,
       signerName,
       clientEmail: currentEstimate?.client?.email || '',
       clientName:  currentEstimate?.client?.name  || '',

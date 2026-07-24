@@ -1,4 +1,6 @@
-exports.handler = async function (event) {
+const { adminUser } = require('./lib/estimate-link');
+
+exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -11,9 +13,8 @@ exports.handler = async function (event) {
     return { statusCode: 405, headers: { 'Access-Control-Allow-Origin': '*' }, body: 'Method Not Allowed' };
   }
 
-  // Require Netlify Identity JWT
-  const auth = (event.headers.authorization || '').replace('Bearer ', '').trim();
-  if (!auth) {
+  // Require a validated Netlify Identity JWT from an allow-listed admin.
+  if (!adminUser(context)) {
     return { statusCode: 401, headers: { 'Access-Control-Allow-Origin': '*' }, body: 'Unauthorized' };
   }
 

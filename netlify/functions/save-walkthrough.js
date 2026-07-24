@@ -118,15 +118,14 @@ const CHECKLISTS = {
   }
 };
 
-exports.handler = async function (event) {
+const { adminUser } = require('./lib/estimate-link');
+
+exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'Method not allowed' };
 
-  // Auth
-  const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
-  const SITE_URL   = process.env.URL || 'https://raveloavtech.com';
-  const authed     = await validateJWT(authHeader, SITE_URL);
-  if (!authed) return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
+  // Validated Identity JWT + email allow-list.
+  if (!adminUser(context)) return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
 
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch {

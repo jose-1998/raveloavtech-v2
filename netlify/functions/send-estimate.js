@@ -12,6 +12,8 @@ const CORS = {
 
 const FROM = 'Ravelo AV Tech <support@raveloavtech.com>';
 
+const { buildEstimateLink, internalToken } = require('./lib/estimate-link');
+
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS, body: '' };
@@ -47,12 +49,14 @@ async function handleNewEstimate(estimateId) {
   const SITE_URL = process.env.URL || 'https://raveloavtech.com';
 
   // estimateId is QB's internal ID — fetch by ?qbid so get-estimate can look it up
-  const res = await fetch(`${SITE_URL}/.netlify/functions/get-estimate?qbid=${estimateId}`);
+  const res = await fetch(`${SITE_URL}/.netlify/functions/get-estimate?qbid=${encodeURIComponent(estimateId)}`, {
+    headers: { 'x-internal-auth': internalToken() },
+  });
   if (!res.ok) throw new Error(`Could not load estimate ${estimateId}`);
   const estimate = await res.json();
 
-  // Link uses DocNumber (e.g. ?id=1187) — that's what get-estimate queries by
-  const link = `${SITE_URL}/dev/estimate.html?id=${estimate.docNumber}`;
+  // Signed client link — the ?k= signature prevents guessing other estimates
+  const link = buildEstimateLink(SITE_URL, estimate.docNumber);
 
   await sendEmail({
     from: FROM,

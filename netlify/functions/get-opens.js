@@ -10,13 +10,13 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-exports.handler = async function (event) {
+const { adminUser } = require('./lib/estimate-link');
+
+exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
 
-  const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
-  const SITE_URL   = process.env.URL || 'https://raveloavtech.com';
-  const authed     = await validateNetlifyJWT(authHeader, SITE_URL);
-  if (!authed) {
+  // Validated Identity JWT + email allow-list.
+  if (!adminUser(context)) {
     return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 

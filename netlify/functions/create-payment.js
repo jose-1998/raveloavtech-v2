@@ -9,16 +9,35 @@ const QB_BASE = IS_PRODUCTION
   ? 'https://quickbooks.api.intuit.com/v3/company'
   : 'https://sandbox-quickbooks.api.intuit.com/v3/company';
 
-exports.handler = async function (event) {
+const { sanitizeDoc, verifyKey, adminUser } = require('./lib/estimate-link');
+
+exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS, body: '' };
   }
 
+  // This endpoint CREATES a real QuickBooks invoice — never allow a plain GET.
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  }
+
   const params = event.queryStringParameters || {};
   const docNumber = params.id; // Estimate DocNumber e.g. "1187"
+  const key       = params.k;  // HMAC link signature
 
   if (!docNumber) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing estimate id' }) };
+  }
+
+  // Only the estimate owner (valid signed link) or a logged-in admin may
+  // trigger invoice creation. Blocks anonymous/bulk invoice spam.
+  if (!adminUser(context) && !verifyKey(docNumber, key)) {
+    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
+  }
+
+  // Reject anything that isn't a plain DocNumber before it reaches a QB query.
+  if (!sanitizeDoc(docNumber)) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid estimate id' }) };
   }
 
   try {

@@ -22,10 +22,16 @@ exports.handler = async function (event) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const { estimateNumber, signerName, clientEmail, clientName, total } = body;
+  const { estimateNumber, signerName, clientEmail, clientName, total, k } = body;
 
   if (!estimateNumber || !signerName) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing fields' }) };
+  }
+
+  // Only accept logs tied to a valid signed estimate link — blocks spam.
+  const { verifyKey } = require('./lib/estimate-link');
+  if (!verifyKey(String(estimateNumber), k)) {
+    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
   const WEBHOOK = process.env.GOOGLE_SHEETS_WEBHOOK;

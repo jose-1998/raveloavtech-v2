@@ -11,13 +11,14 @@ const CORS = {
 
 const SITE_URL = process.env.URL || 'https://raveloavtech.com';
 
+const { adminUser } = require('./lib/estimate-link');
+
 exports.handler = async function (event, context) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
   if (event.httpMethod !== 'GET')  return { statusCode: 405, headers: CORS, body: 'Method not allowed' };
 
-  const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
-  const authed = await validateJWT(authHeader, SITE_URL);
-  if (!authed) {
+  // Validated Identity JWT + email allow-list.
+  if (!adminUser(context)) {
     return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 

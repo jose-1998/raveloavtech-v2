@@ -10,6 +10,8 @@ const CORS = {
 
 const FROM = 'Ravelo AV Tech <support@raveloavtech.com>';
 
+const { signDoc, buildEstimateLink, internalToken } = require('./lib/estimate-link');
+
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS, body: '' };
@@ -42,8 +44,11 @@ exports.handler = async function (event) {
   }
 
   try {
-    // ── Fetch estimate from QB ─────────────────────────────────────────────
-    const res = await fetch(`${SITE_URL}/.netlify/functions/get-estimate?id=${encodeURIComponent(docNumber)}`);
+    // ── Fetch estimate from QB (signed server-side call) ───────────────────
+    const res = await fetch(
+      `${SITE_URL}/.netlify/functions/get-estimate?id=${encodeURIComponent(docNumber)}&k=${signDoc(docNumber)}`,
+      { headers: { 'x-internal-auth': internalToken() } }
+    );
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
       throw new Error(err.error || `Estimate #${docNumber} not found`);
@@ -54,7 +59,7 @@ exports.handler = async function (event) {
       throw new Error(`Estimate #${docNumber} has no email address. Add the client email in QuickBooks first.`);
     }
 
-    const link = `${SITE_URL}/dev/estimate.html?id=${estimate.docNumber}`;
+    const link = buildEstimateLink(SITE_URL, estimate.docNumber);
 
     // ── Send NDA email to client ───────────────────────────────────────────
     await sendEmail({
