@@ -715,8 +715,8 @@
     <button class="tab-btn active" id="tabGallery">🖼 Gallery</button>
     <a class="tab-btn restricted-tab" href="/admin/estimates.html">📋 Estimates</a>
     <button class="tab-btn restricted-tab" id="tabTickets">🎫 Tickets</button>
-    <a class="tab-btn" href="/admin/walkthrough.html">🏠 Walkthrough</a>
-    <a class="tab-btn" href="/admin/walkthrough.html?view=history">📋 History</a>
+    <a class="tab-btn restricted-tab" href="/admin/walkthrough.html">🏠 Walkthrough</a>
+    <a class="tab-btn restricted-tab" href="/admin/walkthrough.html?view=history">📋 History</a>
   </div>
 
   <!-- Gallery view -->
@@ -868,7 +868,8 @@
     adminScreen.style.display = 'none';
     modeScreen.style.display  = 'flex';
     var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
-    void isRestricted; // Gaven has gallery access — only Estimates/Tickets tabs are hidden
+    document.querySelector('#modeGallery .mode-card-sub').textContent =
+      isRestricted ? 'Gallery & site content' : 'Gallery, estimates & site content';
     document.getElementById('modeGreeting').textContent =
       'Hi' + (user && user.user_metadata && user.user_metadata.full_name ? ' ' + user.user_metadata.full_name.split(' ')[0] : '') + ' — what would you like to open?';
   }
