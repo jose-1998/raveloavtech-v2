@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ravelo Admin" />
   <link rel="apple-touch-icon" href="/admin/icon.png" />
-  <title>Content Manager â€” Ravelo AV Tech</title>
+  <title>Content Manager — Ravelo AV Tech</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet" />
@@ -40,7 +40,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* â”€â”€ Top bar â”€â”€ */
+    /* ── Top bar ── */
     .topbar {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -120,7 +120,7 @@
       color: var(--red);
     }
 
-    /* â”€â”€ Mode selector â”€â”€ */
+    /* ── Mode selector ── */
     #modeScreen {
       display: none; align-items: center; justify-content: center;
       min-height: 100vh; padding: 24px;
@@ -144,7 +144,7 @@
     .mode-logout:hover { color: var(--text); }
     @media (max-width: 420px) { .mode-cards { grid-template-columns: 1fr; } }
 
-    /* â”€â”€ Login screen â”€â”€ */
+    /* ── Login screen ── */
     #loginScreen {
       display: flex;
       align-items: center;
@@ -184,7 +184,7 @@
     .login-btn:hover { background: #4a7de0; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91,141,238,0.5); }
     .login-btn:active { transform: translateY(0); }
 
-    /* â”€â”€ Admin screen â”€â”€ */
+    /* ── Admin screen ── */
     #adminScreen { display: none; padding: 76px 14px 88px; }
 
     .page-title {
@@ -197,7 +197,7 @@
       padding: 0 2px;
     }
 
-    /* â”€â”€ Category folders â”€â”€ */
+    /* ── Category folders ── */
     .folder {
       margin-bottom: 10px;
       border-radius: 12px;
@@ -246,7 +246,7 @@
     .folder-body { display: none; background: rgba(10,30,43,0.9); }
     .folder.open .folder-body { display: block; }
 
-    /* â”€â”€ Photo grid â”€â”€ */
+    /* ── Photo grid ── */
     .photo-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -323,7 +323,7 @@
     .photo-move:hover { background: rgba(91,141,238,0.25); border-color: rgba(91,141,238,0.6); transform: scale(1.08); }
     .photo-move:active { background: rgba(91,141,238,0.3); transform: scale(0.95); }
 
-    /* â”€â”€ Category sheet â”€â”€ */
+    /* ── Category sheet ── */
     .cat-overlay {
       display: none;
       position: fixed;
@@ -381,7 +381,7 @@
     .cat-option-icon  { font-size: 18px; flex-shrink: 0; }
     .cat-option-check { margin-left: auto; color: var(--blue-btn); font-size: 16px; }
 
-    /* â”€â”€ Add photo button â”€â”€ */
+    /* ── Add photo button ── */
     .add-row { padding: 8px 12px 14px; }
     .add-btn {
       width: 100%;
@@ -401,7 +401,7 @@
     .add-btn:active { background: rgba(91,141,238,0.2); }
     .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* â”€â”€ Warning tip bar â”€â”€ */
+    /* ── Warning tip bar ── */
     .tip-bar {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -433,7 +433,7 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* â”€â”€ Toast â”€â”€ */
+    /* ── Toast ── */
     #toast {
       position: fixed;
       top: 72px; left: 50%;
@@ -459,7 +459,7 @@
     #toast.ok  { color: #6ee7b7; border-color: rgba(110,231,183,0.3); }
     #toast.err { color: var(--red); border-color: rgba(224,112,112,0.3); }
 
-    /* â”€â”€ Loading overlay â”€â”€ */
+    /* ── Loading overlay ── */
     #loadingOverlay {
       display: none;
       position: fixed;
@@ -489,7 +489,7 @@
       .topbar-divider { display: none; }
     }
 
-    /* â”€â”€ Tab bar â”€â”€ */
+    /* ── Tab bar ── */
     .tab-bar {
       display: flex;
       gap: 3px;
@@ -526,7 +526,7 @@
       color: rgba(255,255,255,0.65);
     }
 
-    /* â”€â”€ Ticket cards â”€â”€ */
+    /* ── Ticket cards ── */
     .ticket-card {
       background: var(--navy);
       border: 1px solid var(--border);
@@ -659,7 +659,7 @@
     <img src="/uploads/logo.png" alt="Ravelo AV Tech" />
     <h1>Content Manager</h1>
     <p>Sign in to manage your site photos.</p>
-    <button class="login-btn" id="loginBtn">Iniciar sesiÃ³n</button>
+    <button class="login-btn" id="loginBtn">Iniciar sesión</button>
   </div>
 </div>
 
@@ -670,12 +670,12 @@
     <p class="mode-greeting" id="modeGreeting">What would you like to open?</p>
     <div class="mode-cards" id="modeCards">
       <button class="mode-card" id="modeGallery">
-        <span class="mode-card-icon">ðŸ–¼ï¸</span>
+        <span class="mode-card-icon">🖼️</span>
         <div class="mode-card-title">Content Manager</div>
         <div class="mode-card-sub">Gallery, estimates &amp; site content</div>
       </button>
       <a class="mode-card" href="/admin/walkthrough.html">
-        <span class="mode-card-icon">ðŸ </span>
+        <span class="mode-card-icon">🏠</span>
         <div class="mode-card-title">Site Walkthrough</div>
         <div class="mode-card-sub">Job checklists &amp; visit history</div>
       </a>
@@ -701,15 +701,15 @@
 
   <!-- Tab bar -->
   <div class="tab-bar">
-    <button class="tab-btn active" id="tabGallery">ðŸ–¼ Gallery</button>
-    <a class="tab-btn restricted-tab" href="/admin/estimates.html">ðŸ“‹ Estimates</a>
-    <a class="tab-btn" href="/admin/walkthrough.html">ðŸ  Walkthrough</a>
-    <a class="tab-btn" href="/admin/walkthrough.html?view=history">ðŸ“‹ History</a>
+    <button class="tab-btn active" id="tabGallery">🖼 Gallery</button>
+    <a class="tab-btn restricted-tab" href="/admin/estimates.html">📋 Estimates</a>
+    <a class="tab-btn" href="/admin/walkthrough.html">🏠 Walkthrough</a>
+    <a class="tab-btn" href="/admin/walkthrough.html?view=history">📋 History</a>
   </div>
 
   <!-- Gallery view -->
   <div id="viewGallery">
-    <p class="page-title">Our Work â€” Gallery</p>
+    <p class="page-title">Our Work — Gallery</p>
     <div id="foldersContainer"></div>
   </div>
 
@@ -724,11 +724,11 @@
 
 <!-- Warning tip -->
 <div class="tip-bar" id="tipBar">
-  <span>âš ï¸</span>
+  <span>⚠️</span>
   <span>
-    <strong>âœ•</strong> removes Â· <strong>â‡„</strong> changes category Â· <em>+ Add photo</em> uploads a new image.
+    <strong>✕</strong> removes · <strong>⇄</strong> changes category · <em>+ Add photo</em> uploads a new image.
   </span>
-  <button class="tip-close" id="tipClose" aria-label="Cerrar aviso">âœ•</button>
+  <button class="tip-close" id="tipClose" aria-label="Cerrar aviso">✕</button>
 </div>
 
 <!-- Toast -->
@@ -737,7 +737,7 @@
 <!-- Loading overlay -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <span id="loadingMsg">Savingâ€¦</span>
+  <span id="loadingMsg">Saving…</span>
 </div>
 
 <!-- Category picker sheet -->
@@ -758,22 +758,22 @@
   const GIT_API = '/.netlify/git/github';
 
   const CATEGORIES = [
-    { key: 'av',         label: 'Home Theater', icon: 'ðŸŽ¬' },
-    { key: 'security',   label: 'Security',      icon: 'ðŸ“·' },
-    { key: 'network',    label: 'Networks',      icon: 'ðŸŒ' },
-    { key: 'smart',      label: 'Smart Home',    icon: 'ðŸ ' },
-    { key: 'wiring',     label: 'Wiring',        icon: 'ðŸ”Œ' },
-    { key: 'lowvoltage', label: 'Low Voltage',   icon: 'âš¡' },
-    { key: 'lutron',     label: 'Lutron',        icon: 'ðŸ’¡' },
+    { key: 'av',         label: 'Home Theater', icon: '🎬' },
+    { key: 'security',   label: 'Security',      icon: '📷' },
+    { key: 'network',    label: 'Networks',      icon: '🌐' },
+    { key: 'smart',      label: 'Smart Home',    icon: '🏠' },
+    { key: 'wiring',     label: 'Wiring',        icon: '🔌' },
+    { key: 'lowvoltage', label: 'Low Voltage',   icon: '⚡' },
+    { key: 'lutron',     label: 'Lutron',        icon: '💡' },
   ];
 
   var gallery = [];          // [{ url, category }]
   var pendingCategory = null;
   var pendingMove = null;    // { url, fromCat }
   var isDirty = false;
-  var blobCache = {};        // url â†’ local blob data URL (while Netlify deploys)
+  var blobCache = {};        // url → local blob data URL (while Netlify deploys)
 
-  // â”€â”€ Elements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Elements ──────────────────────────────────────────────────────────────
   var loginScreen   = document.getElementById('loginScreen');
   var adminScreen   = document.getElementById('adminScreen');
   var loginBtn      = document.getElementById('loginBtn');
@@ -790,14 +790,14 @@
   var catOptionsEl  = document.getElementById('catOptions');
   var publishBtn    = document.getElementById('publishBtn');
 
-  // â”€â”€ Tip bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tip bar ───────────────────────────────────────────────────────────────
   if (sessionStorage.getItem('tipDismissed')) tipBar.classList.add('hidden');
   tipClose.addEventListener('click', function () {
     tipBar.classList.add('hidden');
     sessionStorage.setItem('tipDismissed', '1');
   });
 
-  // â”€â”€ Dirty state / Publish â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Dirty state / Publish ─────────────────────────────────────────────────
   function markDirty() {
     isDirty = true;
     publishBtn.classList.add('dirty');
@@ -816,7 +816,7 @@
     }).catch(function () {});
   });
 
-  // â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Toast ─────────────────────────────────────────────────────────────────
   var toastTimer;
   function showToast(msg, type) {
     clearTimeout(toastTimer);
@@ -825,7 +825,7 @@
     toastTimer = setTimeout(function () { toastEl.className = ''; }, 3000);
   }
 
-  // â”€â”€ Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Loading ───────────────────────────────────────────────────────────────
   function setLoading(msg) {
     if (msg) {
       loadingMsgEl.textContent = msg;
@@ -835,7 +835,7 @@
     }
   }
 
-  // â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Auth ──────────────────────────────────────────────────────────────────
   function getToken() {
     var user = netlifyIdentity.currentUser();
     if (!user) return Promise.reject(new Error('Not logged in'));
@@ -858,7 +858,7 @@
     var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
     document.getElementById('modeGallery').style.display = isRestricted ? 'none' : '';
     document.getElementById('modeGreeting').textContent =
-      'Hi' + (user && user.user_metadata && user.user_metadata.full_name ? ' ' + user.user_metadata.full_name.split(' ')[0] : '') + ' â€” what would you like to open?';
+      'Hi' + (user && user.user_metadata && user.user_metadata.full_name ? ' ' + user.user_metadata.full_name.split(' ')[0] : '') + ' — what would you like to open?';
   }
   function showAdmin() {
     loginScreen.style.display = 'none';
@@ -884,7 +884,7 @@
     else showLogin();
   });
 
-  // â”€â”€ Git Gateway API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Git Gateway API ───────────────────────────────────────────────────────
   function gitGet(path) {
     return getToken().then(function (token) {
       return fetch(GIT_API + path, {
@@ -912,9 +912,9 @@
     });
   }
 
-  // â”€â”€ Load gallery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Load gallery ──────────────────────────────────────────────────────────
   function loadGallery() {
-    setLoading('Loading galleryâ€¦');
+    setLoading('Loading gallery…');
     gitGet('/contents/images.json').then(function (data) {
       var content = JSON.parse(decodeURIComponent(
         escape(atob(data.content.replace(/\n/g, '')))
@@ -929,16 +929,16 @@
     });
   }
 
-  // â”€â”€ Save gallery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Save gallery ──────────────────────────────────────────────────────────
   var CAT_LABELS = {
     av: 'Home Theater', network: 'Networks', security: 'Security',
     smart: 'Smart Home', wiring: 'Wiring', lowvoltage: 'Low Voltage', lutron: 'Lutron'
   };
 
   function saveGallery() {
-    setLoading('Savingâ€¦');
+    setLoading('Saving…');
 
-    // Step 1 â€” Save images.json (critical)
+    // Step 1 — Save images.json (critical)
     return gitGet('/contents/images.json').then(function (data) {
       var encoded = btoa(unescape(encodeURIComponent(
         JSON.stringify({ gallery: gallery }, null, 2)
@@ -949,7 +949,7 @@
         sha: data.sha
       });
 
-    // Step 2 â€” Sync hardcoded fallback in index.html (non-fatal)
+    // Step 2 — Sync hardcoded fallback in index.html (non-fatal)
     }).then(function () {
       return gitGet('/contents/index.html').then(function (data) {
         // Robust UTF-8 decode
@@ -983,13 +983,13 @@
           sha: data.sha
         });
       }).catch(function (err) {
-        // index.html update failing is not critical â€” images.json is already saved
+        // index.html update failing is not critical — images.json is already saved
         console.warn('index.html sync failed (non-fatal):', err);
       });
 
     }).then(function () {
       setLoading(null);
-      showToast('âœ“ Published â€” site is updating', 'ok');
+      showToast('✓ Published — site is updating', 'ok');
     }).catch(function (err) {
       setLoading(null);
       showToast('Error publishing', 'err');
@@ -998,7 +998,7 @@
     });
   }
 
-  // â”€â”€ Upload image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Upload image ──────────────────────────────────────────────────────────
   function resizeImage(file, maxW) {
     maxW = maxW || 1400;
     return new Promise(function (resolve) {
@@ -1050,7 +1050,7 @@
     });
   }
 
-  // â”€â”€ File input handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── File input handler ────────────────────────────────────────────────────
   fileInput.addEventListener('change', function () {
     var files = Array.from(fileInput.files);
     fileInput.value = '';
@@ -1066,7 +1066,7 @@
         return;
       }
       if (files[i].size > 30 * 1024 * 1024) {
-        showToast('"' + files[i].name + '" es demasiado grande (mÃ¡x 30 MB)', 'err');
+        showToast('"' + files[i].name + '" es demasiado grande (máx 30 MB)', 'err');
         return;
       }
     }
@@ -1082,10 +1082,10 @@
         markDirty();
         var msg = (total - failed) + ' photo' + (total - failed !== 1 ? 's' : '') + ' added';
         if (failed > 0) msg += ' (' + failed + ' failed)';
-        showToast('âœ“ ' + msg + ' â€” tap Publish to save', failed ? 'err' : 'ok');
+        showToast('✓ ' + msg + ' — tap Publish to save', failed ? 'err' : 'ok');
         return;
       }
-      setLoading('Subiendo ' + (idx + 1) + ' de ' + total + 'â€¦');
+      setLoading('Subiendo ' + (idx + 1) + ' de ' + total + '…');
       uploadImage(files[idx], cat).then(function (url) {
         gallery.push({ url: url, category: cat });
         done++;
@@ -1100,7 +1100,7 @@
     uploadNext(0);
   });
 
-  // â”€â”€ Category sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Category sheet ────────────────────────────────────────────────────────
   function openCatSheet(url, fromCat) {
     pendingMove = { url: url, fromCat: fromCat };
 
@@ -1111,7 +1111,7 @@
       btn.innerHTML =
         '<span class="cat-option-icon">' + cat.icon + '</span>' +
         '<span>' + cat.label + '</span>' +
-        (cat.key === fromCat ? '<span class="cat-option-check">âœ“</span>' : '');
+        (cat.key === fromCat ? '<span class="cat-option-check">✓</span>' : '');
       btn.addEventListener('click', function () {
         closeCatSheet();
         if (cat.key !== fromCat) movePhoto(url, fromCat, cat.key);
@@ -1144,7 +1144,7 @@
     markDirty();
   }
 
-  // â”€â”€ Delete photo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Delete photo ──────────────────────────────────────────────────────────
   function deletePhoto(url, category) {
     if (!confirm('Delete this photo?')) return;
     gallery = gallery.filter(function (p) {
@@ -1154,7 +1154,7 @@
     markDirty();
   }
 
-  // â”€â”€ Render folders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Render folders ────────────────────────────────────────────────────────
   var openFolders = {};
 
   function renderFolders() {
@@ -1184,8 +1184,8 @@
         '<span class="folder-name">' + cat.label + '</span>' +
         (count > 0
           ? '<span class="folder-count">' + count + '</span>'
-          : '<span class="folder-empty">vacÃ­o</span>') +
-        '<span class="folder-chevron">â–¶</span>';
+          : '<span class="folder-empty">vacío</span>') +
+        '<span class="folder-chevron">▶</span>';
       header.addEventListener('click', function () {
         var wasOpen = folder.classList.contains('open');
         folder.classList.toggle('open');
@@ -1213,14 +1213,14 @@
             img.style.display = 'none';
             var ph = document.createElement('div');
             ph.style.cssText = 'position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(224,112,112,0.7);font-size:11px;text-align:center;padding:8px;pointer-events:none;';
-            ph.innerHTML = '<span style="font-size:22px;">âš ï¸</span><span>Image not found</span>';
+            ph.innerHTML = '<span style="font-size:22px;">⚠️</span><span>Image not found</span>';
             card.appendChild(ph);
           };
           card.appendChild(img);
 
           var move = document.createElement('button');
           move.className = 'photo-move';
-          move.textContent = 'â‡„';
+          move.textContent = '⇄';
           move.setAttribute('aria-label', 'Change category');
           move.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -1230,7 +1230,7 @@
 
           var del = document.createElement('button');
           del.className = 'photo-delete';
-          del.textContent = 'âœ•';
+          del.textContent = '✕';
           del.setAttribute('aria-label', 'Delete photo');
           del.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -1261,7 +1261,7 @@
     });
   }
 
-  // â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tabs ──────────────────────────────────────────────────────────────────
   var tabGallery    = document.getElementById('tabGallery');
   var tabTickets    = document.getElementById('tabTickets');
   var viewGallery   = document.getElementById('viewGallery');
@@ -1285,10 +1285,10 @@
     if (!ticketsLoaded) loadTickets();
   });
 
-  // â”€â”€ Load tickets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Load tickets ──────────────────────────────────────────────────────────
   function loadTickets() {
     ticketsLoaded = true;
-    ticketsEl.innerHTML = '<div class="tickets-empty">Loading ticketsâ€¦</div>';
+    ticketsEl.innerHTML = '<div class="tickets-empty">Loading tickets…</div>';
 
     getToken().then(function (token) {
       return fetch('/.netlify/functions/get-tickets', {
@@ -1300,7 +1300,7 @@
     }).then(function (tickets) {
       if (!tickets.length) {
         ticketsCount.textContent = '';
-        ticketsEl.innerHTML = '<div class="tickets-empty">ðŸ“­ No quote requests yet</div>';
+        ticketsEl.innerHTML = '<div class="tickets-empty">📭 No quote requests yet</div>';
         return;
       }
       ticketsCount.textContent = tickets.length + ' quote request' + (tickets.length !== 1 ? 's' : '') + ' received';
@@ -1317,12 +1317,12 @@
             '<span class="ticket-name">' + esc(t.name || 'Unknown') + '</span>' +
             (t.service ? '<span class="ticket-service">' + esc(t.service) + '</span>' : '') +
           '</div>' +
-          '<div class="ticket-date">ðŸ“… ' + date + '</div>' +
-          (t.email   ? '<div class="ticket-row">âœ‰ï¸ <a href="mailto:' + esc(t.email) + '">' + esc(t.email) + '</a></div>' : '') +
-          (t.phone   ? '<div class="ticket-row">ðŸ“ž <a href="tel:' + esc(t.phone.replace(/\D/g,'')) + '">' + esc(t.phone) + '</a></div>' : '') +
-          (t.address ? '<div class="ticket-row">ðŸ“ <strong>' + esc(t.address) + '</strong></div>' : '') +
+          '<div class="ticket-date">📅 ' + date + '</div>' +
+          (t.email   ? '<div class="ticket-row">✉️ <a href="mailto:' + esc(t.email) + '">' + esc(t.email) + '</a></div>' : '') +
+          (t.phone   ? '<div class="ticket-row">📞 <a href="tel:' + esc(t.phone.replace(/\D/g,'')) + '">' + esc(t.phone) + '</a></div>' : '') +
+          (t.address ? '<div class="ticket-row">📍 <strong>' + esc(t.address) + '</strong></div>' : '') +
           (t.message ? '<div class="ticket-msg">"' + esc(t.message) + '"</div>' : '') +
-          (t.email   ? '<button class="ticket-review-btn">â­ Request Google Review</button>' : '');
+          (t.email   ? '<button class="ticket-review-btn">⭐ Request Google Review</button>' : '');
         // Attach click handler via JS (avoids quote-escaping issues with inline onclick)
         if (t.email) {
           var reviewBtn = card.querySelector('.ticket-review-btn');
@@ -1334,7 +1334,7 @@
       });
     }).catch(function (err) {
       ticketsLoaded = false;
-      ticketsEl.innerHTML = '<div class="tickets-empty">âš ï¸ Error loading tickets<br><small>' + err.message + '</small></div>';
+      ticketsEl.innerHTML = '<div class="tickets-empty">⚠️ Error loading tickets<br><small>' + err.message + '</small></div>';
       console.error(err);
     });
   }
@@ -1348,7 +1348,7 @@
   window.sendReview = function sendReview(btn, name, email) {
     if (btn.disabled) return;
     btn.disabled = true;
-    btn.textContent = 'â³ Sendingâ€¦';
+    btn.textContent = '⏳ Sending…';
 
     function showBanner(success, msg) {
       var banner = document.createElement('div');
@@ -1358,7 +1358,7 @@
         (success
           ? 'background:rgba(52,199,89,0.15);border:1px solid rgba(52,199,89,0.4);color:#4cd964;'
           : 'background:rgba(224,112,112,0.15);border:1px solid rgba(224,112,112,0.4);color:#e07070;');
-      banner.innerHTML = '<span style="font-size:16px;">' + (success ? 'âœ…' : 'âŒ') + '</span><span>' + msg + '</span>';
+      banner.innerHTML = '<span style="font-size:16px;">' + (success ? '✅' : '❌') + '</span><span>' + msg + '</span>';
       btn.replaceWith(banner);
     }
 
@@ -1377,7 +1377,7 @@
     }).then(function() {
       showBanner(true, 'Review request sent to <strong style="font-weight:700;">' + email + '</strong>');
     }).catch(function(err) {
-      showBanner(false, 'Could not send â€” ' + err.message);
+      showBanner(false, 'Could not send — ' + err.message);
     });
   }
 
@@ -1385,4 +1385,3 @@
 </script>
 </body>
 </html>
-

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ravelo Admin" />
   <link rel="apple-touch-icon" href="/admin/icon.png" />
-  <title>Site Walkthrough â€” Ravelo AV Tech</title>
+  <title>Site Walkthrough — Ravelo AV Tech</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -43,7 +43,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* â”€â”€ Topbar â”€â”€ */
+    /* ── Topbar ── */
     .topbar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 900;
       height: 58px;
@@ -61,7 +61,7 @@
     }
     .topbar-logout:hover { background: rgba(224,112,112,0.1); }
 
-    /* â”€â”€ Login â”€â”€ */
+    /* ── Login ── */
     #loginScreen {
       display: flex; align-items: center; justify-content: center;
       min-height: 100vh; padding: 24px;
@@ -80,7 +80,7 @@
       font-family: inherit; cursor: pointer;
     }
 
-    /* â”€â”€ Tab bar â”€â”€ */
+    /* ── Tab bar ── */
     .tab-bar {
       display: flex; gap: 3px; margin-bottom: 18px;
       background: rgba(130,160,204,0.07); border-radius: 10px;
@@ -98,10 +98,10 @@
     }
     .tab-btn:not(.active):hover { background: rgba(130,160,204,0.07); color: rgba(255,255,255,0.65); }
 
-    /* â”€â”€ Main â”€â”€ */
+    /* ── Main ── */
     #mainScreen { display: none; padding: 70px 0 80px; }
 
-    /* â”€â”€ Job info header â”€â”€ */
+    /* ── Job info header ── */
     .job-header {
       padding: 16px 16px 0;
       max-width: 640px; margin: 0 auto;
@@ -128,7 +128,7 @@
     }
     .clear-btn:hover { background: rgba(224,112,112,0.18); }
 
-    /* â”€â”€ Job type tabs â”€â”€ */
+    /* ── Job type tabs ── */
     .type-tabs {
       display: flex; gap: 8px;
       padding: 0 16px;
@@ -167,7 +167,7 @@
     .type-tab.active .tab-count { display: inline-block; }
     .type-tab.has-progress .tab-count { display: inline-block; }
 
-    /* â”€â”€ Progress bar â”€â”€ */
+    /* ── Progress bar ── */
     .progress-wrap {
       padding: 0 16px 14px;
       max-width: 640px; margin: 0 auto;
@@ -187,7 +187,7 @@
     }
     .progress-fill.complete { background: var(--green); }
 
-    /* â”€â”€ Sections â”€â”€ */
+    /* ── Sections ── */
     .sections { padding: 0 16px; max-width: 640px; margin: 0 auto; }
     .section  { margin-bottom: 12px; }
     .section-head {
@@ -201,7 +201,7 @@
       background: rgba(130,160,204,0.12);
     }
 
-    /* â”€â”€ Field item (number/text input inside checklist) â”€â”€ */
+    /* ── Field item (number/text input inside checklist) ── */
     .field-item {
       display: flex; align-items: center; gap: 12px;
       padding: 11px 14px;
@@ -229,7 +229,7 @@
     }
     .field-item-input::placeholder { color: var(--text-dim); font-weight: 400; font-size: 13px; }
 
-    /* â”€â”€ Check items â”€â”€ */
+    /* ── Check items ── */
     .check-item {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 13px 14px;
@@ -296,7 +296,7 @@
     .item-note:focus { border-color: rgba(130,160,204,0.45); background: rgba(255,255,255,0.05); }
     .item-note:not(:placeholder-shown) { border-color: rgba(130,160,204,0.3); }
 
-    /* â”€â”€ Notes area â”€â”€ */
+    /* ── Notes area ── */
     .notes-wrap { padding: 0 16px 16px; max-width: 640px; margin: 0 auto; }
     .notes-label {
       font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
@@ -317,7 +317,7 @@
     .notes-input::placeholder { color: var(--text-dim); }
     .notes-input:focus { border-color: rgba(130,160,204,0.45); background: rgba(255,255,255,0.08); }
 
-    /* â”€â”€ Section photos (inline, compact row) â”€â”€ */
+    /* ── Section photos (inline, compact row) ── */
     .sec-photos {
       display: flex; align-items: center; gap: 7px;
       padding: 8px 0 4px;
@@ -357,7 +357,7 @@
     }
     .sec-photo-add:hover { background: rgba(130,160,204,0.12); border-color: rgba(130,160,204,0.5); }
 
-    /* â”€â”€ Bottom actions â”€â”€ */
+    /* ── Bottom actions ── */
     .bottom-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       padding: 12px 16px; background: var(--navy);
@@ -393,7 +393,7 @@
     .save-feedback.ok  { color: #6ee7b7; border-color: rgba(110,231,183,0.3); }
     .save-feedback.err { color: var(--red); border-color: rgba(224,112,112,0.3); }
 
-    /* â”€â”€ History view â”€â”€ */
+    /* ── History view ── */
     #historyPanel { display: none; padding: 0 16px 20px; max-width: 640px; margin: 0 auto; }
     .hist-empty { text-align: center; color: var(--text-dim); font-size: 14px; padding: 60px 0; }
     .hist-card {
@@ -432,7 +432,7 @@
     .hist-btn:hover { color: var(--text); border-color: var(--border); }
     .hist-btn.active { color: var(--blue); border-color: rgba(130,160,204,0.25); background: rgba(130,160,204,0.07); }
 
-    /* â”€â”€ Print styles â”€â”€ */
+    /* ── Print styles ── */
     @media print {
       .topbar, .bottom-bar, .type-tabs, .job-fields .clear-btn { display: none !important; }
       #mainScreen { padding-top: 10px !important; }
@@ -475,10 +475,10 @@
 
   <!-- Tab bar -->
   <div class="tab-bar" id="mainTabBar">
-    <a class="tab-btn" href="/admin/">ðŸ–¼ Gallery</a>
-    <a class="tab-btn restricted-tab" href="/admin/estimates.html">ðŸ“‹ Estimates</a>
-    <a class="tab-btn active" href="/admin/walkthrough.html" id="tabWalkthrough">ðŸ  Walkthrough</a>
-    <a class="tab-btn" href="/admin/walkthrough.html?view=history" id="tabHistory">ðŸ“‹ History</a>
+    <a class="tab-btn" href="/admin/">🖼 Gallery</a>
+    <a class="tab-btn restricted-tab" href="/admin/estimates.html">📋 Estimates</a>
+    <a class="tab-btn active" href="/admin/walkthrough.html" id="tabWalkthrough">🏠 Walkthrough</a>
+    <a class="tab-btn" href="/admin/walkthrough.html?view=history" id="tabHistory">📋 History</a>
   </div>
 
   <div id="checklistView">
@@ -494,15 +494,15 @@
   <!-- Job type tabs -->
   <div class="type-tabs">
     <button class="type-tab active" data-type="cameras">
-      <span class="tab-icon">ðŸ“·</span> Security Cameras
+      <span class="tab-icon">📷</span> Security Cameras
       <span class="tab-count" id="count-cameras">0</span>
     </button>
     <button class="type-tab" data-type="network">
-      <span class="tab-icon">ðŸŒ</span> Network
+      <span class="tab-icon">🌐</span> Network
       <span class="tab-count" id="count-network">0</span>
     </button>
     <button class="type-tab" data-type="av">
-      <span class="tab-icon">ðŸ“º</span> Audio / Visual
+      <span class="tab-icon">📺</span> Audio / Visual
       <span class="tab-count" id="count-av">0</span>
     </button>
   </div>
@@ -525,7 +525,7 @@
   <!-- Notes -->
   <div class="notes-wrap">
     <label class="notes-label" for="jobNotes">Field Notes</label>
-    <textarea class="notes-input" id="jobNotes" placeholder="Measurements, obstacles, client requests, photos neededâ€¦"></textarea>
+    <textarea class="notes-input" id="jobNotes" placeholder="Measurements, obstacles, client requests, photos needed…"></textarea>
   </div>
 
   </div><!-- /#checklistView -->
@@ -538,14 +538,14 @@
 <!-- Bottom bar -->
 <div class="save-feedback" id="saveFeedback"></div>
 <div class="bottom-bar" id="bottomBar" style="display:none;">
-  <button class="save-btn" id="saveBtn">ðŸ’¾ Save &amp; Send</button>
+  <button class="save-btn" id="saveBtn">💾 Save &amp; Send</button>
 </div>
 
 <script>
 (function () {
   'use strict';
 
-  /* â”€â”€ Checklist data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Checklist data ──────────────────────────────────────────────────── */
   var CHECKLISTS = {
     cameras: {
       label: 'Camera Survey',
@@ -644,9 +644,9 @@
           title: 'Displays & Mounting',
           items: [
             { id: 'av-tvloc',     label: 'TV / display locations confirmed' },
-            { id: 'av-tvsize',    label: 'TV sizes agreed â€” wall space measured' },
+            { id: 'av-tvsize',    label: 'TV sizes agreed — wall space measured' },
             { id: 'av-walltype',  label: 'Wall type at each mount', hint: 'Drywall / concrete / brick / tile / fireplace' },
-            { id: 'av-studs',     label: 'Stud locations found â€” blocking needed?' },
+            { id: 'av-studs',     label: 'Stud locations found — blocking needed?' },
             { id: 'av-height',    label: 'Viewing height and angle confirmed with client' },
             { id: 'av-outlet',    label: 'Power outlet behind or near each TV' },
           ]
@@ -658,7 +658,7 @@
             { id: 'av-speakers',  label: 'In-ceiling / in-wall speaker positions marked' },
             { id: 'av-ceiling',   label: 'Ceiling type confirmed at each speaker location', hint: 'Drywall / plaster / coffered / vaulted / drop ceiling' },
             { id: 'av-attic',     label: 'Attic access available for speaker wire routing', hint: 'Can run wire above ceiling to amp / receiver' },
-            { id: 'av-spksurf',   label: 'Mounting surface confirmed at each speaker', hint: 'Drywall / wood backing / plaster â€” blocking needed?' },
+            { id: 'av-spksurf',   label: 'Mounting surface confirmed at each speaker', hint: 'Drywall / wood backing / plaster — blocking needed?' },
             { id: 'av-spksize',   type: 'field', label: 'Speaker size', placeholder: 'e.g. 6.5"', inputType: 'text' },
             { id: 'av-amp',       label: 'Receiver / amplifier location decided' },
             { id: 'av-subwoofer', label: 'Subwoofer placement confirmed' },
@@ -689,7 +689,7 @@
     }
   };
 
-  /* â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── State ───────────────────────────────────────────────────────────── */
   var STORAGE_KEY = 'rav_walkthrough_v1';
   var state = load();
   var currentType = state.type || 'cameras';
@@ -701,13 +701,13 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
-  /* â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Auth ────────────────────────────────────────────────────────────── */
   var loginScreen = document.getElementById('loginScreen');
   var mainScreen  = document.getElementById('mainScreen');
   var bottomBar   = document.getElementById('bottomBar');
   // Access = any Netlify Identity account (invite-only). The server functions
   // only require a valid Identity JWT, so a client-side email list adds no
-  // real protection â€” manage access by inviting/removing users in Netlify.
+  // real protection — manage access by inviting/removing users in Netlify.
 
   var RESTRICTED_USERS = ['gaven.certeza@raveloavtech.com'];
 
@@ -743,7 +743,7 @@
   netlifyIdentity.on('logout', function () { showLogin(); });
   netlifyIdentity.on('init', function (u) { if (u) checkAccess(); else showLogin(); });
 
-  /* â”€â”€ Build UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Build UI ────────────────────────────────────────────────────────── */
   function init() {
     buildPanels();
     bindTabs();
@@ -753,7 +753,7 @@
     switchType(currentType);
   }
 
-  /* â”€â”€ Photo capture & compression â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Photo capture & compression ────────────────────────────────────────── */
   var photoInput    = document.getElementById('photoInput');
   var activePhotoType = null;
 
@@ -801,7 +801,7 @@
       thumb.className = 'sec-photo-thumb';
       thumb.innerHTML =
         '<img src="' + p.data + '" alt="Photo ' + (idx + 1) + '" />' +
-        '<button class="sec-photo-del" title="Remove">âœ•</button>';
+        '<button class="sec-photo-del" title="Remove">✕</button>';
       thumb.querySelector('.sec-photo-del').addEventListener('click', function (e) {
         e.stopPropagation();
         state.photos[secKey].splice(idx, 1);
@@ -813,7 +813,7 @@
 
     var addBtn = document.createElement('button');
     addBtn.className = 'sec-photo-add';
-    addBtn.innerHTML = 'ðŸ“·';
+    addBtn.innerHTML = '📷';
     addBtn.title = 'Add photo';
     addBtn.addEventListener('click', function () {
       activePhotoType = secKey;
@@ -873,7 +873,7 @@
             '<div class="check-text">' +
               '<div class="check-label">' + item.label + '</div>' +
               (item.hint ? '<div class="check-sub">' + item.hint + '</div>' : '') +
-              '<textarea class="item-note" rows="1" placeholder="add a noteâ€¦"></textarea>' +
+              '<textarea class="item-note" rows="1" placeholder="add a note…"></textarea>' +
             '</div>';
           var noteEl = div.querySelector('.item-note');
           // Restore saved note
@@ -918,7 +918,7 @@
     updateTabCount(type);
   }
 
-  /* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Tabs ────────────────────────────────────────────────────────────── */
   function bindTabs() {
     document.querySelectorAll('.type-tab').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -975,7 +975,7 @@
     tab.classList.toggle('has-progress', done > 0);
   }
 
-  /* â”€â”€ Job fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Job fields ──────────────────────────────────────────────────────── */
   function bindJobFields() {
     var cn = document.getElementById('clientName');
     var ja = document.getElementById('jobAddress');
@@ -988,7 +988,7 @@
     if (state.notes) document.getElementById('jobNotes').value = state.notes;
   }
 
-  /* â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Actions ─────────────────────────────────────────────────────────── */
   function bindActions() {
     document.getElementById('clearBtn').addEventListener('click', function () {
       if (!confirm('Clear all checkboxes and reset? This cannot be undone.')) return;
@@ -1020,12 +1020,12 @@
     saveBtn.addEventListener('click', function () {
       if (saveBtn.disabled) return;
       saveBtn.disabled = true;
-      saveBtn.textContent = 'â³ Savingâ€¦';
+      saveBtn.textContent = '⏳ Saving…';
 
       var user = netlifyIdentity.currentUser();
       if (!user) {
         saveBtn.disabled = false;
-        saveBtn.textContent = 'ðŸ’¾ Save & Send';
+        saveBtn.textContent = '💾 Save & Send';
         showFeedback('Not signed in', 'err');
         return;
       }
@@ -1064,9 +1064,9 @@
       }).then(function (res) {
         saveBtn.disabled = false;
         if (res.ok && res.data.ok) {
-          saveBtn.textContent = 'âœ… Saved';
+          saveBtn.textContent = '✅ Saved';
           saveBtn.classList.add('saved');
-          showFeedback('âœ… Saved â€” summary sent to the team', 'ok');
+          showFeedback('✅ Saved — summary sent to the team', 'ok');
           // Clear all fields after successful save
           state = { type: currentType };
           localStorage.removeItem(STORAGE_KEY);
@@ -1076,28 +1076,28 @@
           buildPanels();
           switchType(currentType);
           setTimeout(function () {
-            saveBtn.textContent = 'ðŸ’¾ Save & Send';
+            saveBtn.textContent = '💾 Save & Send';
             saveBtn.classList.remove('saved');
           }, 3000);
         } else {
-          saveBtn.textContent = 'ðŸ’¾ Save & Send';
-          showFeedback('âŒ Error: ' + ((res.data && res.data.error) || 'try again'), 'err');
+          saveBtn.textContent = '💾 Save & Send';
+          showFeedback('❌ Error: ' + ((res.data && res.data.error) || 'try again'), 'err');
         }
       }).catch(function (err) {
         saveBtn.disabled = false;
-        saveBtn.textContent = 'ðŸ’¾ Save & Send';
-        showFeedback('âŒ ' + err.message, 'err');
+        saveBtn.textContent = '💾 Save & Send';
+        showFeedback('❌ ' + err.message, 'err');
       });
     });
   }
 
-  /* â”€â”€ History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── History ─────────────────────────────────────────────────────────── */
   var historyPanel  = document.getElementById('historyPanel');
   var checklistView = document.getElementById('checklistView');
   var tabWalkthrough = document.getElementById('tabWalkthrough');
   var tabHistory     = document.getElementById('tabHistory');
 
-  var TYPE_ICONS_H  = { cameras: 'ðŸ“·', network: 'ðŸŒ', av: 'ðŸ“º' };
+  var TYPE_ICONS_H  = { cameras: '📷', network: '🌐', av: '📺' };
   var TYPE_LABELS_H = { cameras: 'Security Cameras', network: 'Network', av: 'Audio / Visual' };
 
   function showHistoryView() {
@@ -1127,7 +1127,7 @@
   });
 
   function loadHistory() {
-    historyPanel.innerHTML = '<p class="hist-empty">Loadingâ€¦</p>';
+    historyPanel.innerHTML = '<p class="hist-empty">Loading…</p>';
     var user = netlifyIdentity.currentUser();
     if (!user) { historyPanel.innerHTML = '<p class="hist-empty">Not signed in.</p>'; return; }
     user.jwt().then(function (token) {
@@ -1159,7 +1159,7 @@
   }
 
   function buildHistCard(r) {
-    var icon      = TYPE_ICONS_H[r.type]  || 'ðŸ”§';
+    var icon      = TYPE_ICONS_H[r.type]  || '🔧';
     var typeLabel = TYPE_LABELS_H[r.type] || r.type || 'Unknown';
     var client    = r.clientName || 'Unknown client';
     var addr      = r.jobAddress || '';
@@ -1183,10 +1183,10 @@
         if (!fieldRows.length && !checkRows.length) return;
         detailHtml += '<div class="hist-sec-title">' + sec.title + '</div>';
         fieldRows.forEach(function (i) {
-          detailHtml += '<div class="hist-check">ðŸ“ ' + i.label + ': <strong>' + r.fields[i.id] + '</strong></div>';
+          detailHtml += '<div class="hist-check">📝 ' + i.label + ': <strong>' + r.fields[i.id] + '</strong></div>';
         });
         checkRows.forEach(function (i) {
-          detailHtml += '<div class="hist-check">âœ… ' + i.label + '</div>';
+          detailHtml += '<div class="hist-check">✅ ' + i.label + '</div>';
         });
       });
     }
@@ -1200,11 +1200,11 @@
         '<span class="hist-client">' + client + '</span>' +
         '<span class="hist-date">' + date + '</span>' +
       '</div>' +
-      (addr ? '<div class="hist-address">ðŸ“ ' + addr + '</div>' : '') +
+      (addr ? '<div class="hist-address">📍 ' + addr + '</div>' : '') +
       '<div class="hist-meta">' +
         '<span class="hist-tag">' + typeLabel + '</span>' +
-        (checked ? '<span class="hist-tag green">âœ… ' + checked + ' checked</span>' : '') +
-        (photos  ? '<span class="hist-tag">ðŸ“· ' + photos + ' photos</span>' : '') +
+        (checked ? '<span class="hist-tag green">✅ ' + checked + ' checked</span>' : '') +
+        (photos  ? '<span class="hist-tag">📷 ' + photos + ' photos</span>' : '') +
       '</div>' +
       (detailHtml ? '<div class="hist-expand">Tap to expand</div><div class="hist-detail">' + detailHtml + '</div>' : '') +
     '</div>';
@@ -1214,4 +1214,3 @@
 </script>
 </body>
 </html>
-
