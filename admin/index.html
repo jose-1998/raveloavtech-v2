@@ -115,6 +115,30 @@
       color: var(--red);
     }
 
+    /* ── Mode selector ── */
+    #modeScreen {
+      display: none; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(91,141,238,0.07) 0%, transparent 70%);
+    }
+    .mode-wrap { width: 100%; max-width: 560px; text-align: center; }
+    .mode-logo { height: 48px; width: auto; margin: 0 auto 10px; display: block; }
+    .mode-greeting { font-size: 13px; color: var(--text-dim); margin-bottom: 32px; }
+    .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .mode-card {
+      background: var(--navy); border: 1px solid rgba(130,160,204,0.15);
+      border-radius: 16px; padding: 32px 20px 28px; cursor: pointer;
+      transition: border-color .2s, transform .15s, box-shadow .2s;
+      text-align: center; text-decoration: none; display: block;
+    }
+    .mode-card:hover { border-color: rgba(130,160,204,0.45); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+    .mode-card-icon { font-size: 36px; display: block; margin-bottom: 14px; }
+    .mode-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .mode-card-sub { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+    .mode-logout { margin-top: 28px; background: none; border: none; font-size: 12px; color: var(--text-dim); cursor: pointer; font-family: inherit; }
+    .mode-logout:hover { color: var(--text); }
+    @media (max-width: 420px) { .mode-cards { grid-template-columns: 1fr; } }
+
     /* ── Login screen ── */
     #loginScreen {
       display: flex;
@@ -634,6 +658,27 @@
   </div>
 </div>
 
+<!-- Mode selector -->
+<div id="modeScreen">
+  <div class="mode-wrap">
+    <img class="mode-logo" src="/uploads/logo.png" alt="Ravelo AV Tech" />
+    <p class="mode-greeting" id="modeGreeting">What would you like to open?</p>
+    <div class="mode-cards" id="modeCards">
+      <button class="mode-card" id="modeGallery">
+        <span class="mode-card-icon">🖼️</span>
+        <div class="mode-card-title">Content Manager</div>
+        <div class="mode-card-sub">Gallery, estimates &amp; site content</div>
+      </button>
+      <a class="mode-card" href="/admin/walkthrough.html">
+        <span class="mode-card-icon">🏠</span>
+        <div class="mode-card-title">Site Walkthrough</div>
+        <div class="mode-card-sub">Job checklists &amp; visit history</div>
+      </a>
+    </div>
+    <button class="mode-logout" id="modeLogout">Sign out</button>
+  </div>
+</div>
+
 <!-- Admin screen -->
 <div id="adminScreen">
 
@@ -792,11 +837,27 @@
     return user.jwt();
   }
 
+  var modeScreen    = document.getElementById('modeScreen');
   var RESTRICTED_USERS = ['gaven.certeza@raveloavtech.com'];
 
-  function showLogin()  { loginScreen.style.display = 'flex'; adminScreen.style.display = 'none'; }
-  function showAdmin()  {
+  function showLogin() {
+    loginScreen.style.display = 'flex';
+    modeScreen.style.display  = 'none';
+    adminScreen.style.display = 'none';
+  }
+  function showMode() {
+    var user = netlifyIdentity.currentUser();
     loginScreen.style.display = 'none';
+    adminScreen.style.display = 'none';
+    modeScreen.style.display  = 'flex';
+    var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
+    document.getElementById('modeGallery').style.display = isRestricted ? 'none' : '';
+    document.getElementById('modeGreeting').textContent =
+      'Hi' + (user && user.user_metadata && user.user_metadata.full_name ? ' ' + user.user_metadata.full_name.split(' ')[0] : '') + ' — what would you like to open?';
+  }
+  function showAdmin() {
+    loginScreen.style.display = 'none';
+    modeScreen.style.display  = 'none';
     adminScreen.style.display = 'block';
     var user = netlifyIdentity.currentUser();
     var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
@@ -805,17 +866,16 @@
     });
   }
 
+  document.getElementById('modeGallery').addEventListener('click', function () { showAdmin(); loadGallery(); });
+  document.getElementById('modeLogout').addEventListener('click', function () { netlifyIdentity.logout(); });
+
   loginBtn.addEventListener('click', function () { netlifyIdentity.open(); });
   logoutBtn.addEventListener('click', function () { netlifyIdentity.logout(); });
 
-  netlifyIdentity.on('login', function () {
-    netlifyIdentity.close();
-    showAdmin();
-    loadGallery();
-  });
+  netlifyIdentity.on('login', function () { netlifyIdentity.close(); showMode(); });
   netlifyIdentity.on('logout', function () { showLogin(); });
   netlifyIdentity.on('init', function (user) {
-    if (user) { showAdmin(); loadGallery(); }
+    if (user) showMode();
     else showLogin();
   });
 
