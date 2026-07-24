@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ravelo Admin" />
-  <link rel="apple-touch-icon" href="/uploads/logo.png" />
-  <title>Send Estimate NDA — Ravelo AV Tech</title>
+  <link rel="apple-touch-icon" href="/admin/icon.png" />
+  <title>Send Estimate NDA â€” Ravelo AV Tech</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet" />
@@ -37,7 +37,7 @@
       color: var(--text);
     }
 
-    /* ── Top bar ── */
+    /* â”€â”€ Top bar â”€â”€ */
     .topbar {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -53,7 +53,7 @@
     .topbar-logo img { height: 34px; width: auto; display: block; }
     .topbar-divider  { width: 1px; height: 20px; background: rgba(130,160,204,0.2); flex-shrink: 0; }
     .topbar-label    { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); flex: 1; }
-    /* ── Tab bar ── */
+    /* â”€â”€ Tab bar â”€â”€ */
     .tab-bar {
       display: flex; gap: 3px; margin-bottom: 18px;
       background: rgba(130,160,204,0.07); border-radius: 10px;
@@ -83,7 +83,7 @@
     }
     .topbar-logout:hover { background: rgba(224,112,112,0.1); }
 
-    /* ── Login screen ── */
+    /* â”€â”€ Login screen â”€â”€ */
     #loginScreen {
       display: flex;
       align-items: center;
@@ -117,7 +117,7 @@
     }
     .login-btn:hover { background: #4a7de0; }
 
-    /* ── Main screen ── */
+    /* â”€â”€ Main screen â”€â”€ */
     #mainScreen { display: none; padding: 80px 16px 60px; max-width: 600px; margin: 0 auto; }
 
     .section-title {
@@ -133,7 +133,7 @@
       line-height: 1.55;
     }
 
-    /* ── Send form ── */
+    /* â”€â”€ Send form â”€â”€ */
     .send-card {
       background: var(--navy);
       border: 1px solid var(--border);
@@ -203,7 +203,7 @@
     .send-btn:hover:not(:disabled) { background: #4a7de0; }
     .send-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    /* ── Result card ── */
+    /* â”€â”€ Result card â”€â”€ */
     .result-card {
       border-radius: 10px;
       padding: 18px 18px;
@@ -231,7 +231,7 @@
     }
     .result-detail strong { color: var(--text); }
 
-    /* ── Recent estimates list ── */
+    /* â”€â”€ Recent estimates list â”€â”€ */
     .estimates-list { margin-top: 28px; }
     .estimates-list-title {
       font-size: 12px;
@@ -302,7 +302,7 @@
       color: #4cd964;
     }
 
-    /* ── Opened badge ── */
+    /* â”€â”€ Opened badge â”€â”€ */
     .est-opened {
       display: inline-flex;
       align-items: center;
@@ -339,7 +339,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Toast ── */
+    /* â”€â”€ Toast â”€â”€ */
     #toast {
       position: fixed;
       top: 70px; left: 50%;
@@ -374,7 +374,7 @@
     <img src="/uploads/logo.png" alt="Ravelo AV Tech" />
     <h1>Estimates Panel</h1>
     <p>Sign in to send NDA emails to clients.</p>
-    <button class="login-btn" id="loginBtn">Iniciar sesión</button>
+    <button class="login-btn" id="loginBtn">Iniciar sesiÃ³n</button>
   </div>
 </div>
 
@@ -387,16 +387,16 @@
       <img src="/uploads/logo.png" alt="Ravelo AV Tech" width="110" height="34" />
     </a>
     <div class="topbar-divider"></div>
-    <span class="topbar-label">Estimates — Send NDA</span>
+    <span class="topbar-label">Estimates â€” Send NDA</span>
     <button class="topbar-logout" id="logoutBtn">Salir</button>
   </div>
 
   <!-- Tab bar -->
   <div class="tab-bar">
-    <a class="tab-btn" href="/admin/">🖼 Gallery</a>
-    <a class="tab-btn active" href="/admin/estimates.html">📋 Estimates</a>
-    <a class="tab-btn" href="/admin/walkthrough.html">🏠 Walkthrough</a>
-    <a class="tab-btn" href="/admin/walkthrough.html?view=history">📋 History</a>
+    <a class="tab-btn" href="/admin/">ðŸ–¼ Gallery</a>
+    <a class="tab-btn active" href="/admin/estimates.html">ðŸ“‹ Estimates</a>
+    <a class="tab-btn" href="/admin/walkthrough.html">ðŸ  Walkthrough</a>
+    <a class="tab-btn" href="/admin/walkthrough.html?view=history">ðŸ“‹ History</a>
   </div>
 
   <p class="section-title">Send NDA Email</p>
@@ -407,7 +407,7 @@
 
   <!-- Manual send form -->
   <div class="send-card">
-    <p class="send-card-title">📋 Send by Estimate Number</p>
+    <p class="send-card-title">ðŸ“‹ Send by Estimate Number</p>
 
     <label class="field-label" for="estInput">Estimate # (from QuickBooks)</label>
     <input
@@ -422,7 +422,7 @@
     <p class="field-hint">The number shown at the top of the estimate in QB (e.g. #1190).</p>
 
     <button class="send-btn" id="sendBtn">
-      <span id="sendBtnIcon">✉️</span>
+      <span id="sendBtnIcon">âœ‰ï¸</span>
       <span id="sendBtnLabel">Send NDA Email</span>
     </button>
 
@@ -442,7 +442,7 @@
     <div id="estimatesContainer">
       <div class="list-loading">
         <div class="spinner"></div>
-        Loading estimates from QuickBooks…
+        Loading estimates from QuickBooksâ€¦
       </div>
     </div>
   </div>
@@ -471,7 +471,7 @@
   var estimatesContainer = document.getElementById('estimatesContainer');
   var toastEl      = document.getElementById('toast');
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function getToken() {
     var user = netlifyIdentity.currentUser();
     if (!user) return Promise.reject(new Error('Not logged in'));
@@ -488,7 +488,7 @@
     var user = netlifyIdentity.currentUser();
     if (!user) { showLogin(); return; }
     if (ALLOWED_EMAILS.indexOf((user.email || '').trim().toLowerCase()) === -1) {
-      // Wrong account — log them out and show a clear message
+      // Wrong account â€” log them out and show a clear message
       netlifyIdentity.logout();
       loginScreen.style.display = 'flex';
       mainScreen.style.display = 'none';
@@ -518,7 +518,7 @@
     else showLogin();
   });
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   var toastTimer;
   function showToast(msg, type) {
     clearTimeout(toastTimer);
@@ -527,9 +527,9 @@
     toastTimer = setTimeout(function () { toastEl.className = ''; }, 3500);
   }
 
-  // ── Load recent estimates ─────────────────────────────────────────────────
+  // â”€â”€ Load recent estimates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function loadEstimates() {
-    estimatesContainer.innerHTML = '<div class="list-loading"><div class="spinner"></div>Loading estimates from QuickBooks…</div>';
+    estimatesContainer.innerHTML = '<div class="list-loading"><div class="spinner"></div>Loading estimates from QuickBooksâ€¦</div>';
 
     getToken().then(function (token) {
       return fetch('/.netlify/functions/get-estimate?list=recent', {
@@ -565,9 +565,9 @@
                 var count = o.openCount || 1;
                 var date  = o.lastOpenedAt ? new Date(o.lastOpenedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
                 badge.innerHTML =
-                  '👀 Opened' +
-                  (count > 1 ? ' <span class="est-opened-count">×' + count + '</span>' : '') +
-                  (date ? ' · ' + date : '');
+                  'ðŸ‘€ Opened' +
+                  (count > 1 ? ' <span class="est-opened-count">Ã—' + count + '</span>' : '') +
+                  (date ? ' Â· ' + date : '');
                 badge.style.display = 'inline-flex';
               }
             }
@@ -586,10 +586,10 @@
     row.innerHTML =
       '<div class="est-num">#' + docNum + '</div>' +
       '<div class="est-info">' +
-        '<div class="est-name">' + esc(est.client && est.client.name ? est.client.name : (est.name || '—')) + '</div>' +
-        '<div class="est-meta">' + esc(est.date || '') + (est.client && est.client.email ? ' · ' + esc(est.client.email) : '') + '</div>' +
+        '<div class="est-name">' + esc(est.client && est.client.name ? est.client.name : (est.name || 'â€”')) + '</div>' +
+        '<div class="est-meta">' + esc(est.date || '') + (est.client && est.client.email ? ' Â· ' + esc(est.client.email) : '') + '</div>' +
       '</div>' +
-      '<span class="est-opened" data-opens-id="' + docNum + '" style="display:none;">👀</span>' +
+      '<span class="est-opened" data-opens-id="' + docNum + '" style="display:none;">ðŸ‘€</span>' +
       '<div class="est-amount">$' + Number(est.total || 0).toFixed(2) + '</div>' +
       '<button class="est-send-btn" data-doc="' + docNum + '">Send NDA</button>';
 
@@ -609,7 +609,7 @@
     return row;
   }
 
-  // ── Send NDA ──────────────────────────────────────────────────────────────
+  // â”€â”€ Send NDA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   sendBtn.addEventListener('click', function () {
     var docNum = estInput.value.trim();
     if (!docNum) { estInput.focus(); return; }
@@ -627,10 +627,10 @@
   function sendNDA(docNumber, rowBtn) {
     // Set loading state
     sendBtn.disabled = true;
-    sendBtnIcon.textContent = '⏳';
-    sendBtnLabel.textContent = 'Sending…';
+    sendBtnIcon.textContent = 'â³';
+    sendBtnLabel.textContent = 'Sendingâ€¦';
     resultCard.className = 'result-card';
-    if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = '⏳'; }
+    if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = 'â³'; }
 
     getToken().then(function (token) {
       return fetch('/.netlify/functions/send-nda', {
@@ -645,24 +645,24 @@
       return r.json().then(function (data) { return { ok: r.ok, data: data }; });
     }).then(function (res) {
       sendBtn.disabled = false;
-      sendBtnIcon.textContent = '✉️';
+      sendBtnIcon.textContent = 'âœ‰ï¸';
       sendBtnLabel.textContent = 'Send NDA Email';
 
       if (res.ok && res.data.ok) {
-        resultIcon.textContent  = '✅';
+        resultIcon.textContent  = 'âœ…';
         resultTitle.textContent = 'NDA email sent!';
         resultDetail.innerHTML  =
           'Sent to <strong>' + esc(res.data.clientName) + '</strong>' +
           ' (' + esc(res.data.clientEmail) + ')<br>' +
           'Estimate #' + esc(String(res.data.docNumber)) +
-          ' — Total: <strong>$' + Number(res.data.total).toFixed(2) + '</strong>';
+          ' â€” Total: <strong>$' + Number(res.data.total).toFixed(2) + '</strong>';
         resultCard.className = 'result-card show ok';
         estInput.value = '';
-        if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = '✓ Sent'; rowBtn.classList.add('sent'); }
-        showToast('✓ NDA email sent to ' + res.data.clientName, 'ok');
+        if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = 'âœ“ Sent'; rowBtn.classList.add('sent'); }
+        showToast('âœ“ NDA email sent to ' + res.data.clientName, 'ok');
       } else {
         var errMsg = (res.data && res.data.error) || 'Unknown error';
-        resultIcon.textContent  = '❌';
+        resultIcon.textContent  = 'âŒ';
         resultTitle.textContent = 'Could not send';
         resultDetail.textContent = errMsg;
         resultCard.className = 'result-card show err';
@@ -671,9 +671,9 @@
       }
     }).catch(function (err) {
       sendBtn.disabled = false;
-      sendBtnIcon.textContent = '✉️';
+      sendBtnIcon.textContent = 'âœ‰ï¸';
       sendBtnLabel.textContent = 'Send NDA Email';
-      resultIcon.textContent   = '❌';
+      resultIcon.textContent   = 'âŒ';
       resultTitle.textContent  = 'Network error';
       resultDetail.textContent = err.message;
       resultCard.className = 'result-card show err';
@@ -691,3 +691,4 @@
 </script>
 </body>
 </html>
+
