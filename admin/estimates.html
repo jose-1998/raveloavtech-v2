@@ -48,23 +48,23 @@
     .topbar-logo img { height: 34px; width: auto; display: block; }
     .topbar-divider  { width: 1px; height: 20px; background: rgba(130,160,204,0.2); flex-shrink: 0; }
     .topbar-label    { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); flex: 1; }
-    .topbar-nav {
-      display: flex;
-      gap: 6px;
-      align-items: center;
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex; gap: 3px; margin-bottom: 18px;
+      background: rgba(130,160,204,0.07); border-radius: 10px;
+      padding: 4px; border: 1px solid rgba(130,160,204,0.1);
     }
-    .topbar-link {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-dim);
-      text-decoration: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      border: 1px solid transparent;
-      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    .tab-btn {
+      flex: 1; padding: 9px 8px; border: none; border-radius: 7px;
+      background: none; color: var(--text-dim); font-family: inherit;
+      font-size: 13px; font-weight: 600; cursor: pointer; text-align: center;
+      text-decoration: none; transition: background 0.15s, color 0.15s, box-shadow 0.15s;
     }
-    .topbar-link:hover { color: var(--text); border-color: var(--border); }
-    .topbar-link.active { color: var(--blue); border-color: rgba(130,160,204,0.25); background: rgba(130,160,204,0.07); }
+    .tab-btn.active {
+      background: var(--navy); color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(130,160,204,0.12);
+    }
+    .tab-btn:not(.active):hover { background: rgba(130,160,204,0.07); color: rgba(255,255,255,0.65); }
     .topbar-logout {
       background: none;
       border: 1px solid rgba(224,112,112,0.35);
@@ -383,12 +383,15 @@
     </a>
     <div class="topbar-divider"></div>
     <span class="topbar-label">Estimates — Send NDA</span>
-    <nav class="topbar-nav">
-      <a class="topbar-link" href="/admin/">Gallery</a>
-      <a class="topbar-link active" href="/admin/estimates.html">Estimates</a>
-      <a class="topbar-link" href="/admin/walkthrough.html">Walkthrough</a>
-    </nav>
     <button class="topbar-logout" id="logoutBtn">Salir</button>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <a class="tab-btn" href="/admin/">🖼 Gallery</a>
+    <a class="tab-btn active" href="/admin/estimates.html">📋 Estimates</a>
+    <a class="tab-btn" href="/admin/walkthrough.html">🏠 Walkthrough</a>
+    <a class="tab-btn" href="/admin/walkthrough.html?view=history">📋 History</a>
   </div>
 
   <p class="section-title">Send NDA Email</p>
