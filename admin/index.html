@@ -868,7 +868,7 @@
     adminScreen.style.display = 'none';
     modeScreen.style.display  = 'flex';
     var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
-    document.getElementById('modeGallery').style.display = isRestricted ? 'none' : '';
+    void isRestricted; // Gaven has gallery access — only Estimates/Tickets tabs are hidden
     document.getElementById('modeGreeting').textContent =
       'Hi' + (user && user.user_metadata && user.user_metadata.full_name ? ' ' + user.user_metadata.full_name.split(' ')[0] : '') + ' — what would you like to open?';
   }
