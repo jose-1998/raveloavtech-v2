@@ -713,8 +713,8 @@
   <!-- Tab bar -->
   <div class="tab-bar">
     <button class="tab-btn active" id="tabGallery">🖼 Gallery</button>
-    <a class="tab-btn restricted-tab" href="/admin/estimates.html">📋 Estimates</a>
-    <button class="tab-btn restricted-tab" id="tabTickets">🎫 Tickets</button>
+    <a class="tab-btn" href="/admin/estimates.html">📋 Estimates</a>
+    <button class="tab-btn" id="tabTickets">🎫 Tickets</button>
   </div>
 
   <!-- Gallery view -->
@@ -852,8 +852,7 @@
     return user.jwt();
   }
 
-  var modeScreen    = document.getElementById('modeScreen');
-  var RESTRICTED_USERS = ['gaven.certeza@raveloavtech.com'];
+  var modeScreen = document.getElementById('modeScreen');
 
   function showLogin() {
     loginScreen.style.display = 'flex';
@@ -865,9 +864,6 @@
     loginScreen.style.display = 'none';
     adminScreen.style.display = 'none';
     modeScreen.style.display  = 'flex';
-    var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
-    document.querySelector('#modeGallery .mode-card-sub').textContent =
-      isRestricted ? 'Gallery & site content' : 'Gallery, estimates & site content';
     document.getElementById('modeGreeting').textContent =
       'Hi' + (user && user.user_metadata && user.user_metadata.full_name ? ' ' + user.user_metadata.full_name.split(' ')[0] : '') + ' — what would you like to open?';
   }
@@ -875,12 +871,7 @@
     loginScreen.style.display = 'none';
     modeScreen.style.display  = 'none';
     adminScreen.style.display = 'block';
-    var user = netlifyIdentity.currentUser();
-    var isRestricted = user && RESTRICTED_USERS.indexOf(user.email) !== -1;
-    document.querySelectorAll('.restricted-tab').forEach(function (el) {
-      el.style.display = isRestricted ? 'none' : '';
-    });
-    if (!isRestricted && new URLSearchParams(window.location.search).get('view') === 'tickets') {
+    if (new URLSearchParams(window.location.search).get('view') === 'tickets') {
       document.getElementById('tabTickets').click();
     }
   }
