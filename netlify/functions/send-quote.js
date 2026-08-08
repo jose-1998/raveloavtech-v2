@@ -56,6 +56,31 @@ exports.handler = async function (event) {
     };
   }
 
+  // ── Honeypot: hidden field real users never fill. Bots fill everything. ─────
+  // If it has any value, silently drop (don't tell the bot it was caught).
+  if (String(data.company || data.website || '').trim() !== '') {
+    console.warn('send-quote: honeypot triggered — dropped as bot');
+    return { statusCode: 200, headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ success: true }) };
+  }
+
+  // ── Server-side validation (browser `required` doesn't stop bots that POST
+  //    straight to this endpoint). Enforce the same rules here. ───────────────
+  const errors = [];
+  if (String(first_name).trim().length < 2) errors.push('first_name');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNorm)) errors.push('email');
+  if (phoneNorm.length < 7 || phoneNorm.length > 15) errors.push('phone');
+  if (String(address).trim().length < 4) errors.push('address');
+  if (String(service).trim().length < 2) errors.push('service');
+
+  if (errors.length) {
+    console.warn(`send-quote: rejected — invalid/missing fields: ${errors.join(', ')}`);
+    return {
+      statusCode: 400,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: 'Please fill in all required fields with valid information.', fields: errors }),
+    };
+  }
+
   async function sendEmail(payload) {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

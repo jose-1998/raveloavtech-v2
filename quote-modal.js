@@ -166,6 +166,8 @@
       <p class="label" style="margin-bottom:12px;">Free consultation</p>
       <h2 class="qm-title">Get a quote</h2>
       <form id="qm-form">
+        <!-- Honeypot: hidden from humans, bots fill it and get silently dropped -->
+        <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" />
         <div class="qm-row">
           <div class="form-field"><label>First name</label><input type="text" name="first_name" placeholder="John" required /></div>
           <div class="form-field"><label>Last name</label><input type="text" name="last_name" placeholder="Smith" /></div>
