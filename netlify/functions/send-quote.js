@@ -31,6 +31,31 @@ exports.handler = async function (event) {
     message = '',
   } = data;
 
+  // ── Spam blocklist ─────────────────────────────────────────────────────────
+  // Add emails, whole domains, or phone numbers here to silently drop them.
+  // The sender sees "sent" but no notification reaches the business.
+  const BLOCKED_EMAILS  = ['richasingh2078@gmail.com'];
+  const BLOCKED_DOMAINS = [];                 // e.g. 'spamdomain.com'
+  const BLOCKED_PHONES  = ['9809326380'];     // digits only, ignores formatting
+
+  const emailNorm = String(email).trim().toLowerCase();
+  const emailDom  = emailNorm.split('@')[1] || '';
+  const phoneNorm = String(phone).replace(/\D/g, '');
+
+  const isBlocked =
+    BLOCKED_EMAILS.map(e => e.toLowerCase()).includes(emailNorm) ||
+    BLOCKED_DOMAINS.map(d => d.toLowerCase()).includes(emailDom) ||
+    (phoneNorm && BLOCKED_PHONES.some(p => phoneNorm.endsWith(p.replace(/\D/g, ''))));
+
+  if (isBlocked) {
+    console.warn(`send-quote: blocked spam submission from ${emailNorm || phoneNorm || 'unknown'}`);
+    return {
+      statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ success: true }),
+    };
+  }
+
   async function sendEmail(payload) {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
