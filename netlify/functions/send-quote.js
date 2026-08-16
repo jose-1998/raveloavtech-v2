@@ -31,29 +31,49 @@ exports.handler = async function (event) {
     message = '',
   } = data;
 
-  // ── Spam blocklist ─────────────────────────────────────────────────────────
-  // Add emails, whole domains, or phone numbers here to silently drop them.
-  // The sender sees "sent" but no notification reaches the business.
-  const BLOCKED_EMAILS  = ['richasingh2078@gmail.com'];
-  const BLOCKED_DOMAINS = [];                 // e.g. 'spamdomain.com'
-  const BLOCKED_PHONES  = ['9809326380'];     // digits only, ignores formatting
-
-  const emailNorm = String(email).trim().toLowerCase();
-  const emailDom  = emailNorm.split('@')[1] || '';
-  const phoneNorm = String(phone).replace(/\D/g, '');
-
-  const isBlocked =
-    BLOCKED_EMAILS.map(e => e.toLowerCase()).includes(emailNorm) ||
-    BLOCKED_DOMAINS.map(d => d.toLowerCase()).includes(emailDom) ||
-    (phoneNorm && BLOCKED_PHONES.some(p => phoneNorm.endsWith(p.replace(/\D/g, ''))));
-
-  if (isBlocked) {
-    console.warn(`send-quote: blocked spam submission from ${emailNorm || phoneNorm || 'unknown'}`);
+  // ── Spam defense ───────────────────────────────────────────────────────────
+  // Blocked submissions get a 200 "success" but NO email reaches the business,
+  // so bots can't tell they were filtered and don't adapt.
+  function dropAsSpam(reason, who) {
+    console.warn(`send-quote: dropped spam (${reason}) from ${who || 'unknown'}`);
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ success: true }),
     };
+  }
+
+  const emailNorm = String(email).trim().toLowerCase();
+  const emailDom  = emailNorm.split('@')[1] || '';
+  const phoneNorm = String(phone).replace(/\D/g, '');
+
+  // 1) Honeypot — the hidden "company" field is invisible to humans. Any bot
+  //    that fills it is auto-rejected. Zero false positives on real people.
+  if (String(data.company || '').trim() !== '') {
+    return dropAsSpam('honeypot', emailNorm);
+  }
+
+  // 2) Explicit blocklist — known repeat offenders.
+  const BLOCKED_EMAILS  = ['richasingh2078@gmail.com', 'patrickaapone97@gmail.com', 'emmawonder948@gmail.com'];
+  const BLOCKED_DOMAINS = [];                 // e.g. 'spamdomain.com'
+  const BLOCKED_PHONES  = ['9809326380'];     // digits only, ignores formatting
+
+  if (
+    BLOCKED_EMAILS.map(e => e.toLowerCase()).includes(emailNorm) ||
+    BLOCKED_DOMAINS.map(d => d.toLowerCase()).includes(emailDom) ||
+    (phoneNorm && BLOCKED_PHONES.some(p => phoneNorm.endsWith(p.replace(/\D/g, ''))))
+  ) {
+    return dropAsSpam('blocklist', emailNorm || phoneNorm);
+  }
+
+  // 3) Phone sanity — the business serves the US (Nashville metro). Valid US
+  //    numbers are 10 digits (area code 2-9) or 11 starting with 1. Foreign
+  //    spam numbers (leading 0, 11+ digits not starting with 1) are rejected.
+  const validUSPhone =
+    (phoneNorm.length === 10 && /^[2-9]/.test(phoneNorm)) ||
+    (phoneNorm.length === 11 && /^1[2-9]/.test(phoneNorm));
+  if (!validUSPhone) {
+    return dropAsSpam('invalid-phone', `${emailNorm} / ${phoneNorm}`);
   }
 
   // ── Honeypot: hidden field real users never fill. Bots fill everything. ─────
